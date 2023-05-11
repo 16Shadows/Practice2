@@ -15,11 +15,7 @@ namespace WebAPP.Controllers
 
         public IActionResult Index()
         {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
+            ViewData["account"] = new AccountViewModel("Steve");
             return View();
         }
 
