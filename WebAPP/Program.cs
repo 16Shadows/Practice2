@@ -1,3 +1,5 @@
+using WebAPP.Data;
+
 namespace WebAPP
 {
     public class Program
@@ -8,6 +10,9 @@ namespace WebAPP
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Add database Context
+            builder.Services.AddSqlite<BaseContext>("Data Source=OrganizersDatabase");
 
             var app = builder.Build();
 
