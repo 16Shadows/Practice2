@@ -1,16 +1,18 @@
-﻿namespace DMOrganizerDomainModel
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+
+namespace DMOrganizerDomainModel
 {
-    public class Category
+    [Index(nameof(Name), nameof(Parent), IsUnique = true)]
+    public class Category : CategoryBase
     {
-        public Category(int categoryId, string name, Category parent)
+        public Category(string name, CategoryBase parent) : base(name)
         {
-            ID = categoryId;
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            Parent = parent;
+            ParentId = parent.Id;
         }
 
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public Category Parent { get; set; }
+        public virtual int ParentId { get; set; }
+        public virtual CategoryBase Parent { get; set; }
     }
 }

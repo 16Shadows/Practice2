@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace DMOrganizerDomainModel
 {
-    public class Section
+    [Index(nameof(Title), nameof(Parent), IsUnique = true)]
+    public class Section : SectionBase
     {
-        public Section(string title, string text)
+        public Section(string title, string text, SectionBase parent) : base(title, text)
         {
-            Title = title ?? throw new ArgumentNullException(nameof(title));
-            Text = text ?? throw new ArgumentNullException(nameof(text));
+            Parent = parent;
+            ParentId = parent.Id;
         }
 
-        public string Title { get; set; }
-        public string Text { get; set; }
-        public List<Section> Sections { get; } = new List<Section>();
+        public virtual int ParentId { get; set; }
+        public virtual SectionBase Parent { get; set; }
     }
 }
