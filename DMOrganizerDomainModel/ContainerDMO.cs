@@ -1,17 +1,17 @@
 ﻿
+using System.Collections.Generic;
+
 namespace DMOrganizerDomainModel
 {
     public class ContainerDMO
     {
-        public ContainerDMO(int id, int type, uint width, uint height, int coordX, int coordY, List<PageDMO> pageDMOs) 
+        public ContainerDMO(int type, uint width, uint height, int coordX, int coordY) 
         {
-            ID = id;
             Type = type;
             Width = width;
             Height = height;
             CoordX = coordX;
             CoordY = coordY;
-            PageDMOs = pageDMOs;
         }
         // all not null
         public int ID { get; set; }
@@ -20,8 +20,9 @@ namespace DMOrganizerDomainModel
         public uint Height { get; set; }
         public int CoordX { get; set; }
         public int CoordY { get; set; }
-        // need join table of objects, many to many
-        public List<PageDMO> PageDMOs { get; set; }
+        // required many-to-many: pages/containers
+        public List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>();
+        // required many-to-many: containers/objects
         public List<ObjectDMO> ObjectDMOs { get; set; }
     }
 }

@@ -1,20 +1,20 @@
-﻿namespace DMOrganizerDomainModel
+﻿using System.Collections.Generic;
+namespace DMOrganizerDomainModel
 {
     public class Book
     {
-        public Book(int bookID, string name, Category parentCategory)
+        public Book(string name, CategoryBase parentCategory)
         {
-            ID = bookID;
             Name = name;
-            ParentCategory = parentCategory; //nullable? can lay in root
-
+            ParentCategory = parentCategory;
         }
-        public int ID { get; set; } //required
-        public string Name { get; set; } //required
-        public Category? ParentCategory { get; set; }// optional one-to-many: child of category, may have no parent category
-        public List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>(); // required one-to-many: parent of pages
+        public int ID { get; set; }
+        public string Name { get; set; }
+        // required one-to-many: child of category/organizer, parent is required
+        public int ParentCategoryID { get; set; } 
+        public CategoryBase ParentCategory { get; set; } 
 
-
-        // need join table of pages, 1 to many, book ID will be in PageDMO
+        // required one-to-many: parent of pages
+        public List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>(); 
     }
 }

@@ -15,8 +15,5 @@ namespace DMOrganizerDomainModel
 
         public virtual int ParentId { get; set; }
         public virtual CategoryBase Parent { get; set; }
-        // optional one-to-many: parent of books, may have no books
-        public List<Book> Books { get; } = new List<Book>(); // Collection navigation containing dependents
-
     }
 }
