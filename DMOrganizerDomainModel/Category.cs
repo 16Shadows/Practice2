@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace DMOrganizerWebModel
+﻿namespace DMOrganizerDomainModel
 {
     public class Category
     {
@@ -14,7 +12,5 @@ namespace DMOrganizerWebModel
         public int ID { get; set; }
         public string Name { get; set; }
         public Category Parent { get; set; }
-
-
     }
 }
