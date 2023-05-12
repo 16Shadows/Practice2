@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebAPP.Data;
 
 namespace WebAPP
@@ -10,9 +11,8 @@ namespace WebAPP
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-
-            // Add database Context
-            builder.Services.AddSqlite<BaseContext>("Data Source=OrganizersDatabase");
+            
+            builder.Services.AddSqlite<DMOrganizerDBContext>("Data Source=.\\Data\\OrganizersDatabase.db", null, b => b.UseLazyLoadingProxies());
 
             var app = builder.Build();
 
