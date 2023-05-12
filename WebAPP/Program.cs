@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using WebAPP.Data;
 
 namespace WebAPP
 {
