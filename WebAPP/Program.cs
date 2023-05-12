@@ -11,7 +11,7 @@ namespace WebAPP
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             
-            builder.Services.AddSqlite<DMOrganizerDBContext>("Data Source=.\\Data\\OrganizersDatabase.db", null, b => b.UseLazyLoadingProxies());
+            builder.Services.AddDbContext<DMOrganizerDBContext>();
 
             var app = builder.Build();
 
@@ -33,6 +33,17 @@ namespace WebAPP
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<DMOrganizerDBContext>();
+                dbContext.Database.OpenConnection();
+                var connection = dbContext.Database.GetDbConnection();
+                using var command = connection.CreateCommand();
+                command.CommandText = "PRAGMA schema.journal_mode = WAL;";
+                command.ExecuteNonQuery();
+                dbContext.Database.EnsureCreated();
+            }
 
             app.Run();
         }

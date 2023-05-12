@@ -3,16 +3,9 @@ using System.Collections.Generic;
 
 namespace DMOrganizerDomainModel
 {
+    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public class ContainerDMO
     {
-        public ContainerDMO(int type, uint width, uint height, int coordX, int coordY) 
-        {
-            Type = type;
-            Width = width;
-            Height = height;
-            CoordX = coordX;
-            CoordY = coordY;
-        }
         // all not null
         public int ID { get; set; }
         public int Type { get; set; }
@@ -21,8 +14,9 @@ namespace DMOrganizerDomainModel
         public int CoordX { get; set; }
         public int CoordY { get; set; }
         // required many-to-many: pages/containers
-        public List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>();
+        public virtual List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>();
         // required many-to-many: containers/objects
-        public List<ObjectDMO> ObjectDMOs { get; set; }
+        public virtual List<ObjectDMO> ObjectDMOs { get; set; }
     }
+    #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }
