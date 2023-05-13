@@ -12,14 +12,7 @@ namespace WebAPP.Data
                 && context.Organizers.Any()
                 && context.Books.Any()
                 && context.Pages.Any())
-            { return; }
-
-            var testAccount = new Account { Name = "Gnome", HashedPassword = "Smol" };
-            context.Accounts.Add(testAccount);
-            var testOrganizer = new Organizer { Name = "TestOrganizer", Owner = testAccount };
-            context.Organizers.Add(testOrganizer);
-            var testCategory = new Category { Name = "TestCat", Parent = testOrganizer };
-            context.Categories.Add(testCategory);
+            { return; }            
 
             var testPage1 = new PageDMO { Position = 1 };
             var testPage2 = new PageDMO { Position = 1 };
@@ -32,8 +25,7 @@ namespace WebAPP.Data
                     {
                         testPage1,
                         testPage3
-                    },
-                ParentCategory = testCategory
+                    }
             };
             var testBook2 = new Book
             {
@@ -41,11 +33,19 @@ namespace WebAPP.Data
                 PageDMOs = new List<PageDMO>
                 {
                     testPage2
-                },
-                ParentCategory = testOrganizer
+                }
             };
-            context.Books.Add(testBook1);
-            context.Books.Add(testBook2);
+            var testCategory = new Category { Name = "TestCat"};
+            testCategory.Books.Add(testBook2);
+
+            var testOrganizer = new Organizer { Name = "TestOrganizer"};
+            testOrganizer.Books.Add(testBook1);
+            testOrganizer.Subcategories.Add(testCategory);
+
+            var testAccount = new Account { Name = "Gnome", HashedPassword = "Smol" };
+            testAccount.Organizers.Add(testOrganizer);
+
+            context.Accounts.Add(testAccount);
 
             context.SaveChanges();
         }

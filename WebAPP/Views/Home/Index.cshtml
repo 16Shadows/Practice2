@@ -10,4 +10,21 @@
     <h1 class="display-4">Welcome</h1>
     <p>Your text: <span data-bind="text: testValue"></span></p>
     <p>Input your text: <input data-bind="value: testValue"></input></p>
+
+    <!-- Test code -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Book Name</th><th>Book Parent</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-bind="text: bookId"/>
+                <td data-bind="text: bookName"/>
+                <td data-bind="text: bookParent" />
+            </tr>
+        </tbody>
+    </table>
+    <!---->
 </div>
