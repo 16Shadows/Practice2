@@ -120,5 +120,13 @@ namespace WebAPP.Controllers
         {
             return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+        //Get book's with parent name
+        public async Task<IEnumerable<Book>> GetBookParent(long bookID)
+        {
+            return await _context.Books
+                .Include(e => e.ParentCategory.Name)
+                .Where(b => b.Id == bookID)
+                .ToListAsync();
+        }
     }
 }

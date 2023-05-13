@@ -20,9 +20,15 @@ function Book(id, name, parent) {
 function VM() {
     var self = this;
 
-    var testValue = ko.observable("Test")
-    // Get from server?
-    self.availableBooks = [];
+    self.testValue = ko.observable("Test");
+
+    var req = new XMLHttpRequest();
+    req.open("GET", "api/Books", true);
+    req.send();
+    console.log(req.response);
+    console.log(req.status);
+
+
 
     self.addBook = function () { };
     self.removeBook = function () { };
