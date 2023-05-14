@@ -2,6 +2,7 @@ using WebAPP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using WebAPP.Areas.Identity.Data;
+using System.Text.Json.Serialization;
 
 namespace WebAPP
 {
@@ -31,6 +32,12 @@ namespace WebAPP
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@_-.";
                 options.User.RequireUniqueEmail = false;
             }).AddEntityFrameworkStores<WebAPPContext>();
+
+            // ???
+            builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+            builder.Services.AddDbContext<WebAPPContext>();
 
             var app = builder.Build();
 

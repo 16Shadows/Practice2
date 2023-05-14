@@ -18,12 +18,11 @@
                 <th>ID</th><th>Book Name</th><th>Book Parent</th>
             </tr>
         </thead>
-        <tbody>
-            <tr> <!--
+        <tbody data-bind="foreach: BookItems">
+            <tr> 
                 <td data-bind="text: bookId"/>
                 <td data-bind="text: bookName"/>
                 <td data-bind="text: bookParent" />
-                -->
             </tr>
         </tbody>
     </table>

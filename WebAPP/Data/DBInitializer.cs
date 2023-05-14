@@ -40,6 +40,9 @@ namespace WebAPP.Data
             testOrganizer.Books.Add(testBook1);
             testOrganizer.Subcategories.Add(testCategory);
 
+
+            context.Organizers.Add(testOrganizer);
+
             context.SaveChanges();
         }
     }
