@@ -1,3 +1,4 @@
+using WebAPP.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebAPP
@@ -40,9 +41,11 @@ namespace WebAPP
                 dbContext.Database.OpenConnection();
                 var connection = dbContext.Database.GetDbConnection();
                 using var command = connection.CreateCommand();
-                command.CommandText = "PRAGMA schema.journal_mode = WAL;";
+                command.CommandText = "PRAGMA journal_mode = WAL;";
                 command.ExecuteNonQuery();
+
                 dbContext.Database.EnsureCreated();
+                DBInitializer.Initialize(dbContext); // add data if needed
             }
 
             app.Run();
