@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPP;
 
@@ -10,12 +9,10 @@ using WebAPP;
 
 namespace WebAPP.Migrations
 {
-    [DbContext(typeof(DMOrganizerDBContext))]
-    [Migration("20230512162943_Initial")]
-    partial class Initial
+    [DbContext(typeof(WebAPPContext))]
+    partial class WebAPPContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,6 +20,21 @@ namespace WebAPP.Migrations
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", true)
                 .HasAnnotation("Proxies:LazyLoading", true);
+
+            modelBuilder.Entity("ContainerDMOObjectDMO", b =>
+                {
+                    b.Property<int>("ContainerDMOsID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ObjectDMOsId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ContainerDMOsID", "ObjectDMOsId");
+
+                    b.HasIndex("ObjectDMOsId");
+
+                    b.ToTable("ContainerDMOObjectDMO");
+                });
 
             modelBuilder.Entity("ContainerDMOPageDMO", b =>
                 {
@@ -37,25 +49,6 @@ namespace WebAPP.Migrations
                     b.HasIndex("PageDMOsId");
 
                     b.ToTable("ContainerDMOPageDMO");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.Account", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("HashedPassword")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("DMOrganizerDomainModel.Book", b =>
@@ -133,16 +126,11 @@ namespace WebAPP.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ContainerDMOID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("LinkToObject")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContainerDMOID");
 
                     b.ToTable("Objects");
                 });
@@ -153,9 +141,6 @@ namespace WebAPP.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ObjectDMOId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ParentBookId")
                         .HasColumnType("INTEGER");
 
@@ -163,8 +148,6 @@ namespace WebAPP.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ObjectDMOId");
 
                     b.HasIndex("ParentBookId");
 
@@ -231,6 +214,202 @@ namespace WebAPP.Migrations
                     b.ToTable("DocumentTag");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Identity.Data.UserAccount", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("DMOrganizerDomainModel.Category", b =>
                 {
                     b.HasBaseType("DMOrganizerDomainModel.CategoryBase");
@@ -252,6 +431,11 @@ namespace WebAPP.Migrations
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("OwnerId1")
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("OwnerId1");
 
                     b.HasIndex("OwnerId", "Name")
                         .IsUnique();
@@ -295,6 +479,21 @@ namespace WebAPP.Migrations
                     b.HasDiscriminator().HasValue("Section");
                 });
 
+            modelBuilder.Entity("ContainerDMOObjectDMO", b =>
+                {
+                    b.HasOne("DMOrganizerDomainModel.ContainerDMO", null)
+                        .WithMany()
+                        .HasForeignKey("ContainerDMOsID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DMOrganizerDomainModel.ObjectDMO", null)
+                        .WithMany()
+                        .HasForeignKey("ObjectDMOsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ContainerDMOPageDMO", b =>
                 {
                     b.HasOne("DMOrganizerDomainModel.ContainerDMO", null)
@@ -321,19 +520,8 @@ namespace WebAPP.Migrations
                     b.Navigation("ParentCategory");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.ObjectDMO", b =>
-                {
-                    b.HasOne("DMOrganizerDomainModel.ContainerDMO", null)
-                        .WithMany("ObjectDMOs")
-                        .HasForeignKey("ContainerDMOID");
-                });
-
             modelBuilder.Entity("DMOrganizerDomainModel.PageDMO", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.ObjectDMO", null)
-                        .WithMany("PageDMOs")
-                        .HasForeignKey("ObjectDMOId");
-
                     b.HasOne("DMOrganizerDomainModel.Book", "ParentBook")
                         .WithMany("PageDMOs")
                         .HasForeignKey("ParentBookId")
@@ -358,6 +546,57 @@ namespace WebAPP.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("WebAPP.Areas.Identity.Data.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("WebAPP.Areas.Identity.Data.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebAPP.Areas.Identity.Data.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("WebAPP.Areas.Identity.Data.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DMOrganizerDomainModel.Category", b =>
                 {
                     b.HasOne("DMOrganizerDomainModel.CategoryBase", "Parent")
@@ -371,11 +610,9 @@ namespace WebAPP.Migrations
 
             modelBuilder.Entity("DMOrganizerDomainModel.Organizer", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.Account", "Owner")
-                        .WithMany("Organizers")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("WebAPP.Areas.Identity.Data.UserAccount", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId1");
 
                     b.Navigation("Owner");
                 });
@@ -402,11 +639,6 @@ namespace WebAPP.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Account", b =>
-                {
-                    b.Navigation("Organizers");
-                });
-
             modelBuilder.Entity("DMOrganizerDomainModel.Book", b =>
                 {
                     b.Navigation("PageDMOs");
@@ -419,16 +651,6 @@ namespace WebAPP.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("Subcategories");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.ContainerDMO", b =>
-                {
-                    b.Navigation("ObjectDMOs");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.ObjectDMO", b =>
-                {
-                    b.Navigation("PageDMOs");
                 });
 
             modelBuilder.Entity("DMOrganizerDomainModel.SectionBase", b =>

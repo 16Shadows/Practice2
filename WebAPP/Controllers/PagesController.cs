@@ -14,9 +14,9 @@ namespace WebAPP.Controllers
     [ApiController]
     public class PagesController : ControllerBase
     {
-        private readonly DMOrganizerDBContext _context;
+        private readonly WebAPPContext _context;
 
-        public PagesController(DMOrganizerDBContext context)
+        public PagesController(WebAPPContext context)
         {
             _context = context;
         }

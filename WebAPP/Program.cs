@@ -1,5 +1,7 @@
 using WebAPP.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using WebAPP.Areas.Identity.Data;
 using System.Text.Json.Serialization;
 
 namespace WebAPP
@@ -9,9 +11,27 @@ namespace WebAPP
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+                        var connectionString = builder.Configuration.GetConnectionString("WebAPPContextConnection") ?? throw new InvalidOperationException("Connection string 'WebAPPContextConnection' not found.");
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddRazorPages();
+            
+            builder.Services.AddDbContext<WebAPPContext>();
+
+            builder.Services.AddDefaultIdentity<UserAccount>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = false;
+
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireDigit = false;
+
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@_-.";
+                options.User.RequireUniqueEmail = false;
+            }).AddEntityFrameworkStores<WebAPPContext>();
 
             // ???
             builder.Services.AddControllers().AddJsonOptions(x =>
@@ -34,7 +54,10 @@ namespace WebAPP
 
             app.UseRouting();
 
+            app.UseAuthentication();;
             app.UseAuthorization();
+
+            app.MapRazorPages();
 
             app.MapControllerRoute(
                 name: "default",
@@ -42,7 +65,7 @@ namespace WebAPP
 
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<DMOrganizerDBContext>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<WebAPPContext>();
                 dbContext.Database.OpenConnection();
                 var connection = dbContext.Database.GetDbConnection();
                 using var command = connection.CreateCommand();

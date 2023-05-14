@@ -15,7 +15,6 @@ namespace WebAPP.Controllers
 
         public IActionResult Index()
         {
-            ViewData["account"] = new AccountViewModel("Steve");
             return View();
         }
 

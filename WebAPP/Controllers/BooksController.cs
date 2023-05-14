@@ -15,9 +15,9 @@ namespace WebAPP.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly DMOrganizerDBContext _context;
+        private readonly WebAPPContext _context;
 
-        public BooksController(DMOrganizerDBContext context)
+        public BooksController(WebAPPContext context)
         {
             _context = context;
         }
