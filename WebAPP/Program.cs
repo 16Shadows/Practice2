@@ -37,7 +37,7 @@ namespace WebAPP
             builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-            builder.Services.AddDbContext<DMOrganizerDBContext>();
+            builder.Services.AddDbContext<WebAPPContext>();
 
             var app = builder.Build();
 
