@@ -1,15 +1,13 @@
 ﻿using DMOrganizerDomainModel;
 using Microsoft.Extensions.DependencyModel;
-using WebAPP.Models;
 
 namespace WebAPP.Data
 {
     public static class DBInitializer
     {
-        public static void Initialize(DMOrganizerDBContext context)
+        public static void Initialize(WebAPPContext context)
         {
-            if (context.Accounts.Any()
-                && context.Organizers.Any()
+            if (context.Organizers.Any()
                 && context.Books.Any()
                 && context.Pages.Any())
             { return; }            
@@ -41,11 +39,6 @@ namespace WebAPP.Data
             var testOrganizer = new Organizer { Name = "TestOrganizer"};
             testOrganizer.Books.Add(testBook1);
             testOrganizer.Subcategories.Add(testCategory);
-
-            var testAccount = new Account { Name = "Gnome", HashedPassword = "Smol" };
-            testAccount.Organizers.Add(testOrganizer);
-
-            context.Accounts.Add(testAccount);
 
             context.SaveChanges();
         }

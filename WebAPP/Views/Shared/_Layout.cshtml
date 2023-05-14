@@ -1,8 +1,4 @@
-﻿@{
-    AccountViewModel? account = (AccountViewModel?)ViewData["account"];
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -22,21 +18,7 @@
                         <!-- Navbar -->
                     </ul>
                 </div>
-                @if (account != null)
-                {
-                    <div class="dropdown">
-                        <a class="d-flex align-items-center" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span>@account.Name</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li class="dropdown-item">Logout</li>
-                        </ul>
-                    </div>
-                }
-                else
-                {
-                    <div>No account</div>
-                }
+                <partial name="_LoginPartial" />
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
