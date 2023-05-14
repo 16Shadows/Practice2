@@ -4,6 +4,9 @@
 
 @section Scripts {
     <script src="~/js/index.js" type="text/javascript"></script>
+    <script>
+        $("#dangerZone").load("/Home/BookTablePartialView")
+    </script>
 }
 
 <div class="text-center">
@@ -11,20 +14,7 @@
     <p>Your text: <span data-bind="text: testValue"></span></p>
     <p>Input your text: <input data-bind="value: testValue"></input></p>
 
-    <!-- Test code -->
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th><th>Book Name</th><th>Book Parent</th>
-            </tr>
-        </thead>
-        <tbody data-bind="foreach: BookItems">
-            <tr> 
-                <td data-bind="text: bookId"/>
-                <td data-bind="text: bookName"/>
-                <td data-bind="text: bookParent" />
-            </tr>
-        </tbody>
-    </table>
-    <!---->
+    <div id = "dangerZone">
+
+    </div>
 </div>
