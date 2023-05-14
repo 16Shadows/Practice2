@@ -1,5 +1,6 @@
 using WebAPP.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace WebAPP
 {
@@ -11,7 +12,11 @@ namespace WebAPP
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            
+
+            // ???
+            builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
             builder.Services.AddDbContext<DMOrganizerDBContext>();
 
             var app = builder.Build();

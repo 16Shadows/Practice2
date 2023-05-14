@@ -21,7 +21,15 @@ function VM() {
     var self = this;
 
     self.testValue = ko.observable("Test");
+    self.BookItems = ko.observableArray()
 
+
+    fetch("api/Books")
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Unable to get items.', error));
+
+    
 
     self.addBook = function () { };
     self.removeBook = function () { };
