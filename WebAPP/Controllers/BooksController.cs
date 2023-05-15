@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DMOrganizerDomainModel;
+using WebAPP.Areas.Organizers.Data;
 using WebAPP;
 using NuGet.Protocol;
 

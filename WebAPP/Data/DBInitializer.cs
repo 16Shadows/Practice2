@@ -1,4 +1,4 @@
-﻿using DMOrganizerDomainModel;
+﻿using WebAPP.Areas.Organizers.Data;
 using Microsoft.Extensions.DependencyModel;
 
 namespace WebAPP.Data

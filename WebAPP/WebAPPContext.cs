@@ -1,4 +1,4 @@
-﻿using DMOrganizerDomainModel;
+﻿using WebAPP.Areas.Organizers.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
