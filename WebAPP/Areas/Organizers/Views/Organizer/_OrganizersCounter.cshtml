@@ -1,0 +1,12 @@
+﻿<script type="text/javascript">
+	RootVM.organizers = ko.observableArray();
+	OnLoadCallback.push( () => {
+		fetch("/Organizers/Organizer/list")
+		.then(response => response.json())
+		.then(json => ko.mapping.fromJS(json, {}, RootVM));
+	});
+</script>
+
+<div>
+	Organizers count: <span data-bind="text: organizers().length" />
+</div>

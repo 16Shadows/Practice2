@@ -1,6 +1,5 @@
 using WebAPP.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using WebAPP.Areas.Identity.Data;
 using System.Text.Json.Serialization;
 
@@ -56,12 +55,9 @@ namespace WebAPP
 
             app.UseAuthentication();;
             app.UseAuthorization();
-
+            
             app.MapRazorPages();
-
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.MapControllers();
 
             using (var scope = app.Services.CreateScope())
             {
