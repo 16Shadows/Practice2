@@ -19,6 +19,7 @@ using System.ComponentModel;
 
 namespace WebAPP.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class LoginModel : PageModel
     {
         private readonly SignInManager<UserAccount> _signInManager;
