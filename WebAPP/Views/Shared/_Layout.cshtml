@@ -49,6 +49,9 @@
 @await RenderSectionAsync("Scripts", required: false)
 <script type="text/javascript">
     ko.applyBindings(RootVM);
-    OnLoadCallback.forEach(cb => cb());
+    OnLoadCallback.forEach(cb => {
+        try { cb(); }
+        catch (error) {console.error(error);}
+    });
 </script>
 </html>
