@@ -2,4 +2,23 @@
 	ViewData["Title"] = "Organizers";
 }
 
-<partial name="_OrganizersCounter" />
+<script type="text/javascript">
+	RootVM.organizers = ko.observableArray();
+	OnLoadCallback.push( () => {
+		fetch("/Organizers/Organizer/list")
+		.then(response => response.json())
+		.then(json => ko.mapping.fromJS(json, {}, RootVM));
+	});
+</script>
+
+<div data-bind="foreach: organizers">
+	<div class="card border-primary mb-3">
+		<span class="card-body">
+			<span class="h2" data-bind="text: name"></span>
+			<button class="btn btn-danger float-end m-1">Delete</button>
+			<button class="btn btn-primary float-end m-1">Rename</a>
+			<button class="btn btn-primary float-end m-1">Open</button>
+		</span>
+	</div>
+</div>
+<button class="btn btn-primary float-start">Create new</button>
