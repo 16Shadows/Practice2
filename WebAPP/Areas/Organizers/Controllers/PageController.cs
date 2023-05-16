@@ -6,17 +6,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
-using WebAPP;
 
-namespace WebAPP.Controllers
+namespace WebAPP.Areas.Organizers.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PagesController : ControllerBase
+    public class PageController : ControllerBase
     {
         private readonly WebAPPContext _context;
 
-        public PagesController(WebAPPContext context)
+        public PageController(WebAPPContext context)
         {
             _context = context;
         }
@@ -25,10 +24,10 @@ namespace WebAPP.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PageDMO>>> GetPages()
         {
-          if (_context.Pages == null)
-          {
-              return NotFound();
-          }
+            if (_context.Pages == null)
+            {
+                return NotFound();
+            }
             return await _context.Pages.ToListAsync();
         }
 
@@ -36,10 +35,10 @@ namespace WebAPP.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PageDMO>> GetPageDMO(int id)
         {
-          if (_context.Pages == null)
-          {
-              return NotFound();
-          }
+            if (_context.Pages == null)
+            {
+                return NotFound();
+            }
             var pageDMO = await _context.Pages.FindAsync(id);
 
             if (pageDMO == null)
@@ -86,10 +85,10 @@ namespace WebAPP.Controllers
         [HttpPost]
         public async Task<ActionResult<PageDMO>> PostPageDMO(PageDMO pageDMO)
         {
-          if (_context.Pages == null)
-          {
-              return Problem("Entity set 'DMOrganizerDBContext.Pages'  is null.");
-          }
+            if (_context.Pages == null)
+            {
+                return Problem("Entity set 'DMOrganizerDBContext.Pages'  is null.");
+            }
             _context.Pages.Add(pageDMO);
             await _context.SaveChangesAsync();
 

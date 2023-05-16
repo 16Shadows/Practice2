@@ -1,40 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
-using WebAPP;
-using NuGet.Protocol;
 
-namespace WebAPP.Controllers
+namespace WebAPP.Areas.Organizers.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class BooksController : ControllerBase
+	[Area("Organizers")]
+	[Route("{area}/Book")]
+	[ApiController]
+    public class BookController : Controller
     {
-        private readonly WebAPPContext _context;
+		class BooksPayload
+		{
+			// Class to wrap fetch data and additional info for views,
+			// will be converted into json object
+			public BooksPayload(List<Book> books)
+			{
+				Books = books;
+			}
+			public List<Book> Books { get; }
+		}
 
-        public BooksController(WebAPPContext context)
+		private readonly WebAPPContext _context;
+
+		public BookController(WebAPPContext context)
+		{
+			_context = context;
+		}
+
+		[Authorize]
+        [HttpGet("")]
+		public IActionResult Index()
         {
-            _context = context;
+            return View("Book");
         }
 
-        // GET: api/Books
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-        {
-          if (_context.Books == null)
-          {
-              return NotFound();
-          }
-            return await _context.Books.ToListAsync();
-        }
+		// GET: api/Books
+		[Authorize]
+		[HttpGet("table")]
+		public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+		{
+			if (_context.Books == null)
+			{
+				return NotFound();
+			}
+			var data = await _context.Books.ToListAsync();
+			return Json(new BooksPayload(data));
+		}
 
-        // GET: api/Books/5
-        [HttpGet("{id}")]
+		// GET: api/Books/5
+		[Authorize]
+		[HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
           if (_context.Books == null)
@@ -51,9 +67,10 @@ namespace WebAPP.Controllers
             return book;
         }
 
-        // PUT: api/Books/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+		// PUT: api/Books/5
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[Authorize]
+		[HttpPut("{id}")]
         public async Task<IActionResult> PutBook(int id, Book book)
         {
             if (id != book.Id)
@@ -82,14 +99,15 @@ namespace WebAPP.Controllers
             return NoContent();
         }
 
-        // POST: api/Books
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+		// POST: api/Books
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[Authorize]
+		[HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
           if (_context.Books == null)
           {
-              return Problem("Entity set 'DMOrganizerDBContext.Books'  is null.");
+              return Problem("Entity set 'WebAPPContext.Books'  is null.");
           }
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
@@ -97,8 +115,9 @@ namespace WebAPP.Controllers
             return CreatedAtAction("GetBook", new { id = book.Id }, book);
         }
 
-        // DELETE: api/Books/5
-        [HttpDelete("{id}")]
+		// DELETE: api/Books/5
+		[Authorize]
+		[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             if (_context.Books == null)
@@ -116,18 +135,9 @@ namespace WebAPP.Controllers
 
             return NoContent();
         }
-
-        private bool BookExists(int id)
+		private bool BookExists(int id)
         {
             return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
-        //Get book's with parent name
-        public async Task<IEnumerable<Book>> GetBookParent(long bookID)
-        {
-            return await _context.Books
-                .Include(e => e.ParentCategory.Name)
-                .Where(b => b.Id == bookID)
-                .ToListAsync();
         }
     }
 }

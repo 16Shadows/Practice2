@@ -1,0 +1,53 @@
+﻿<script type="text/javascript">
+    
+    RootVM.BookItems = ko.observableArray();
+
+    OnLoadCallback.push(
+        () => {
+            fetch("/Organizers/Book/table")
+            .then(response => response.json())
+            .then(data => RootVM.tableData(data))
+            .catch(error => console.error('Unable to get items.', error));
+        }
+    
+    );
+
+    function Book(id, name, parent) {
+        var self = this;
+        self.bookId = ko.observable(id);
+        self.bookName = ko.observable(name);
+        self.bookParent = ko.observable(parent);
+    }
+
+
+    RootVM.tableData = function (data) {
+        var list = data.books;
+        list.forEach(item => {
+            var b = new Book(item.id, item.name, item.parentCategory.name);
+            console.log(b);
+            RootVM.BookItems.push(b);
+        });
+    }
+    self.addBook = function () { };
+    self.removeBook = function () { };
+
+</script>
+
+<!-- Test code -->
+<table data-bind="using: RootVM">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Book Name</th>
+            <th>Book Parent</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: BookItems">
+        <tr>
+            <td data-bind="text: bookId" />
+            <td data-bind="text: bookName" />
+            <td data-bind="text: bookParent" />
+        </tr>
+    </tbody>
+</table>
+<!---->

@@ -6,17 +6,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
-using WebAPP;
 
-namespace WebAPP.Controllers
+namespace WebAPP.Areas.Organizers.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ContainersController : ControllerBase
+    public class ContainerController : ControllerBase
     {
         private readonly WebAPPContext _context;
 
-        public ContainersController(WebAPPContext context)
+        public ContainerController(WebAPPContext context)
         {
             _context = context;
         }
@@ -25,10 +24,10 @@ namespace WebAPP.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContainerDMO>>> GetContainers()
         {
-          if (_context.Containers == null)
-          {
-              return NotFound();
-          }
+            if (_context.Containers == null)
+            {
+                return NotFound();
+            }
             return await _context.Containers.ToListAsync();
         }
 
@@ -36,10 +35,10 @@ namespace WebAPP.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ContainerDMO>> GetContainerDMO(int id)
         {
-          if (_context.Containers == null)
-          {
-              return NotFound();
-          }
+            if (_context.Containers == null)
+            {
+                return NotFound();
+            }
             var containerDMO = await _context.Containers.FindAsync(id);
 
             if (containerDMO == null)
@@ -86,10 +85,10 @@ namespace WebAPP.Controllers
         [HttpPost]
         public async Task<ActionResult<ContainerDMO>> PostContainerDMO(ContainerDMO containerDMO)
         {
-          if (_context.Containers == null)
-          {
-              return Problem("Entity set 'DMOrganizerDBContext.Containers'  is null.");
-          }
+            if (_context.Containers == null)
+            {
+                return Problem("Entity set 'DMOrganizerDBContext.Containers'  is null.");
+            }
             _context.Containers.Add(containerDMO);
             await _context.SaveChangesAsync();
 
