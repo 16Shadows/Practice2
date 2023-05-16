@@ -47,11 +47,14 @@ namespace WebAPP.Areas.Organizers.Controllers
 
             Organizer dummy = new Organizer()
             {
-                Name = "Test",
-                Id = -1
+                Name = "Test"
+            };
+            Organizer dummy2 = new Organizer()
+            {
+                Name = "Test2"
             };
 
-            return Json( new OrganizersPayload( new List<Organizer>() { dummy }) );
+            return Json( new OrganizersPayload( new List<Organizer>() { dummy, dummy2 }) );
         }
     }
 }
