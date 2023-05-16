@@ -1,0 +1,89 @@
+﻿@{
+	ViewData["Title"] = "Books";
+}
+<!--
+	architorture: 
+	1) current selected page view, 
+		area must support page scrolling, if page can't fit inside,
+
+	2) list of current book pages, with context menu (add page, 
+		delete page, add container? change page positions?)
+		pages in list are selectable
+		page icon?
+
+	between - dragbar to change areas proportions,
+				page-list and page-area(?) has min-width
+-->
+<div class="book" style="display: flex">
+	<div id="pageViewContainer" style="width: 75%;"></div>
+	<div class="resizer" id="dragbar" style="cursor: ew-reize; width:5px; background-color: wheat;"></div>
+	<div id="pageListContainer" style="flex: 1;">
+		<partial name="_BookTable" />
+	</div>
+
+</div>
+
+<script type="text/javascript">
+	// Get elements
+	const resizer = document.getElementById('dragbar');
+	const leftContainer = resizer.previousElementSibling;
+	const rightContainer = resizer.nextElementSibling;
+
+	// current mouse position
+	let x = 0;
+	let y = 0;
+	let leftWidth = 0;
+
+	// mouse down event handler
+	const mouseDownHandler = function (e) {
+		// Get the current mouse position
+		x = e.clientX;
+		y = e.clientY;
+		leftWidth = leftContainer.getBoundingClientRect().width;
+
+		// Attach the listeners to `document`
+		document.addEventListener('mousemove', mouseMoveHandler);
+		document.addEventListener('mouseup', mouseUpHandler);
+	};
+
+	// mouse move event handler
+	const mouseMoveHandler = function (e) {
+		// How far the mouse has been moved
+		const dx = e.clientX - x;
+		const dy = e.clientY - y;
+
+		const newLeftWidth = ((leftWidth + dx) * 100) / resizer.parentNode.getBoundingClientRect().width;
+		leftContainer.style.width = `${newLeftWidth}%`;
+
+		resizer.style.cursor = 'col-resize';
+		document.body.style.cursor = 'col-resize';
+
+		leftContainer.style.userSelect = 'none';
+		leftContainer.style.pointerEvents = 'none';
+
+		rightContainer.style.userSelect = 'none';
+		rightContainer.style.pointerEvents = 'none';
+	};
+
+	// mouse up event handler
+	const mouseUpHandler = function () {
+		resizer.style.removeProperty('cursor');
+		document.body.style.removeProperty('cursor');
+
+		leftContainer.style.removeProperty('user-select');
+		leftContainer.style.removeProperty('pointer-events');
+
+		rightContainer.style.removeProperty('user-select');
+		rightContainer.style.removeProperty('pointer-events');
+
+		// Remove the handlers of `mousemove` and `mouseup`
+		document.removeEventListener('mousemove', mouseMoveHandler);
+		document.removeEventListener('mouseup', mouseUpHandler);
+	};
+
+	// Attach the handler
+	resizer.addEventListener('mousedown', mouseDownHandler);
+
+</script>
+
+

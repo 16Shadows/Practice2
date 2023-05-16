@@ -6,17 +6,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
-using WebAPP;
 
-namespace WebAPP.Controllers
+namespace WebAPP.Areas.Organizers.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ObjectsController : ControllerBase
+    public class ObjectController : ControllerBase
     {
         private readonly WebAPPContext _context;
 
-        public ObjectsController(WebAPPContext context)
+        public ObjectController(WebAPPContext context)
         {
             _context = context;
         }
@@ -25,10 +24,10 @@ namespace WebAPP.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ObjectDMO>>> GetObjects()
         {
-          if (_context.Objects == null)
-          {
-              return NotFound();
-          }
+            if (_context.Objects == null)
+            {
+                return NotFound();
+            }
             return await _context.Objects.ToListAsync();
         }
 
@@ -36,10 +35,10 @@ namespace WebAPP.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ObjectDMO>> GetObjectDMO(int id)
         {
-          if (_context.Objects == null)
-          {
-              return NotFound();
-          }
+            if (_context.Objects == null)
+            {
+                return NotFound();
+            }
             var objectDMO = await _context.Objects.FindAsync(id);
 
             if (objectDMO == null)
@@ -86,10 +85,10 @@ namespace WebAPP.Controllers
         [HttpPost]
         public async Task<ActionResult<ObjectDMO>> PostObjectDMO(ObjectDMO objectDMO)
         {
-          if (_context.Objects == null)
-          {
-              return Problem("Entity set 'DMOrganizerDBContext.Objects'  is null.");
-          }
+            if (_context.Objects == null)
+            {
+                return Problem("Entity set 'DMOrganizerDBContext.Objects'  is null.");
+            }
             _context.Objects.Add(objectDMO);
             await _context.SaveChangesAsync();
 
