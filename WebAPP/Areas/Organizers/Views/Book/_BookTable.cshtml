@@ -3,13 +3,13 @@
     RootVM.BookItems = ko.observableArray();
 
     OnLoadCallback.push(
+        // Request all current data
         () => {
             fetch("/Organizers/Book/table")
             .then(response => response.json())
             .then(data => RootVM.tableData(data))
             .catch(error => console.error('Unable to get items.', error));
         }
-    
     );
 
     function Book(id, name, parent) {
@@ -33,8 +33,8 @@
 
 </script>
 
-<!-- Test code -->
-<table data-bind="using: RootVM">
+<!-- background color is for debug -->
+<table style="background-color:lightgray;" data-bind="using: RootVM">
     <thead>
         <tr>
             <th>ID</th>
@@ -50,4 +50,3 @@
         </tr>
     </tbody>
 </table>
-<!---->
