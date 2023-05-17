@@ -3,12 +3,12 @@
 //an observable that retrieves its value when first bound
 ko.onDemandObservable = function (callback, target) {
     var _value = ko.observable();  //private observable
-
+    
     var result = ko.computed({
         read: function () {
             //if it has not been loaded, execute the supplied function
             if (!result.loaded()) {
-                callback.call(target);
+                callback(target);
             }
             //always return the current value
             return _value();
