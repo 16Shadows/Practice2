@@ -1,4 +1,3 @@
-using WebAPP.Data;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Identity.Data;
 using System.Text.Json.Serialization;
@@ -10,8 +9,7 @@ namespace WebAPP
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-                        var connectionString = builder.Configuration.GetConnectionString("WebAPPContextConnection") ?? throw new InvalidOperationException("Connection string 'WebAPPContextConnection' not found.");
-
+            
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
@@ -53,7 +51,7 @@ namespace WebAPP
 
             app.UseRouting();
 
-            app.UseAuthentication();;
+            app.UseAuthentication();
             app.UseAuthorization();
             
             app.MapRazorPages();
@@ -69,7 +67,6 @@ namespace WebAPP
                 command.ExecuteNonQuery();
 
                 dbContext.Database.EnsureCreated();
-                DBInitializer.Initialize(dbContext); // add data if needed
             }
 
             app.Run();
