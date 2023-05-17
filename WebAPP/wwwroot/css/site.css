@@ -17,15 +17,3 @@ body {
   margin-bottom: 60px;
 }
 
-/* Need to think about coordinates and page size, now 150dpi (1684x1190) */
-.page {
-    background-color: wheat; /*for debug*/
-    margin: 10px;
-    height: 1684px;
-    width: 1190px;
-}
-
-.book {
-    background-color: darkgray; /*for debug*/
-    margin: 10px;
-}

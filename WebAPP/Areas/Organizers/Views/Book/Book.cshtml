@@ -11,17 +11,34 @@
 		pages in list are selectable
 		page icon?
 
-	between - dragbar to change areas proportions,
+	++between - dragbar to change areas proportions,
 				page-list and page-area(?) has min-width
 -->
+
+<style>
+	.book {
+		background-color: darkgray; /*for debug*/
+		margin: 10px;
+	}
+	.resizer {
+		cursor: ew-reize;
+		width:5px;
+		background-color: wheat;
+	}
+
+</style>
+
+<!--Body-->
 <div class="book" style="display: flex">
 	<div id="pageViewContainer" style="width: 75%;"></div>
-	<div class="resizer" id="dragbar" style="cursor: ew-reize; width:5px; background-color: wheat;"></div>
+	<div class="resizer" id="dragbar"></div>
+
 	<div id="pageListContainer" style="flex: 1;">
 		<partial name="_BookTable" />
 	</div>
 
 </div>
+
 
 <script type="text/javascript">
 	// Get elements

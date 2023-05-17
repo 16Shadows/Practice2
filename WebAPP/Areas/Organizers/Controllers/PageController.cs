@@ -1,28 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class PageController : ControllerBase
+	[Area("Organizers")]
+	[Route("{area}/Page")]
+	[ApiController]
+	public class PageController : Controller
     {
-        private readonly WebAPPContext _context;
+		class PagesPayload
+		{
+			// Class to wrap fetch data and additional info for views,
+			// will be converted into json object
+			public PagesPayload(List<PageDMO> pages)
+			{
+				Pages = pages;
+			}
+			public List<PageDMO> Pages { get; }
+		}
+		private readonly WebAPPContext _context;
 
         public PageController(WebAPPContext context)
         {
             _context = context;
         }
+		[Authorize]
+		[HttpGet("")]
+		public IActionResult Index()
+		{
+			return View("Page");
+		}
 
-        // GET: api/Pages
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<PageDMO>>> GetPages()
+		// GET: api/Pages
+		[Authorize]
+		[HttpGet("table")]
+		public async Task<ActionResult<IEnumerable<PageDMO>>> GetPages()
         {
             if (_context.Pages == null)
             {
@@ -31,8 +45,9 @@ namespace WebAPP.Areas.Organizers.Controllers
             return await _context.Pages.ToListAsync();
         }
 
-        // GET: api/Pages/5
-        [HttpGet("{id}")]
+		// GET: api/Pages/5
+		[Authorize]
+		[HttpGet("{id}")]
         public async Task<ActionResult<PageDMO>> GetPageDMO(int id)
         {
             if (_context.Pages == null)
@@ -49,9 +64,10 @@ namespace WebAPP.Areas.Organizers.Controllers
             return pageDMO;
         }
 
-        // PUT: api/Pages/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+		// PUT: api/Pages/5
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[Authorize]
+		[HttpPut("{id}")]
         public async Task<IActionResult> PutPageDMO(int id, PageDMO pageDMO)
         {
             if (id != pageDMO.Id)
@@ -80,9 +96,10 @@ namespace WebAPP.Areas.Organizers.Controllers
             return NoContent();
         }
 
-        // POST: api/Pages
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+		// POST: api/Pages
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[Authorize]
+		[HttpPost]
         public async Task<ActionResult<PageDMO>> PostPageDMO(PageDMO pageDMO)
         {
             if (_context.Pages == null)
@@ -95,8 +112,9 @@ namespace WebAPP.Areas.Organizers.Controllers
             return CreatedAtAction("GetPageDMO", new { id = pageDMO.Id }, pageDMO);
         }
 
-        // DELETE: api/Pages/5
-        [HttpDelete("{id}")]
+		// DELETE: api/Pages/5
+		[Authorize]
+		[HttpDelete("{id}")]
         public async Task<IActionResult> DeletePageDMO(int id)
         {
             if (_context.Pages == null)

@@ -1,14 +1,33 @@
-﻿<script type="text/javascript">
-    
+﻿
+<!-- background color is for debug -->
+<table style="background-color:lightgray;" data-bind="using: RootVM">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Book Name</th>
+            <th>Book Parent</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: BookItems">
+        <tr>
+            <td data-bind="text: bookId" />
+            <td data-bind="text: bookName" />
+            <td data-bind="text: bookParent" />
+        </tr>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+
     RootVM.BookItems = ko.observableArray();
 
     OnLoadCallback.push(
         // Request all current data
         () => {
             fetch("/Organizers/Book/table")
-            .then(response => response.json())
-            .then(data => RootVM.tableData(data))
-            .catch(error => console.error('Unable to get items.', error));
+                .then(response => response.json())
+                .then(data => RootVM.tableData(data))
+                .catch(error => console.error('Unable to get items.', error));
         }
     );
 
@@ -32,21 +51,3 @@
     self.removeBook = function () { };
 
 </script>
-
-<!-- background color is for debug -->
-<table style="background-color:lightgray;" data-bind="using: RootVM">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Book Name</th>
-            <th>Book Parent</th>
-        </tr>
-    </thead>
-    <tbody data-bind="foreach: BookItems">
-        <tr>
-            <td data-bind="text: bookId" />
-            <td data-bind="text: bookName" />
-            <td data-bind="text: bookParent" />
-        </tr>
-    </tbody>
-</table>
