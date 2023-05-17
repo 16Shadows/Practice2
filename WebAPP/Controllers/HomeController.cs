@@ -4,6 +4,7 @@ using WebAPP.Models;
 
 namespace WebAPP.Controllers
 {
+    [Route("")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -13,10 +14,11 @@ namespace WebAPP.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        [HttpGet("")]
+		public IActionResult Index()
+		{
+			return LocalRedirect("/Organizers");
+		}
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

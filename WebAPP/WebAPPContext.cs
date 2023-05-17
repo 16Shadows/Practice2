@@ -9,6 +9,8 @@ namespace WebAPP;
 
 public class WebAPPContext : IdentityDbContext<UserAccount>
 {
+    public WebAPPContext() {}
+
     public WebAPPContext(DbContextOptions<WebAPPContext> options)
         : base(options)
     {
