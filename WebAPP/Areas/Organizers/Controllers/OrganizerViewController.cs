@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore;
-using System.Data.Entity.Core.Mapping;
-using System.Runtime.CompilerServices;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Area("Organizers")]
-	[Route("Organizers/{id:int:required}")]
+	[Route("Organizers/{organizerId:int:required}")]
 	public class OrganizerViewController : Controller
 	{
 		public class ItemBaseVM
@@ -58,25 +55,25 @@ namespace WebAPP.Areas.Organizers.Controllers
         }
 
 		[HttpGet]
-		public async Task<IActionResult> Index(int id)
+		public async Task<IActionResult> Index(int organizerId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
 			Organizer? target = dbContext
 								.Organizers
-								.First(x => x.OwnerId == user.Id && x.Id == id);
+								.First(x => x.OwnerId == user.Id && x.Id == organizerId);
 
 			if (target == null)
 				return NotFound();
 
 			ViewData["Title"] = target.Name;
-			ViewData["OrganizerID"] = id;
+			ViewData["OrganizerID"] = organizerId;
 
 			return View("Organizer");
 		}
 
 		[HttpGet("root")]
-		public async Task<ActionResult<CategoryBaseVM>> Root(int id)
+		public async Task<ActionResult<CategoryBaseVM>> Root(int organizerId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
@@ -91,7 +88,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
 		[HttpGet("category/{categoryId:int:required}")]
-		public async Task<ActionResult<CategoryBaseVM>> Category(int id, int categoryId)
+		public async Task<ActionResult<CategoryBaseVM>> Category(int organizerId, int categoryId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
@@ -107,6 +104,76 @@ namespace WebAPP.Areas.Organizers.Controllers
 								.First(x => x.Id == categoryId && x.OrganizerId == id);
 
 			return Ok ( new CategoryBaseVM(category) );
+		}
+
+		[HttpPost("category/create/{name:minlength(1):required}")]
+		public async Task<ActionResult<CategoryBaseVM>> CreateCategory(int organizerId, string name)
+		{
+			var user = await userManager.GetUserAsync(User);
+
+			Organizer? target = dbContext
+								.Organizers
+								.First(x => x.OwnerId == user.Id && x.Id == id);
+
+			if (target == null)
+				return NotFound();
+
+			bool any = dbContext
+					   .Categories
+					   .Where(x => x.OrganizerId == id && x.Name == name)
+					   .ToArray()
+					   .FirstOrDefault((Category?)null)
+					   ?.Parent == target;
+
+			if (any)
+				return Conflict();
+
+			Category category = new Category()
+			{
+				Name = name,
+				Parent = target,
+				Organizer = target
+			};
+			dbContext.Categories.Add(category);
+
+			await dbContext.SaveChangesAsync();
+
+			return Ok(new CategoryVM(category));
+		}
+
+		[HttpPost("document/create/{name:minlength(1):required}")]
+		public async Task<ActionResult<CategoryBaseVM>> CreateDocument(int organizerId, string name)
+		{
+			var user = await userManager.GetUserAsync(User);
+
+			Organizer? target = dbContext
+								.Organizers
+								.First(x => x.OwnerId == user.Id && x.Id == id);
+
+			if (target == null)
+				return NotFound();
+
+			bool any = dbContext
+					   .Documents
+					   .Where(x => x.OrganizerId == id && x.Title == name)
+					   .ToArray()
+					   .FirstOrDefault((Document?)null)
+					   ?.Category == target;
+
+			if (any)
+				return Conflict();
+
+			Document category = new Document()
+			{
+				Title = name,
+				Category = target,
+				Organizer = target
+			};
+			dbContext.Documents.Add(category);
+
+			await dbContext.SaveChangesAsync();
+
+			return Ok(new DocumentVM(category));
 		}
 	}
 }
