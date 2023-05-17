@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPP;
 
@@ -10,9 +11,11 @@ using WebAPP;
 namespace WebAPP.Migrations
 {
     [DbContext(typeof(WebAPPContext))]
-    partial class WebAPPContextModelSnapshot : ModelSnapshot
+    [Migration("20230517153204_DirectOrganizerReferences")]
+    partial class DirectOrganizerReferences
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
