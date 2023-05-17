@@ -1,0 +1,63 @@
+﻿<style>
+	.DMOcontainer {
+		width: 200px;
+		height: 150px;
+		padding: 2px;
+		position: absolute;
+		z-index: 9;
+		background-color: salmon;
+		display:flex;
+		flex-direction: column;
+	}
+
+	.draggable {
+		z-index: 10;
+		cursor: move;
+		box-sizing: border-box;
+		min-height: 30px;
+		height: 30px;
+		background-color:darkgray;
+		min-width: 100px;
+
+		width: stretch;
+		flex: 0;
+	}
+
+	.content{
+		flex:1;
+	}
+</style>
+
+<div class="DMOcontainer" id="cont">
+    <div class="draggable" id="contHeader"></div>
+    <div class="content">
+        dfDSFdfsdfff MR mr mrrRRr
+    </div>
+</div>
+
+<script type="text/javascript">
+	//get parent for relative coordinates
+	var parent = $("div.DMOcontainer").parent(".page")[0];
+	var parentRect = parent.getBoundingClientRect();
+
+	// set database coordinates relative to page
+
+	$(".DMOcontainer").draggable();
+
+	//set rules - parent container and handle
+	$(".DMOcontainer").draggable("option", "containment", "parent");
+	$(".DMOcontainer").draggable("option", "handle", "#contHeader");
+	
+	// function to update coordinates on server
+	$(".DMOcontainer").draggable({
+		drag: function () {
+			var offset = $(this).offset();
+			var xPos = offset.left;
+			var yPos = offset.top;
+			console.log(xPos - parentRect.left, yPos - parentRect.top);
+
+
+		}});
+	
+
+</script>
