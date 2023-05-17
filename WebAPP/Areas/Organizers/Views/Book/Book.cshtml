@@ -14,6 +14,9 @@
 	++between - dragbar to change areas proportions,
 				page-list and page-area(?) has min-width
 -->
+<script>
+
+</script>
 
 <style>
 	.book {
@@ -21,9 +24,12 @@
 		margin: 10px;
 	}
 	.resizer {
-		cursor: ew-reize;
+		cursor: ew-resize;
 		width:5px;
 		background-color: wheat;
+	}
+	.pageList{
+		min-width: 50px;
 	}
 
 </style>
@@ -33,13 +39,13 @@
 	<div id="pageViewContainer" style="width: 75%;"></div>
 	<div class="resizer" id="dragbar"></div>
 
-	<div id="pageListContainer" style="flex: 1;">
+	<div class="pageList" id="pageListContainer" style="flex: 1;">
 		<partial name="_BookTable" />
 	</div>
 
 </div>
 
-
+<!--resizer script-->
 <script type="text/javascript">
 	// Get elements
 	const resizer = document.getElementById('dragbar');
