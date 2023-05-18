@@ -13,10 +13,10 @@ namespace WebAPP.Areas.Organizers.Data
         public int Position { get; set; }
         // required one-to-many: child of books
         public int ParentBookId { get; set; } // Required foreign key property
-        public virtual Book ParentBook { get; set; } // Required reference navigation to principal
+        public Book ParentBook { get; set; } // Required reference navigation to principal
 
         // required many-to-many: pages/containers
-        public virtual List<ContainerDMO> ContainerDMOs { get; set;} = new List<ContainerDMO>();
+        public List<ContainerDMO> ContainerDMOs { get; set;} = new List<ContainerDMO>();
     }
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

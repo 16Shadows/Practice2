@@ -23,7 +23,7 @@ public class WebAPPContext : IdentityDbContext<UserAccount>
         sb.ForeignKeys = true;
         sb.Mode = SqliteOpenMode.ReadWriteCreate;
 
-        optionsBuilder.UseSqlite(sb.ToString()).UseLazyLoadingProxies().UseChangeTrackingProxies(false);
+        optionsBuilder.UseSqlite(sb.ToString());
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

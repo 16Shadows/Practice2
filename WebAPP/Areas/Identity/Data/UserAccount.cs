@@ -8,7 +8,7 @@ namespace WebAPP.Areas.Identity.Data;
 // Add profile data for application users by adding properties to the Account class
 public class UserAccount : IdentityUser
 {
-    public virtual List<Organizer> Organizers { get; set; }
+    public List<Organizer> Organizers { get; set; }
 }
 
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

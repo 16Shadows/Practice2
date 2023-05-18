@@ -1,0 +1,43 @@
+﻿<script type="text/javascript">
+	//Mapper to use when mapping received categories to js objects
+	var TreeViewNodeMapper = {
+		"subcategories" : {
+			create: function(options) {
+				var result = ko.mapping.fromJS(options.data);
+
+				function loader(target)
+				{
+					if (target.loading != false)
+						return;
+					target.loading = true;
+					//Load actual data
+					target.subcategories([]);
+					target.documents([]);
+					//Free up memory
+					delete target.loading;
+				}
+
+				result.loading = false;
+				result.subcategories = ko.onDemandObservable(loader, result);
+				result.documents = ko.onDemandObservable(loader, result);
+
+				return result;
+			}
+		}
+	};
+
+	//VM for tree view
+	RootVM.TreeViewVM = {
+		subcategories : ko.observableArray(),
+		documents: ko.observableArray()
+	};
+
+	//Load data after page load
+	OnLoadCallback.push(() => {
+		fetch("/Organizers/" + RootVM.OrganizerID + "/root")
+		.then(response => response.json())
+		.then(json => ko.mapping.fromJS(json, TreeViewNodeMapper, RootVM.TreeViewVM));
+	});
+</script>
+
+<span>Hello, world!</span>
