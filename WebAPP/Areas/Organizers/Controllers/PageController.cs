@@ -109,6 +109,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			// wait for all pages to update
 			await ChangePagePositionsAfterDelete(bookId, pos);
 
+			// !!!! need to return updated array to update positions
 			return Accepted();
 		}
 		// Changes all pages' positions in book after deleted one
