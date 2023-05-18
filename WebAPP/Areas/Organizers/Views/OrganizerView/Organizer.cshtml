@@ -18,13 +18,15 @@
 					//Load actual data
 					target.subcategories([]);
 					target.documents([]);
+					target.books([]);
 					//Free up memory
 					delete target.loading;
 				}
 
 				result.loading = false;
-				result.subcategories = ko.onDemandObservable(loader, result);
+				result.subcategories = (loader, result);
 				result.documents = ko.onDemandObservable(loader, result);
+				result.books = ko.onDemandObservable(loader, result);
 
 				return result;
 			}
@@ -36,7 +38,8 @@
 	//VM for tree view
 	RootVM.TreeViewVM = {
 		subcategories : ko.observableArray(),
-		documents: ko.observableArray()
+		documents: ko.observableArray(),
+		books: ko.observableArray()
 	};
 
 	//Load data after page load

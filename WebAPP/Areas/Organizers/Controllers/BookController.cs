@@ -5,70 +5,71 @@ using WebAPP.Areas.Organizers.Data;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
-	[Area("Organizers")]
-	[Route("{area}/Book")]
-	[ApiController]
+    [Area("Organizers")]
+    [Route("{area}/Book")]
+    [ApiController]
     public class BookController : Controller
     {
-		class BooksPayload
-		{
-			// Class to wrap fetch data and additional info for views,
-			// will be converted into json object
-			public BooksPayload(List<Book> books)
-			{
-				Books = books;
-			}
-			public List<Book> Books { get; }
-		}
-
-		private readonly WebAPPContext _context;
-
-		public BookController(WebAPPContext context)
-		{
-			_context = context;
-		}
-
-		[Authorize]
-        [HttpGet("")]
-		public IActionResult Index()
+        class BooksPayload
         {
-            return View("Book");
+            // Class to wrap fetch data and additional info for views,
+            // will be converted into json object
+            public BooksPayload(List<Book> books)
+            {
+                Books = books;
+            }
+            public List<Book> Books { get; }
         }
 
-		// GET: api/Books
-		[Authorize]
-		[HttpGet("table")]
-		public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-		{
-			if (_context.Books == null)
-			{
-				return NotFound();
-			}
-			var data = await _context.Books.ToListAsync();
-			return Json(new BooksPayload(data));
-		}
+        private readonly WebAPPContext _context;
 
-		// GET: api/Books/5
-		[Authorize]
-        public async Task<ActionResult<Book>> GetBook(int id)
+        public BookController(WebAPPContext context)
         {
-          if (_context.Books == null)
-          {
-              return NotFound();
-          }
-            var book = await _context.Books.FindAsync(id);
+            _context = context;
+        }
 
-            if (book == null)
+        [Authorize]
+        [HttpGet("{id:int}")]
+        public IActionResult Index(int id)
+        {
+            if (!BookExists(id)) // need better check?
             {
                 return NotFound();
             }
-            return Json(new BooksPayload(new List<Book>() { book }));
+			ViewData["BookID"] = id;
+
+            return View("Book");
+        }
+
+        [Authorize]
+        [HttpGet("table")]
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        {
+            if (_context.Books == null)
+            {
+                return NotFound();
+            }
+            var data = await _context.Books.ToListAsync();
+            return Json(new BooksPayload(data));
+        }
+
+        [Authorize]
+        [HttpGet("{bookId:int}/content")]
+        public async Task<ActionResult<IEnumerable<PageDMO>>> GetBookContent(int bookId)
+        {
+            if (!_context.Books.Any(e => e.Id == bookId))
+            {
+                return NotFound();
+            }
+            var book = await _context.Books.Where(b => b.Id == bookId)
+                .Include(b => b.PageDMOs).FirstAsync();
+            var j = Json(book);
+            return j;
 		}
 
-		// PUT: api/Books/5
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-		[Authorize]
-		[HttpPut("{id}")]
+
+        [Authorize]
+		[HttpPut("{bookId:int}")]
         public async Task<IActionResult> PutBook(int id, Book book)
         {
             if (id != book.Id)
@@ -97,8 +98,6 @@ namespace WebAPP.Areas.Organizers.Controllers
             return NoContent();
         }
 
-		// POST: api/Books
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[Authorize]
 		[HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
@@ -113,9 +112,8 @@ namespace WebAPP.Areas.Organizers.Controllers
             return CreatedAtAction("GetBook", new { id = book.Id }, book);
         }
 
-		// DELETE: api/Books/5
 		[Authorize]
-		[HttpDelete("{id}")]
+		[HttpDelete("{bookId:int}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             if (_context.Books == null)

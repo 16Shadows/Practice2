@@ -1,7 +1,4 @@
-﻿@{
-	ViewData["Title"] = "Books";
-}
-<!--
+﻿<!--
 	architorture: 
 	1) current selected page view, 
 		area must support page scrolling, if page can't fit inside,
@@ -14,38 +11,69 @@
 	++between - dragbar to change areas proportions,
 				page-list and page-area(?) has min-width
 -->
-<script>
-
-</script>
-
 <style>
 	.book {
+		min-height: 200px;
 		background-color: darkgray; /*for debug*/
 		margin: 10px;
+		display: flex;
+	}
+	.pageViewContainer {
+		width: 75%;
+		min-width: 200px;
+		overflow: auto;
 	}
 	.resizer {
 		cursor: ew-resize;
 		width:5px;
-		background-color: wheat;
-	}
-	.pageList{
-		min-width: 50px;
+		background-color: grey;
 	}
 
 </style>
 
 <!--Body-->
-<div class="book" style="display: flex">
-	<div id="pageViewContainer" style="width: 75%;"></div>
+<div class="book">
+	<div class="pageViewContainer"></div>
 	<div class="resizer" id="dragbar"></div>
-
-	<div class="pageList" id="pageListContainer" style="flex: 1;">
-		<partial name="_BookTable" />
+	<div>
+		<ul data-bind="foreach: BookVM.pageDMOs" class="list-group" id="pageListContainer" style="min-width:50px; width:stretch;">
+			<li class="list-group-item">
+				<span>
+					<span data-bind="text: $data.id"> (id)</span>
+					<span data-bind="text: $data.position"> (pos)</span>
+				</span>
+			</li>
+		</ul>
 	</div>
-
+	
 </div>
 
-<!--resizer script-->
+<!--Initial load-->
+<script type="text/javascript">
+	// Id of this book view instance
+	RootVM.BookID = @ViewData["BookID"];
+	RootVM.ActivePage = ko.observable();
+
+	var BookVM =
+	{
+		id: ko.observable(),
+		name: ko.observable(),
+		parentCategoryId: ko.observable(),
+		pageDMOs: ko.observableArray()
+	};
+
+	// request list data after page loading
+	OnLoadCallback.push(() => {
+		fetch("/Organizers/Book/" + RootVM.BookID + "/content")
+			.then(response => response.json())
+			.then(json => ko.mapping.fromJS(json,{}, BookVM))
+            .catch(error => console.error('Unable to get items.', error));
+	});
+</script>
+
+<!--List of book's pages-->
+
+<!--resizer-->
 <script type="text/javascript">
 	// Get elements
 	const resizer = document.getElementById('dragbar');

@@ -10,7 +10,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 	[ApiController]
 	public class PageController : Controller
     {
-		class PagesPayload
+		public class PagesPayload
 		{
 			// Class to wrap fetch data and additional info for views,
 			// will be converted into json object
@@ -45,8 +45,9 @@ namespace WebAPP.Areas.Organizers.Controllers
             return await _context.Pages.ToListAsync();
         }
 
-		// GET: api/Pages/5
-		[Authorize]
+
+        // GET: api/Pages/5
+        [Authorize]
 		[HttpGet("{id}")]
         public async Task<ActionResult<PageDMO>> GetPageDMO(int id)
         {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore;
 using System.Data.Entity.Core.Mapping;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
@@ -35,6 +36,10 @@ namespace WebAPP.Areas.Organizers.Controllers
 		{
 			public DocumentVM(Document document) : base(nameof(Document), document.Title, document.Id) { }
 		}
+		public class BookVM : ItemBaseVM
+		{
+			public BookVM(Book book) : base(nameof(Book), book.Name, book.Id) { }
+		}
 
 		public class CategoryBaseVM
 		{
@@ -42,10 +47,12 @@ namespace WebAPP.Areas.Organizers.Controllers
 			{
 				Subcategories = category.Subcategories.Select(x => new CategoryVM(x)).ToList();
 				Documents = category.Documents.Select(x => new DocumentVM(x)).ToList();
+				Books = category.Books.Select(x => new BookVM(x)).ToList();
 			}
 
 			public List<CategoryVM> Subcategories { get; }
 			public List<DocumentVM> Documents { get; }
+			public List<BookVM> Books { get; }
 		}
 
 		private readonly UserManager<UserAccount> userManager;
@@ -75,7 +82,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return View("Organizer");
 		}
 
-		[HttpGet("root")]
+ 		[HttpGet("root")]
 		public async Task<ActionResult<CategoryBaseVM>> Root(int id)
 		{
 			var user = await userManager.GetUserAsync(User);
