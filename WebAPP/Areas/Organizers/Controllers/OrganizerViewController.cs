@@ -79,7 +79,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			Organizer? target = dbContext
 								.Organizers
-								.First(x => x.OwnerId == user.Id && x.Id == id);
+								.First(x => x.OwnerId == user.Id && x.Id == organizerId);
 
 			if (target == null)
 				return NotFound();
@@ -94,14 +94,14 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			bool any = dbContext
 					   .Organizers
-					   .Any(x => x.OwnerId == user.Id && x.Id == id);
+					   .Any(x => x.OwnerId == user.Id && x.Id == organizerId);
 
 			if (!any)
 				return NotFound();
 
 			Category? category = dbContext
 								.Categories
-								.First(x => x.Id == categoryId && x.OrganizerId == id);
+								.First(x => x.Id == categoryId && x.OrganizerId == organizerId);
 
 			return Ok ( new CategoryBaseVM(category) );
 		}
@@ -113,14 +113,14 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			Organizer? target = dbContext
 								.Organizers
-								.First(x => x.OwnerId == user.Id && x.Id == id);
+								.First(x => x.OwnerId == user.Id && x.Id == organizerId);
 
 			if (target == null)
 				return NotFound();
 
 			bool any = dbContext
 					   .Categories
-					   .Where(x => x.OrganizerId == id && x.Name == name)
+					   .Where(x => x.OrganizerId == organizerId && x.Name == name)
 					   .ToArray()
 					   .FirstOrDefault((Category?)null)
 					   ?.Parent == target;
@@ -148,14 +148,14 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			Organizer? target = dbContext
 								.Organizers
-								.First(x => x.OwnerId == user.Id && x.Id == id);
+								.First(x => x.OwnerId == user.Id && x.Id == organizerId);
 
 			if (target == null)
 				return NotFound();
 
 			bool any = dbContext
 					   .Documents
-					   .Where(x => x.OrganizerId == id && x.Title == name)
+					   .Where(x => x.OrganizerId == organizerId && x.Title == name)
 					   .ToArray()
 					   .FirstOrDefault((Document?)null)
 					   ?.Category == target;
