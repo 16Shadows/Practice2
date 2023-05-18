@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Entity;
-using System.Xaml.Permissions;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
