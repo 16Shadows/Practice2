@@ -7,6 +7,7 @@ using System.Web;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
+    [Authorize]
     [Area("Organizers")]
     [Route("{area}")]
     public class OrganizersController : Controller
@@ -45,20 +46,18 @@ namespace WebAPP.Areas.Organizers.Controllers
             dbContext = context;
         }
 
-        [Authorize]
         [HttpGet("")]
         public IActionResult Index()
         {
             return View("Organizers");
         }
 
-        [Authorize]
         [HttpGet("list")]
         public async Task<ActionResult<IEnumerable<Organizer>>> List()
         {
             var user = await userManager.GetUserAsync(User);
 
-            return Json( 
+            return Json(
                 new OrganizersPayload( 
                     dbContext
                     .Organizers
@@ -70,17 +69,12 @@ namespace WebAPP.Areas.Organizers.Controllers
             );
         }
 
-        [Authorize]
         [HttpPost("create/{name:required:minlength(1)}")]
         public async Task<ActionResult<OrganizerVM>> Create(string name)
         {
             var user = await userManager.GetUserAsync(User);
 
-            bool any = dbContext
-                       .Organizers
-                       .Any(x => x.OwnerId == user.Id && x.Name == name);
-
-            if (any)
+            if (dbContext.HasOrganizer(user, name))
                 return Conflict();
 
             Organizer org = new Organizer()
@@ -96,40 +90,31 @@ namespace WebAPP.Areas.Organizers.Controllers
             return Accepted ( new OrganizerVM(org) );
         }
 
-        [Authorize]
         [HttpDelete("{id:int:required}/delete")]
         public async Task<ActionResult<OrganizerVM>> Delete(int id)
         {
             var user = await userManager.GetUserAsync(User);
 
-            bool any = dbContext.Organizers.Any(x => x.OwnerId == user.Id && x.Id == id);
+            Organizer? target = dbContext.GetOrganizer(user, id);
 
-            if (!any)
+            if (target == null)
                 return NotFound();
 
-            Organizer org = new Organizer()
-            {
-                Id = id,
-                OwnerId = user.Id
-            };
-            OrganizerVM vm = new OrganizerVM(org);
+            OrganizerVM vm = new OrganizerVM(target);
 
-            dbContext.Organizers.Remove(org);
+            dbContext.Organizers.Remove(target);
             
             await dbContext.SaveChangesAsync();
 
             return Ok(vm);
         }
 
-        [Authorize]
         [HttpPost("{id:int:required}/rename/{name:required:minlength(1)}")]
         public async Task<ActionResult<OrganizerVM>> Rename(int id, string name)
         {
             var user = await userManager.GetUserAsync(User);
 
-            Organizer? target = dbContext
-                                .Organizers
-                                .FirstOrDefault(x => x.OwnerId == user.Id && x.Id == id);
+            Organizer? target = dbContext.GetOrganizer(user, id);
 
             if (target == null)
                 return NotFound();

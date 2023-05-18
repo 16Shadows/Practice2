@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Entity;
+using System.Xaml.Permissions;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
+	[Authorize]
 	[Area("Organizers")]
 	[Route("Organizers/{organizerId:int:required}")]
 	public class OrganizerViewController : Controller
@@ -25,9 +28,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		{
 			var user = await userManager.GetUserAsync(User);
 
-			Organizer? target = dbContext
-								.Organizers
-								.First(x => x.OwnerId == user.Id && x.Id == organizerId);
+			Organizer? target = dbContext.GetOrganizer(user, organizerId);
 
 			if (target == null)
 				return NotFound();
@@ -56,24 +57,22 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok ( new CategoryBaseVM(target) );
 		}
 
-		[HttpPost("category/create/{name:minlength(1):required}")]
+		[HttpPost("createCategory/{name:minlength(1):required}")]
 		public async Task<ActionResult<CategoryBaseVM>> CreateCategory(int organizerId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);
 
-			Organizer? target = dbContext
-								.Organizers
-								.First(x => x.OwnerId == user.Id && x.Id == organizerId);
+			Organizer? target = dbContext.GetOrganizer(user, organizerId);
 
 			if (target == null)
 				return NotFound();
 
 			bool any = dbContext
 					   .Categories
-					   .Where(x => x.OrganizerId == organizerId && x.Name == name)
+					   .Where(x => x.OrganizerId == organizerId && x.ParentId == organizerId && x.Name == name)
+					   .Include(x => x.Parent)
 					   .ToArray()
-					   .FirstOrDefault((Category?)null)
-					   ?.Parent == target;
+					   .Any(x => x.Parent.GetType().IsAssignableTo(typeof(Organizer)));
 
 			if (any)
 				return Conflict();
@@ -91,24 +90,22 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok(new CategoryVM(category));
 		}
 
-		[HttpPost("document/create/{name:minlength(1):required}")]
+		[HttpPost("createDocument/{name:minlength(1):required}")]
 		public async Task<ActionResult<CategoryBaseVM>> CreateDocument(int organizerId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);
 
-			Organizer? target = dbContext
-								.Organizers
-								.First(x => x.OwnerId == user.Id && x.Id == organizerId);
+			Organizer? target = dbContext.GetOrganizer(user, organizerId);
 
 			if (target == null)
 				return NotFound();
 
 			bool any = dbContext
 					   .Documents
-					   .Where(x => x.OrganizerId == organizerId && x.Title == name)
+					   .Where(x => x.OrganizerId == organizerId && x.CategoryId == organizerId && x.Title == name)
+					   .Include(x => x.Category)
 					   .ToArray()
-					   .FirstOrDefault((Document?)null)
-					   ?.Category == target;
+					   .Any(x => x.Category.GetType().IsAssignableTo(typeof(Organizer)));
 
 			if (any)
 				return Conflict();
