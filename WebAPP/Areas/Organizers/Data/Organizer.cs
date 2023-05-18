@@ -8,7 +8,7 @@ namespace WebAPP.Areas.Organizers.Data
     public class Organizer : CategoryBase
     {
         public string OwnerId { get; set; }
-        public virtual UserAccount Owner { get; set; }
+        public UserAccount Owner { get; set; }
     }
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

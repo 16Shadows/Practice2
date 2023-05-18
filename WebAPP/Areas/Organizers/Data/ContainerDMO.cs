@@ -14,9 +14,9 @@ namespace WebAPP.Areas.Organizers.Data
         public int CoordX { get; set; }
         public int CoordY { get; set; }
         // required many-to-many: pages/containers
-        public virtual List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>();
+        public List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>();
         // required many-to-many: containers/objects
-        public virtual List<ObjectDMO> ObjectDMOs { get; set; }
+        public List<ObjectDMO> ObjectDMOs { get; set; }
     }
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

@@ -7,7 +7,7 @@ namespace WebAPP.Areas.Organizers.Data
     [Index(nameof(Title), nameof(CategoryId), IsUnique = true)]
     public class Document : SectionBase
     {
-        public virtual List<Tag> Tags { get; } = new List<Tag>();
+        public List<Tag> Tags { get; } = new List<Tag>();
     }
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }
