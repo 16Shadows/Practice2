@@ -1,10 +1,11 @@
-﻿<!--
+﻿<script src="~/lib/dgoguerra-bootstrap-menu/dist/BootstrapMenu.min.js"></script>
+<!--
 	architorture: 
 	1) current selected page view, 
 		area must support page scrolling, if page can't fit inside,
 
-	2) list of current book pages, with context menu (add page, 
-		delete page, add container? change page positions?)
+	2) ++list of current book pages,
+		with context menu (add page, delete page, add container? change page positions?)
 		pages in list are selectable
 		page icon?
 
@@ -14,6 +15,7 @@
 <style>
 	.book {
 		min-height: 200px;
+		max-height:500px;
 		background-color: darkgray; /*for debug*/
 		margin: 10px;
 		display: flex;
@@ -22,6 +24,8 @@
 		width: 75%;
 		min-width: 200px;
 		overflow: auto;
+		align-items:center;
+		padding:20px;
 	}
 	.resizer {
 		cursor: ew-resize;
@@ -33,29 +37,52 @@
 
 <!--Body-->
 <div class="book">
-	<div class="pageViewContainer"></div>
+	<div class="pageViewContainer">
+		<partial name="../Page/Page" style="margin:auto;"></partial>
+	</div>
 	<div class="resizer" id="dragbar"></div>
 	<div>
-		<ul data-bind="foreach: BookVM.pageDMOs" class="list-group" id="pageListContainer" style="min-width:50px; width:stretch;">
-			<li class="list-group-item">
-				<span>
-					<span data-bind="text: $data.id"> (id)</span>
-					<span data-bind="text: $data.position"> (pos)</span>
-				</span>
-			</li>
-		</ul>
+		<table class="table" id="pageTable">
+			<thead style="background-color:white;">
+				<tr>
+					<th scope="col">Page</th>
+					<th scope="col">Add container</th>
+					<th scope="col">Delete page</th>
+				</tr>
+			</thead>
+			<tbody id="pageListContainer" data-bind="foreach: BookVM.pageDMOs" style="background-color:white; min-width:50px;">
+				<tr>
+					<td data-bind="text: $data.position" style="align-content:center;"></td>
+					<td><input data-bind="attr: {id: $data.id}, click: $parent.AddContainerOnPage" type="button" class="btn btn-outline-primary btn-sm" value="+" style="align-content:center;"></td>
+					<td><input data-bind="attr: {id: $data.id}, click: $parent.DeletePage" type="button" class="btn btn-outline-danger btn-sm" value="&times" style="align-content:center;"></td>
+
+				</tr>
+
+			</tbody>
+			
+		</table>
+		<table id="addPgBth">
+			<tr>
+				<td><input onclick="AddPage()" type="button" class="btn btn-primary btn-sm" value="Add page" style="align-content:center; background-color:none;"></td>
+			</tr>
+		</table>
 	</div>
-	
 </div>
 
 <!--Initial load-->
 <script type="text/javascript">
 	// Id of this book view instance
 	RootVM.BookID = @ViewData["BookID"];
-	RootVM.ActivePage = ko.observable();
+	// Active page to be displayed in left area
+	RootVM.ActivePage = ko.observable(null);
 
-	var BookVM =
-	{
+	//ko.components.register('currentPageView', {
+	//	viewModel: {require: ""},
+	//	template: {require: "~/Organizers/Page/Page.cshtml"}
+	//});
+
+	// Book view model
+	var BookVM = {
 		id: ko.observable(),
 		name: ko.observable(),
 		parentCategoryId: ko.observable(),
@@ -69,9 +96,52 @@
 			.then(json => ko.mapping.fromJS(json,{}, BookVM))
             .catch(error => console.error('Unable to get items.', error));
 	});
+
+	// Create new page and add in the last position of the book
+	function AddPage(bookID){
+		// calculate unique position for new page
+		var newPos = BookVM.pageDMOs().length + 1;
+		
+		fetch("/Organizers/Page/create/" + BookVM.id() + "/" + newPos,
+			{ method: "POST" })
+			.then(response => response.json())
+			.then(json => BookVM.pageDMOs.push(json.pages[0]))
+            .catch(error => console.error('Unable to add items.', error));
+	}
+
+	// Add new blanc container on chosen page
+	function AddContainerOnPage(elem){
+		console.log("add cont on ", this);
+	}
+
+	// Delete chosen page from book, other page's position will be updated
+	RootVM.DeletePage = function(row) {
+		debugger;
+		// Id of page, represented by table row
+		var pId = row.id();
+
+		fetch("/Organizers/Page/delete/" + BookVM.id() + "/" + pId,
+		{method: "DELETE"})
+		.then((response) => {
+			// check if deletion was successful
+			if (response.status == Number(202)){
+				// check if deleted page was open as view
+				if (RootVM.ActivePage == pId){
+					RootVM.ActivePage(null);
+				}
+				// delete page from observable list
+				BookVM.pageDMOs.remove(row);
+			}
+			else{
+				console.error("Something went wrong when deleting. Page pos:",
+					row.position(),
+					response.status);
+			}
+		})
+		.catch(error => console.error('Unable to delete items.', error));
+	}
 </script>
 
-<!--List of book's pages-->
 
 <!--resizer-->
 <script type="text/javascript">
