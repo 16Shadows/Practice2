@@ -2,62 +2,120 @@
 	.DMOcontainer {
 		width: 200px;
 		height: 150px;
+		min-width:100px;
+		min-height: 40px;
+
 		padding: 2px;
 		position: absolute;
 		z-index: 9;
-		background-color: salmon;
+		background-color: white;
 		display:flex;
 		flex-direction: column;
 	}
 
-	.draggable {
+	.containerHeader{
+		flex: 0;
 		z-index: 10;
+		display:flex;
+	}
+
+	.draggable {
+		width:stretch;
+		min-width: 20px;
+		min-height: 20px;
+
 		cursor: move;
 		box-sizing: border-box;
-		min-height: 30px;
-		height: 30px;
-		background-color:darkgray;
-		min-width: 100px;
-
-		width: stretch;
-		flex: 0;
+		background-color: darkgray;
+		flex:0;
 	}
 
 	.content{
 		flex:1;
+		overflow: auto;
+		margin-top:0px;
+		margin-right:10px;
+		margin-left:10px;
+		margin-bottom:10px;
+	}
+
+	.resizeButton{
+		min-width: 10px;
+		min-height: 10px;
+		max-width:10px;
+		max-height:10px;
+		cursor:se-resize;
+		background-color:grey;
+
+		position:absolute;
+		bottom:0px;
+		right:0px;
+		flex:2;
 	}
 </style>
 
 <div class="DMOcontainer" id="cont">
-    <div class="draggable" id="contHeader"></div>
+	<div class="container containerHeader">
+		<div class="draggable" id="contDraggable"></div>
+		<button id="setB" class="btn btn-outline-primary btn-sm">Set</button>
+		<button id="delB" class="btn btn-danger btn-sm">&times;</button>
+	</div>
+    
     <div class="content">
-        dfDSFdfsdfff MR mr mrrRRr
+        dfDSFdfsdfffMRmrmrrRRrffffffffffffff
     </div>
+	<div class="ui-resizable-se resizeButton"></div>
 </div>
 
+<!--Initial load-->
+<script type="text/javascript">
+	//fetch to load initial coords, size and content
+	//need knockout to create component of inner content
+</script>
+
+<!--Drag-->
 <script type="text/javascript">
 	//get parent for relative coordinates
 	var parent = $("div.DMOcontainer").parent(".page")[0];
 	var parentRect = parent.getBoundingClientRect();
 
 	// set database coordinates relative to page
-
 	$(".DMOcontainer").draggable();
 
 	//set rules - parent container and handle
 	$(".DMOcontainer").draggable("option", "containment", "parent");
-	$(".DMOcontainer").draggable("option", "handle", "#contHeader");
+	$(".DMOcontainer").draggable("option", "handle", "#contDraggable");
 	
 	// function to update coordinates on server
 	$(".DMOcontainer").draggable({
-		drag: function () {
+		stop: function () {
 			var offset = $(this).offset();
 			var xPos = offset.left;
 			var yPos = offset.top;
-			console.log(xPos - parentRect.left, yPos - parentRect.top);
+			//console.log(xPos - parentRect.left, yPos - parentRect.top);
 
+			// fetch to update coords
+		}
+	});
+</script>
 
-		}});
-	
+<!--Resize-->
+<script type="text/javascript">
 
+	$(".DMOcontainer").resizable();
+	//set rules
+	$(".DMOcontainer").resizable("option", "handles", "se");
+	$(".DMOcontainer").resizable("option", "containment", "parent");
+	$(".DMOcontainer").resizable("option", "minHeight", getComputedStyle(document.querySelector('.DMOcontainer')).minHeight);
+	$(".DMOcontainer").resizable("option", "minWidth", getComputedStyle(document.querySelector('.DMOcontainer')).minWidth);
+
+	$( ".selector" ).resizable({
+	  stop: function( event, ui ) {
+		  var newWidth = ui.size[0];
+		  var newHeight = ui.size[1];
+		  
+		  console.log(newWidth, newHeight);
+			//fetch to update size
+	  }
+	});
 </script>

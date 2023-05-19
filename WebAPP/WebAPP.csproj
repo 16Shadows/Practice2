@@ -40,10 +40,4 @@
     <Resource Include="Areas\Organizers\Views\Container\william.png" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Data\Database.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

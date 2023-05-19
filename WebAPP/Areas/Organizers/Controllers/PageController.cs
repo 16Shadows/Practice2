@@ -10,7 +10,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 	[ApiController]
 	public class PageController : Controller
     {
-		class PagesPayload
+		public class PagesPayload
 		{
 			// Class to wrap fetch data and additional info for views,
 			// will be converted into json object
@@ -26,51 +26,117 @@ namespace WebAPP.Areas.Organizers.Controllers
         {
             _context = context;
         }
+
+        // create blanc view of page with page ID
 		[Authorize]
-		[HttpGet("")]
-		public IActionResult Index()
+		[HttpGet("{pageId:int}")]
+		public IActionResult Index(int pageId)
 		{
+			if (!PageDMOExists(pageId))
+			{
+				return NotFound();
+			}
+            ViewData["PageID"] = pageId;
+
 			return View("Page");
 		}
 
-		// GET: api/Pages
+        // get page object and its containers
 		[Authorize]
-		[HttpGet("table")]
-		public async Task<ActionResult<IEnumerable<PageDMO>>> GetPages()
+		[HttpGet("{pageId:int}/content")]
+        public async Task<ActionResult<PageDMO>> GetPageContent(int pageId)
         {
-            if (_context.Pages == null)
-            {
-                return NotFound();
-            }
-            return await _context.Pages.ToListAsync();
-        }
+			if (!_context.Pages.Any(e => e.Id == pageId))
+			{
+				return NotFound();
+			}
+			var page = await _context.Pages.Where(p => p.Id == pageId)
+				.Include(p => p.ContainerDMOs).FirstAsync();
+			
+														// TODO: change to payload
+            var j = Json(page);
+			return j;
+		}
 
-		// GET: api/Pages/5
+		// POST new page to the book by bookID
 		[Authorize]
-		[HttpGet("{id}")]
-        public async Task<ActionResult<PageDMO>> GetPageDMO(int id)
-        {
-            if (_context.Pages == null)
-            {
-                return NotFound();
-            }
-            var pageDMO = await _context.Pages.FindAsync(id);
+		[HttpPost("create/{bookId:int}/{position:int}")]
+		public async Task<ActionResult<PageDMO>> PostPageDMO(int bookId, int position)
+		{
+			var ok = _context.Books.Find(bookId);
+			if (ok == null) //check that book exists
+			{
+				return NotFound();
+			}
 
-            if (pageDMO == null)
-            {
-                return NotFound();
-            }
+			// create new page with parent
+			PageDMO pg = new PageDMO()
+			{
+				Position = position,
+				ParentBookId = bookId,
+				ParentBook = _context.Books.First(b => b.Id == bookId),
 
-            return pageDMO;
-        }
+			};
 
-		// PUT: api/Pages/5
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+			await _context.Pages.AddAsync(pg);
+
+			await _context.SaveChangesAsync();
+
+			// get instance of new page with id
+			var newPage = _context.Pages.Where(p => p.ParentBookId == bookId)
+				.Where(p => p.Position == position).First();
+
+			return Accepted(new PagesPayload(new List<PageDMO>() { newPage }));
+		}
+
+		// DELETE
 		[Authorize]
-		[HttpPut("{id}")]
-        public async Task<IActionResult> PutPageDMO(int id, PageDMO pageDMO)
+		[HttpDelete("delete/{bookId:int}/{pageId:int}")]
+		public async Task<IActionResult> DeletePageDMO(int bookId, int pageId)
+		{
+			if (_context.Pages == null)
+			{
+				return NotFound();
+			}
+			var pageDMO = await _context.Pages.FindAsync(pageId);
+			if (pageDMO == null)
+			{
+				return NotFound();
+			}
+			var pos = pageDMO.Position;
+
+			_context.Pages.Remove(pageDMO);
+			await _context.SaveChangesAsync();
+
+			// update all pages
+			await ChangePagePositionsAfterDelete(bookId, pos);
+
+			var list = await _context.Pages.Where(p => p.ParentBookId == bookId)
+				.OrderBy(p => p.Position)
+				.ToListAsync();
+
+			// !!!! need to return updated array to update positions
+			return Accepted(new PagesPayload(list));
+		}
+		// Changes all pages' positions in book after deleted one
+		private async Task ChangePagePositionsAfterDelete(int bookId, int borderPosition)
+		{
+			var list = await _context.Pages.Where(p => p.ParentBookId == bookId)
+				.Where(p => p.Position > borderPosition).ToListAsync();
+
+			foreach (var page in list)
+			{
+				page.Position -= 1;
+			}
+			// send changes to server
+			await _context.SaveChangesAsync();
+		}
+
+		[Authorize]
+		[HttpPut("{pageId:int}")]
+        public async Task<IActionResult> PutPageDMO(int pageId, PageDMO pageDMO)
         {
-            if (id != pageDMO.Id)
+            if (pageId != pageDMO.Id)
             {
                 return BadRequest();
             }
@@ -83,7 +149,7 @@ namespace WebAPP.Areas.Organizers.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PageDMOExists(id))
+                if (!PageDMOExists(pageId))
                 {
                     return NotFound();
                 }
@@ -95,44 +161,6 @@ namespace WebAPP.Areas.Organizers.Controllers
 
             return NoContent();
         }
-
-		// POST: api/Pages
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-		[Authorize]
-		[HttpPost]
-        public async Task<ActionResult<PageDMO>> PostPageDMO(PageDMO pageDMO)
-        {
-            if (_context.Pages == null)
-            {
-                return Problem("Entity set 'DMOrganizerDBContext.Pages'  is null.");
-            }
-            _context.Pages.Add(pageDMO);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPageDMO", new { id = pageDMO.Id }, pageDMO);
-        }
-
-		// DELETE: api/Pages/5
-		[Authorize]
-		[HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePageDMO(int id)
-        {
-            if (_context.Pages == null)
-            {
-                return NotFound();
-            }
-            var pageDMO = await _context.Pages.FindAsync(id);
-            if (pageDMO == null)
-            {
-                return NotFound();
-            }
-
-            _context.Pages.Remove(pageDMO);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
         private bool PageDMOExists(int id)
         {
             return (_context.Pages?.Any(e => e.Id == id)).GetValueOrDefault();

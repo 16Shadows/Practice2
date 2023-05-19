@@ -9,11 +9,22 @@ using WebAPP.Areas.Organizers.Data;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ContainerController : ControllerBase
+	[Area("Organizers")]
+	[Route("{area}/Container")]
+	[ApiController]
+    public class ContainerController : Controller
     {
-        private readonly WebAPPContext _context;
+		class ContainersPayload
+		{
+			// Class to wrap fetch data and additional info for views,
+			// will be converted into json object
+			public ContainersPayload(List<ContainerDMO> containers)
+			{
+				Containers = containers;
+			}
+			public List<ContainerDMO> Containers { get; }
+		}
+		private readonly WebAPPContext _context;
 
         public ContainerController(WebAPPContext context)
         {
