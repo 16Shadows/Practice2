@@ -1,4 +1,9 @@
 ﻿<script src="~/lib/dgoguerra-bootstrap-menu/dist/BootstrapMenu.min.js"></script>
+
+<script type="text/html" id="PageViewTemplate" src="~/Organizers/Views/Page/Page.cshtml"></script>
+<script type="text/html" id="test-template">
+	<h3 data-bind = "text: $data.id"></h3>
+</script>
 <!--
 	architorture: 
 	1) current selected page view, 
@@ -19,6 +24,7 @@
 		background-color: darkgray; /*for debug*/
 		margin: 10px;
 		display: flex;
+		overflow: auto;
 	}
 	.pageViewContainer {
 		width: 75%;
@@ -37,8 +43,9 @@
 
 <!--Body-->
 <div class="book">
-	<div class="pageViewContainer">
-		<partial name="../Page/Page" style="margin:auto;"></partial>
+	<div class="pageViewContainer" id="pageVC">
+		<div id="mainPageView" data-bind="template: {name: 'test-template' , data:RootVM.ActivePage }"></div>
+		<!--<partial name="../Page/Page" style="margin:auto;"></partial>-->
 	</div>
 	<div class="resizer" id="dragbar"></div>
 	<div style="overflow: auto;">
@@ -51,7 +58,7 @@
 				</tr>
 			</thead>
 			<tbody id="pageListContainer" data-bind="foreach: BookVM.pageDMOs" style="background-color:white; min-width:50px;">
-				<tr>
+				<tr data-bind="attr: {id: $data.id}, click: $parent.SelectActivePage">
 					<td data-bind="text: $data.position" style="align-content:center;"></td>
 					<td><input data-bind="attr: {id: $data.id}, click: $parent.AddContainerOnPage" type="button" class="btn btn-outline-primary btn-sm" value="+" style="align-content:center;"></td>
 					<td><input data-bind="attr: {id: $data.id}, click: $parent.DeletePage" type="button" class="btn btn-outline-danger btn-sm" value="&times" style="align-content:center;"></td>
@@ -74,7 +81,8 @@
 	// Id of this book view instance
 	RootVM.BookID = @ViewData["BookID"];
 	// Active page to be displayed in left area
-	RootVM.ActivePage = ko.observable(null);
+	RootVM.ActivePage = ko.observableArray();
+
 
 	//ko.components.register('currentPageView', {
 	//	viewModel: {require: ""},
@@ -88,12 +96,6 @@
 		parentCategoryId: ko.observable(),
 		pageDMOs: ko.observableArray()
 	};
-	var pageMap = {
-		createCallback: function (options) {
-			var self = ko.mapping.fromJS(options.data);
-			return self;
-		}
-	}
 
 	// request list data after page loading
 	OnLoadCallback.push(() => {
@@ -103,9 +105,21 @@
             .catch(error => console.error('Unable to get items.', error));
 	});
 
+	// Select row and set new active page view
+	RootVM.SelectActivePage = function(row){
+		debugger;
+		var newPage = row;
+
+		if (RootVM.ActivePage() != newPage)
+		{
+			
+			// need to change colors to mark selected row
+			RootVM.ActivePage(row);
+		}
+	}
+
 	// Create new page and add in the last position of the book
 	function AddPage(){
-		debugger;
 
 		let newPos;
 		// calculate unique position for new page
@@ -119,9 +133,9 @@
 		}
 
 		fetch("/Organizers/Page/create/" + BookVM.id() + "/" + newPos,
-			{ method: "POST" })
+		{ method: "POST" })
 			.then(response => response.json())
-			.then(json => BookVM.pageDMOs.push(ko.mapping.fromJS(json.pages[0], pageMap)))
+			.then(json => BookVM.pageDMOs.push(ko.mapping.fromJS(json.pages[0])))
             .catch(error => console.error('Unable to add items.', error));
 
 	}
@@ -133,7 +147,7 @@
 
 	// Delete chosen page from book, other page's position will be updated
 	RootVM.DeletePage = function(row) {
-		debugger;
+
 		// Id of page, represented by table row
 		var pId = row.id();
 
@@ -143,18 +157,22 @@
 			// check if deletion was successful
 			if (response.status == Number(202)){
 				// check if deleted page was open as view
-				if (RootVM.ActivePage == pId){
-					RootVM.ActivePage(null);
+				if (RootVM.ActivePage().length >= 1)
+				{
+					if (RootVM.ActivePage()[RootVM.ActivePage().length-1].id() == pId) 
+					{
+						RootVM.ActivePage.removeAll();
+					}
+					
 				}
-				//// delete page from observable list
-				//BookVM.pageDMOs.remove(row);
 			}
-			else{
+			else
+			{
 				console.error("Something went wrong when deleting. Page pos:",
 					row.position(),
 					response.status);
 			}
-
+			
 			return response.json();
 		})
 		.then(json => ko.mapping.fromJS(json.pages, {}, BookVM.pageDMOs))
