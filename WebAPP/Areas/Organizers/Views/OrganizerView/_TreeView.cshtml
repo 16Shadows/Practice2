@@ -11,8 +11,9 @@
 						return;
 					target.loading = true;
 					//Load actual data
-					target.subcategories([]);
-					target.documents([]);
+					fetch("/Organizers/" + RootVM.OrganizerID + "/category/" + target.id())
+					.then(response => response.json())
+					.then(json => ko.mapping.fromJS(json, TreeViewNodeMapper, target));
 					//Free up memory
 					delete target.loading;
 				}
@@ -40,4 +41,31 @@
 	});
 </script>
 
-<span>Hello, world!</span>
+<script type="text/html" id="treeview-category-template">
+	<li>
+		<a role="button" context-menu="#treeview-category-contextmenu" data-bind="text: name"></a>
+		<ul data-bind="template: { name: 'treeview-category-template', foreach: subcategories }"></ul>
+		<ul data-bind="template: { name: 'treeview-document-template', foreach: documents }"></ul>
+	</li>
+</script>
+
+<script type="text/html" id="treeview-document-template">
+	<li>
+		<a role="button" data-bind="text: title, event: { contextmenu: $root.TreeViewVM.DocumentContextMenu }"></a>
+	</li>
+</script>
+
+<div id="treeViewRoot">
+	<ul data-bind="template: { name: 'treeview-category-template', foreach: TreeViewVM.subcategories }"></ul>
+	<ul data-bind="template: { name: 'treeview-document-template', foreach: TreeViewVM.documents }"></ul>
+</div>
+
+<div id="treeview-category-contextmenu" class="card" style="display:none">
+	<div class="row">
+		<a role="button">Button 1</a>
+	</div>
+
+	<div class="row">
+		<a role="button">Button 1</a>
+	</div>
+</div>

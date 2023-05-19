@@ -25,10 +25,12 @@
 	});
 </script>
 
-<div class="container-fliud d-flex flex-column border border-primary" style="height:100%">
-	<div class="row flex-grow-1">
+<div class="container-fliud d-flex flex-column border border-primary" style="height:100%;overflow:hidden">
+	<div class="row flex-grow-1 g-0" style="maxwidth:100%">
 		<div id="TreeViewHost" class="col-3 border-end border-primary">
-			<partial name="_TreeView" />
+			<div style="overflow:auto;height:100%">
+				<partial name="_TreeView" />
+			</div>
 		</div>
 		<div id="ItemViewHost" class="col-6">
 			<span>Placeholder</span>
