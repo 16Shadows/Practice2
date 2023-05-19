@@ -57,7 +57,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok ( new CategoryBaseVM(target) );
 		}
 
-		[HttpGet("createCategory/{name:minlength(1):required}")]
+		[HttpPost("createCategory/{name:minlength(1):required}")]
 		public async Task<ActionResult<CategoryBaseVM>> CreateCategory(int organizerId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);

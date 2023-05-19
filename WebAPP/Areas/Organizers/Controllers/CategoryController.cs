@@ -27,7 +27,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		{
 			var user = await userManager.GetUserAsync(User);
 
-			if (!dbContext.HasOrganizer(user, categoryId))
+			if (!dbContext.HasOrganizer(user, organizerId))
 				return NotFound();
 
 			Category? target = dbContext
@@ -35,7 +35,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 							   .Where(x => x.Id == categoryId && x.OrganizerId == organizerId)
 							   .Include(x => x.Subcategories)
 							   .Include(x => x.Documents)
-							   .First();
+							   .ToArray()
+							   .FirstOrDefault();
 
 			if (target == null)
 				return NotFound();
