@@ -15,11 +15,7 @@ namespace WebAPP.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", true)
-                .HasAnnotation("Proxies:LazyLoading", true);
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
 
             modelBuilder.Entity("ContainerDMOObjectDMO", b =>
                 {
@@ -141,9 +137,11 @@ namespace WebAPP.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderKey")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderDisplayName")
@@ -181,9 +179,11 @@ namespace WebAPP.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
@@ -390,6 +390,8 @@ namespace WebAPP.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("OrganizerId");
 
                     b.ToTable("SectionBase");
@@ -452,7 +454,10 @@ namespace WebAPP.Migrations
                 {
                     b.HasBaseType("WebAPP.Areas.Organizers.Data.SectionBase");
 
-                    b.HasIndex("CategoryId");
+                    b.Property<int?>("CategoryBaseId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasIndex("CategoryBaseId");
 
                     b.HasIndex("Title", "CategoryId")
                         .IsUnique();
@@ -466,8 +471,6 @@ namespace WebAPP.Migrations
 
                     b.Property<int>("ParentId")
                         .HasColumnType("INTEGER");
-
-                    b.HasIndex("CategoryId");
 
                     b.HasIndex("ParentId");
 
@@ -597,11 +600,19 @@ namespace WebAPP.Migrations
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.SectionBase", b =>
                 {
+                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
                         .WithMany()
                         .HasForeignKey("OrganizerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Category");
 
                     b.Navigation("Organizer");
                 });
@@ -638,30 +649,18 @@ namespace WebAPP.Migrations
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Document", b =>
                 {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", "Category")
+                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", null)
                         .WithMany("Documents")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
+                        .HasForeignKey("CategoryBaseId");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Section", b =>
                 {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebAPP.Areas.Organizers.Data.SectionBase", "Parent")
                         .WithMany("Sections")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Category");
 
                     b.Navigation("Parent");
                 });

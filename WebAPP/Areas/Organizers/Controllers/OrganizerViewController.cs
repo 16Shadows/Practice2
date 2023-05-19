@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
@@ -48,7 +48,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 								.Where(x => x.OwnerId == user.Id && x.Id == organizerId)
 								.Include(x => x.Subcategories)
 								.Include(x => x.Documents)
-								.First();
+								.ToArray()
+								.FirstOrDefault();
 
 			if (target == null)
 				return NotFound();
@@ -56,7 +57,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok ( new CategoryBaseVM(target) );
 		}
 
-		[HttpPost("createCategory/{name:minlength(1):required}")]
+		[HttpGet("createCategory/{name:minlength(1):required}")]
 		public async Task<ActionResult<CategoryBaseVM>> CreateCategory(int organizerId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebAPP.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Restructurizeddomainmodel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -208,17 +208,24 @@ namespace WebAPP.Migrations
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Discriminator = table.Column<string>(type: "TEXT", nullable: false),
                     ParentId = table.Column<int>(type: "INTEGER", nullable: true),
-                    OwnerId = table.Column<int>(type: "INTEGER", nullable: true),
-                    OwnerId1 = table.Column<string>(type: "TEXT", nullable: true)
+                    OrganizerId = table.Column<int>(type: "INTEGER", nullable: true),
+                    OwnerId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CategoryBase", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CategoryBase_AspNetUsers_OwnerId1",
-                        column: x => x.OwnerId1,
+                        name: "FK_CategoryBase_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoryBase_CategoryBase_OrganizerId",
+                        column: x => x.OrganizerId,
+                        principalTable: "CategoryBase",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CategoryBase_CategoryBase_ParentId",
                         column: x => x.ParentId,
@@ -279,16 +286,29 @@ namespace WebAPP.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Title = table.Column<string>(type: "TEXT", nullable: false),
                     Text = table.Column<string>(type: "TEXT", nullable: false),
+                    OrganizerId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CategoryId = table.Column<int>(type: "INTEGER", nullable: false),
                     Discriminator = table.Column<string>(type: "TEXT", nullable: false),
-                    Document_ParentId = table.Column<int>(type: "INTEGER", nullable: true),
+                    CategoryBaseId = table.Column<int>(type: "INTEGER", nullable: true),
                     ParentId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SectionBase", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SectionBase_CategoryBase_Document_ParentId",
-                        column: x => x.Document_ParentId,
+                        name: "FK_SectionBase_CategoryBase_CategoryBaseId",
+                        column: x => x.CategoryBaseId,
+                        principalTable: "CategoryBase",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SectionBase_CategoryBase_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "CategoryBase",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SectionBase_CategoryBase_OrganizerId",
+                        column: x => x.OrganizerId,
                         principalTable: "CategoryBase",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -417,15 +437,15 @@ namespace WebAPP.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_CategoryBase_OrganizerId",
+                table: "CategoryBase",
+                column: "OrganizerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CategoryBase_OwnerId_Name",
                 table: "CategoryBase",
                 columns: new[] { "OwnerId", "Name" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CategoryBase_OwnerId1",
-                table: "CategoryBase",
-                column: "OwnerId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CategoryBase_ParentId",
@@ -459,9 +479,19 @@ namespace WebAPP.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_SectionBase_Document_ParentId",
+                name: "IX_SectionBase_CategoryBaseId",
                 table: "SectionBase",
-                column: "Document_ParentId");
+                column: "CategoryBaseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SectionBase_CategoryId",
+                table: "SectionBase",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SectionBase_OrganizerId",
+                table: "SectionBase",
+                column: "OrganizerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SectionBase_ParentId",
@@ -469,9 +499,9 @@ namespace WebAPP.Migrations
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SectionBase_Title_Document_ParentId",
+                name: "IX_SectionBase_Title_CategoryId",
                 table: "SectionBase",
-                columns: new[] { "Title", "Document_ParentId" },
+                columns: new[] { "Title", "CategoryId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

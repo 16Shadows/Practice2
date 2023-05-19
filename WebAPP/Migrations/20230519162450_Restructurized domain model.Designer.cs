@@ -11,18 +11,14 @@ using WebAPP;
 namespace WebAPP.Migrations
 {
     [DbContext(typeof(WebAPPContext))]
-    [Migration("20230514121531_Initial")]
-    partial class Initial
+    [Migration("20230519162450_Restructurized domain model")]
+    partial class Restructurizeddomainmodel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", true)
-                .HasAnnotation("Proxies:LazyLoading", true);
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
 
             modelBuilder.Entity("ContainerDMOObjectDMO", b =>
                 {
@@ -52,154 +48,6 @@ namespace WebAPP.Migrations
                     b.HasIndex("PageDMOsId");
 
                     b.ToTable("ContainerDMOPageDMO");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.Book", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ParentCategoryId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentCategoryId");
-
-                    b.ToTable("Books");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.CategoryBase", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CategoryBase");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("CategoryBase");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.ContainerDMO", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CoordX")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CoordY")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<uint>("Height")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<uint>("Width")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Containers");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.ObjectDMO", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("LinkToObject")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Objects");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.PageDMO", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ParentBookId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentBookId");
-
-                    b.HasIndex("Position", "ParentBookId")
-                        .IsUnique();
-
-                    b.ToTable("Pages");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.SectionBase", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SectionBase");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("SectionBase");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.Tag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tag");
                 });
 
             modelBuilder.Entity("DocumentTag", b =>
@@ -413,12 +261,175 @@ namespace WebAPP.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Category", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Book", b =>
                 {
-                    b.HasBaseType("DMOrganizerDomainModel.CategoryBase");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ParentCategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.CategoryBase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CategoryBase");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("CategoryBase");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ContainerDMO", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CoordX")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CoordY")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<uint>("Height")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<uint>("Width")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Containers");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ObjectDMO", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LinkToObject")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Objects");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.PageDMO", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ParentBookId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentBookId");
+
+                    b.HasIndex("Position", "ParentBookId")
+                        .IsUnique();
+
+                    b.ToTable("Pages");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.SectionBase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OrganizerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("OrganizerId");
+
+                    b.ToTable("SectionBase");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("SectionBase");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tag");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Category", b =>
+                {
+                    b.HasBaseType("WebAPP.Areas.Organizers.Data.CategoryBase");
+
+                    b.Property<int>("OrganizerId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ParentId")
                         .HasColumnType("INTEGER");
+
+                    b.HasIndex("OrganizerId");
 
                     b.HasIndex("ParentId");
 
@@ -428,17 +439,13 @@ namespace WebAPP.Migrations
                     b.HasDiscriminator().HasValue("Category");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Organizer", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Organizer", b =>
                 {
-                    b.HasBaseType("DMOrganizerDomainModel.CategoryBase");
+                    b.HasBaseType("WebAPP.Areas.Organizers.Data.CategoryBase");
 
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("OwnerId1")
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.HasIndex("OwnerId1");
 
                     b.HasIndex("OwnerId", "Name")
                         .IsUnique();
@@ -446,30 +453,24 @@ namespace WebAPP.Migrations
                     b.HasDiscriminator().HasValue("Organizer");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Document", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Document", b =>
                 {
-                    b.HasBaseType("DMOrganizerDomainModel.SectionBase");
+                    b.HasBaseType("WebAPP.Areas.Organizers.Data.SectionBase");
 
-                    b.Property<int>("ParentId")
+                    b.Property<int?>("CategoryBaseId")
                         .HasColumnType("INTEGER");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("CategoryBaseId");
 
-                    b.HasIndex("Title", "ParentId")
+                    b.HasIndex("Title", "CategoryId")
                         .IsUnique();
-
-                    b.ToTable("SectionBase", t =>
-                        {
-                            t.Property("ParentId")
-                                .HasColumnName("Document_ParentId");
-                        });
 
                     b.HasDiscriminator().HasValue("Document");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Section", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Section", b =>
                 {
-                    b.HasBaseType("DMOrganizerDomainModel.SectionBase");
+                    b.HasBaseType("WebAPP.Areas.Organizers.Data.SectionBase");
 
                     b.Property<int>("ParentId")
                         .HasColumnType("INTEGER");
@@ -484,13 +485,13 @@ namespace WebAPP.Migrations
 
             modelBuilder.Entity("ContainerDMOObjectDMO", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.ContainerDMO", null)
+                    b.HasOne("WebAPP.Areas.Organizers.Data.ContainerDMO", null)
                         .WithMany()
                         .HasForeignKey("ContainerDMOsID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DMOrganizerDomainModel.ObjectDMO", null)
+                    b.HasOne("WebAPP.Areas.Organizers.Data.ObjectDMO", null)
                         .WithMany()
                         .HasForeignKey("ObjectDMOsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -499,50 +500,28 @@ namespace WebAPP.Migrations
 
             modelBuilder.Entity("ContainerDMOPageDMO", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.ContainerDMO", null)
+                    b.HasOne("WebAPP.Areas.Organizers.Data.ContainerDMO", null)
                         .WithMany()
                         .HasForeignKey("ContainerDMOsID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DMOrganizerDomainModel.PageDMO", null)
+                    b.HasOne("WebAPP.Areas.Organizers.Data.PageDMO", null)
                         .WithMany()
                         .HasForeignKey("PageDMOsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Book", b =>
-                {
-                    b.HasOne("DMOrganizerDomainModel.CategoryBase", "ParentCategory")
-                        .WithMany("Books")
-                        .HasForeignKey("ParentCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParentCategory");
-                });
-
-            modelBuilder.Entity("DMOrganizerDomainModel.PageDMO", b =>
-                {
-                    b.HasOne("DMOrganizerDomainModel.Book", "ParentBook")
-                        .WithMany("PageDMOs")
-                        .HasForeignKey("ParentBookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParentBook");
-                });
-
             modelBuilder.Entity("DocumentTag", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.Document", null)
+                    b.HasOne("WebAPP.Areas.Organizers.Data.Document", null)
                         .WithMany()
                         .HasForeignKey("DocumentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DMOrganizerDomainModel.Tag", null)
+                    b.HasOne("WebAPP.Areas.Organizers.Data.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -600,40 +579,87 @@ namespace WebAPP.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Category", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Book", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.CategoryBase", "Parent")
+                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", "ParentCategory")
+                        .WithMany("Books")
+                        .HasForeignKey("ParentCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.PageDMO", b =>
+                {
+                    b.HasOne("WebAPP.Areas.Organizers.Data.Book", "ParentBook")
+                        .WithMany("PageDMOs")
+                        .HasForeignKey("ParentBookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentBook");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.SectionBase", b =>
+                {
+                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
+                        .WithMany()
+                        .HasForeignKey("OrganizerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Organizer");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Category", b =>
+                {
+                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
+                        .WithMany()
+                        .HasForeignKey("OrganizerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", "Parent")
                         .WithMany("Subcategories")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Organizer");
+
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Organizer", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Organizer", b =>
                 {
                     b.HasOne("WebAPP.Areas.Identity.Data.UserAccount", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId1");
+                        .WithMany("Organizers")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Document", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Document", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.CategoryBase", "Parent")
+                    b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", null)
                         .WithMany("Documents")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Parent");
+                        .HasForeignKey("CategoryBaseId");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Section", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Section", b =>
                 {
-                    b.HasOne("DMOrganizerDomainModel.SectionBase", "Parent")
+                    b.HasOne("WebAPP.Areas.Organizers.Data.SectionBase", "Parent")
                         .WithMany("Sections")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -642,12 +668,17 @@ namespace WebAPP.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.Book", b =>
+            modelBuilder.Entity("WebAPP.Areas.Identity.Data.UserAccount", b =>
+                {
+                    b.Navigation("Organizers");
+                });
+
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Book", b =>
                 {
                     b.Navigation("PageDMOs");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.CategoryBase", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.CategoryBase", b =>
                 {
                     b.Navigation("Books");
 
@@ -656,7 +687,7 @@ namespace WebAPP.Migrations
                     b.Navigation("Subcategories");
                 });
 
-            modelBuilder.Entity("DMOrganizerDomainModel.SectionBase", b =>
+            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.SectionBase", b =>
                 {
                     b.Navigation("Sections");
                 });

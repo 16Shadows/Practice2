@@ -33,6 +33,7 @@
   <ItemGroup>
     <Folder Include="Areas\Organizers\Pages\" />
     <Folder Include="Data\" />
+    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\lib\jquery-ui\" />
   </ItemGroup>
 
