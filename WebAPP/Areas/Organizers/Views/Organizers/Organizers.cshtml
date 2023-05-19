@@ -129,7 +129,7 @@
 <div data-bind="foreach: organizers">
 	<div class="card border-primary mb-3">
 		<span class="card-body">
-			<div class="container">
+			<div class="container-fluid">
 				<div class="row">
 					<div class="col">
 						<span class="h2" data-bind="text: name"></span>
@@ -144,7 +144,9 @@
 		</span>
 	</div>
 </div>
-<button class="btn btn-primary float-start" data-bs-toggle="modal" data-bs-target="#createOrganizerModal">Create new</button>
+<div class="d-flex justify-content-center">
+	<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrganizerModal">Create new</button>
+</div>
 
 <div class="modal fade" id="deleteOrganizerModal" tabindex=-1>
 	<div class="modal-dialog">
