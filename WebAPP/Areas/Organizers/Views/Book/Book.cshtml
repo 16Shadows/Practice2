@@ -41,7 +41,7 @@
 		<partial name="../Page/Page" style="margin:auto;"></partial>
 	</div>
 	<div class="resizer" id="dragbar"></div>
-	<div>
+	<div style="overflow: auto;">
 		<table class="table" id="pageTable">
 			<thead style="background-color:white;">
 				<tr>
@@ -88,6 +88,12 @@
 		parentCategoryId: ko.observable(),
 		pageDMOs: ko.observableArray()
 	};
+	var pageMap = {
+		createCallback: function (options) {
+			var self = ko.mapping.fromJS(options.data);
+			return self;
+		}
+	}
 
 	// request list data after page loading
 	OnLoadCallback.push(() => {
@@ -98,15 +104,26 @@
 	});
 
 	// Create new page and add in the last position of the book
-	function AddPage(bookID){
+	function AddPage(){
+		debugger;
+
+		let newPos;
 		// calculate unique position for new page
-		var newPos = BookVM.pageDMOs().length + 1;
-		
+		if (BookVM.pageDMOs().length == 0) {
+			newPos = 1;
+		}
+		else {
+			// 'add page' pushes new page with biggest position at the end of array
+			var obj = BookVM.pageDMOs()[BookVM.pageDMOs().length - 1];
+			newPos = obj.position() + 1;
+		}
+
 		fetch("/Organizers/Page/create/" + BookVM.id() + "/" + newPos,
 			{ method: "POST" })
 			.then(response => response.json())
-			.then(json => BookVM.pageDMOs.push(json.pages[0]))
+			.then(json => BookVM.pageDMOs.push(ko.mapping.fromJS(json.pages[0], pageMap)))
             .catch(error => console.error('Unable to add items.', error));
+
 	}
 
 	// Add new blanc container on chosen page
@@ -129,15 +146,18 @@
 				if (RootVM.ActivePage == pId){
 					RootVM.ActivePage(null);
 				}
-				// delete page from observable list
-				BookVM.pageDMOs.remove(row);
+				//// delete page from observable list
+				//BookVM.pageDMOs.remove(row);
 			}
 			else{
 				console.error("Something went wrong when deleting. Page pos:",
 					row.position(),
 					response.status);
 			}
+
+			return response.json();
 		})
+		.then(json => ko.mapping.fromJS(json.pages, {}, BookVM.pageDMOs))
 		.catch(error => console.error('Unable to delete items.', error));
 	}
 </script>

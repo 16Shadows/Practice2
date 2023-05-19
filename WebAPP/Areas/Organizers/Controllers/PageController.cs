@@ -53,6 +53,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			var page = await _context.Pages.Where(p => p.Id == pageId)
 				.Include(p => p.ContainerDMOs).FirstAsync();
 			
+														// TODO: change to payload
             var j = Json(page);
 			return j;
 		}
@@ -106,22 +107,29 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			_context.Pages.Remove(pageDMO);
 			await _context.SaveChangesAsync();
-			// wait for all pages to update
+
+			// update all pages
 			await ChangePagePositionsAfterDelete(bookId, pos);
 
+			var list = await _context.Pages.Where(p => p.ParentBookId == bookId)
+				.OrderBy(p => p.Position)
+				.ToListAsync();
+
 			// !!!! need to return updated array to update positions
-			return Accepted();
+			return Accepted(new PagesPayload(list));
 		}
 		// Changes all pages' positions in book after deleted one
 		private async Task ChangePagePositionsAfterDelete(int bookId, int borderPosition)
 		{
-			var list = _context.Pages.Where(p => p.ParentBookId == bookId)
-				.Where(p => p.Position > borderPosition).ToList();
+			var list = await _context.Pages.Where(p => p.ParentBookId == bookId)
+				.Where(p => p.Position > borderPosition).ToListAsync();
 
 			foreach (var page in list)
 			{
 				page.Position -= 1;
 			}
+			// send changes to server
+			await _context.SaveChangesAsync();
 		}
 
 		[Authorize]
