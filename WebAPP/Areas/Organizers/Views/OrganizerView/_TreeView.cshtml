@@ -1,40 +1,116 @@
 ﻿<script type="text/javascript">
 	//Mapper to use when mapping received categories to js objects
-	var TreeViewNodeMapper = {
-		"subcategories" : {
-			create: function(options) {
-				var result = ko.mapping.fromJS(options.data);
+	var TreeViewCategoryMapper = {
+		create : function(options) {
+			var result = ko.mapping.fromJS(options.data);
 
-				function loader(target)
-				{
-					if (target.loading != false)
-						return;
-					target.loading = true;
-					//Load actual data
-					fetch("/Organizers/" + RootVM.OrganizerID + "/category/" + target.id())
-					.then(response => response.json())
-					.then(json => ko.mapping.fromJS(json, TreeViewNodeMapper, target));
-					//Free up memory
-					delete target.loading;
-				}
-
-				result.loading = false;
-				result.subcategories = ko.onDemandObservable(loader, result);
-				result.documents = ko.onDemandObservable(loader, result);
-
-				return result;
+			function loader(target)
+			{
+				if (target.loading != false)
+					return;
+				target.loading = true;
+				//Load actual data
+				fetch("/Organizers/" + RootVM.OrganizerID + "/category/" + target.id())
+				.then(response => response.json())
+				.then(json => ko.mapping.fromJS(json, TreeViewNodeMapper, target));
+				//Free up memory
+				delete target.loading;
 			}
+
+			result.loading = false;
+			result.subcategories = ko.onDemandObservableArray(loader, result);
+			result.documents = ko.onDemandObservableArray(loader, result);
+			result.parent = options.parent;
+
+			return result;
 		}
+	}
+	
+	var TreeViewNodeMapper = {
+		"subcategories" : TreeViewCategoryMapper
 	};
 
 	//VM for tree view
 	RootVM.TreeViewVM = {
 		subcategories : ko.observableArray(),
-		documents: ko.observableArray()
+		documents : ko.observableArray(),
+		newNameClean : ko.observable(""),
+		nameLookupObject : null,
+		targetObject: null
+	};
+
+	RootVM.TreeViewVM.newName = ko.pureComputed({
+		read: RootVM.TreeViewVM.newNameClean,
+		write: (value) => RootVM.TreeViewVM.newNameClean(value.trim())
+	});
+
+	RootVM.TreeViewVM.newCategoryNameValid = ko.pureComputed(() => {
+		if (RootVM.TreeViewVM.newName().length == 0 || RootVM.TreeViewVM.nameLookupObject == null)
+			return false;
+		for (i = 0; i < RootVM.TreeViewVM.nameLookupObject.subcategories().length; i++)
+		{
+			if (RootVM.TreeViewVM.nameLookupObject.subcategories()[i].name() != RootVM.TreeViewVM.newName())
+				continue;
+			return false;
+		}
+		return true;
+	});
+
+	RootVM.TreeViewVM.newDocumentNameValid = ko.pureComputed(() => {
+		if (RootVM.TreeViewVM.newName().length == 0 || RootVM.TreeViewVM.nameLookupObject == null)
+			return false;
+		for (i = 0; i < RootVM.TreeViewVM.nameLookupObject.documents().length; i++)
+		{
+			if (RootVM.TreeViewVM.nameLookupObject.documents()[i].name() != RootVM.TreeViewVM.newName())
+				continue;
+			return false;
+		}
+		return true;
+	});
+
+	RootVM.TreeViewVM.CreateCategory = function() {
+		var target = RootVM.TreeViewVM.nameLookupObject;
+		fetch("/Organizers/" + RootVM.OrganizerID + (target == RootVM.TreeViewVM ? "" : ("/category/" + target.id()))  + "/createCategory/" + RootVM.TreeViewVM.newName(), {
+			method : "POST"
+		})
+		.then(response => response.json())
+		.then(json => target.subcategories.push(ko.mapping.fromJS(json, TreeViewCategoryMapper)));
+	};
+
+	RootVM.TreeViewVM.CreateDocument = function() {
+		var target = RootVM.TreeViewVM.nameLookupObject;
+		fetch("/Organizers/" + RootVM.OrganizerID + (target == RootVM.TreeViewVM ? "" : ("/category/" + target.id()))  + "/createDocument/" + RootVM.TreeViewVM.newName(), {
+			method : "POST"
+		})
+		.then(response => response.json())
+		.then(json => target.documents.push(ko.mapping.fromJS(json, TreeViewNodeMapper)));
+	};
+
+	RootVM.TreeViewVM.RenameCategory = function() {
+		var target = RootVM.TreeViewVM.targetObject;
+		fetch("/Organizers/" + RootVM.OrganizerID + "/category/" + target.id() + "/rename/" + RootVM.TreeViewVM.newName(), {
+			method : "POST"
+		})
+		.then(response => response.json())
+		.then(json => ko.mapping.fromJS(json, {}, target));
+	};
+
+	RootVM.TreeViewVM.RenameDocument = function() {
+		var target = RootVM.TreeViewVM.targetObject;
+		fetch("/Organizers/" + RootVM.OrganizerID + "/document/" + target.id() + "/rename/" + RootVM.TreeViewVM.newName(), {
+			method : "POST"
+		})
+		.then(response => response.json())
+		.then(json => ko.mapping.fromJS(json, {}, target));
 	};
 
 	//Load data after page load
 	OnLoadCallback.push(() => {
+		$("#createCategoryModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
+		$("#createDocumentModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
+		$("#renameCategoryModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
+		$("#renameDocumentModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
+
 		fetch("/Organizers/" + RootVM.OrganizerID + "/root")
 		.then(response => response.json())
 		.then(json => ko.mapping.fromJS(json, TreeViewNodeMapper, RootVM.TreeViewVM));
@@ -51,21 +127,127 @@
 
 <script type="text/html" id="treeview-document-template">
 	<li>
-		<a role="button" data-bind="text: title, event: { contextmenu: $root.TreeViewVM.DocumentContextMenu }"></a>
+		<a role="button" data-bind="text: name"></a>
 	</li>
 </script>
 
-<div id="treeViewRoot">
-	<ul data-bind="template: { name: 'treeview-category-template', foreach: TreeViewVM.subcategories }"></ul>
-	<ul data-bind="template: { name: 'treeview-document-template', foreach: TreeViewVM.documents }"></ul>
+<div data-bind="using: TreeViewVM" style="height:100%">
+	<div id="treeViewRoot" context-menu="#treeview-root-contextmenu" style="overflow:auto;height:100%">
+		<ul class="mb-0" data-bind="template: { name: 'treeview-category-template', foreach: subcategories }"></ul>
+		<ul data-bind="template: { name: 'treeview-document-template', foreach: documents }"></ul>
+	</div>
 </div>
 
 <div id="treeview-category-contextmenu" class="card" style="display:none">
-	<div class="row">
-		<a role="button">Button 1</a>
+	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+		<a role="button">Create category</a>
 	</div>
-
+	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createDocumentModal">
+		<a role="button">Create document</a>
+	</div>
+	<div class="border"></div>
 	<div class="row">
-		<a role="button">Button 1</a>
+		<span>Rename</span>
+	</div>
+</div>
+
+<div id="treeview-root-contextmenu" class="card" style="display:none">
+	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+		<a role="button">Create category</a>
+	</div>
+	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createDocumentModal">
+		<a role="button">Create document</a>
+	</div>
+</div>
+
+<div class="modal fade" id="createCategoryModal" data-bind="using: TreeViewVM" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Creating category</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the new category:</span>
+				<input data-bind="textInput: newName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: newCategoryNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateCategory, enable: newCategoryNameValid">
+					Create
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="createDocumentModal" data-bind="using: TreeViewVM" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Creating document</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the new document:</span>
+				<input data-bind="textInput: newName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: newDocumentNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateDocument, enable: newDocumentNameValid">
+					Create
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="renameCategoryModal" data-bind="using: TreeViewVM" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Renaming category</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the category:</span>
+				<input data-bind="textInput: newName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: newCategoryNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameCategory, enable: newCategoryNameValid">
+					Create
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="renameDocumentModal" data-bind="using: TreeViewVM" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Renaming document</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the document:</span>
+				<input data-bind="textInput: newName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: newDocumentNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameDocument, enable: newDocumentNameValid">
+					Create
+				</button>
+			</div>
+		</div>
 	</div>
 </div>
