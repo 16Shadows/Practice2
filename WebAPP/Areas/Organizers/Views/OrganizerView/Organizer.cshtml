@@ -12,6 +12,7 @@
 <script type="text/javascript">
 	//Organizer ID of the organizer we are viewing
 	RootVM.OrganizerID = @ViewData["OrganizerID"];
+	RootVM.ActiveItemVM = {};
 
 	OnLoadCallback.push(() => {
 		//Work out how to implement split
@@ -28,7 +29,7 @@
 <div class="container-fliud d-flex flex-column border border-primary" style="height:100%;overflow:hidden">
 	<div class="row flex-grow-1 g-0" style="maxwidth:100%">
 		<div id="TreeViewHost" class="col-3 border-end border-primary">
-			<div style="overflow:auto;height:100%">
+			<div style="height:100%">
 				<partial name="_TreeView" />
 			</div>
 		</div>
@@ -37,3 +38,5 @@
 		</div>
 	</div>
 </div>
+
+<partial name="_SomethingWentWrongModal" />
