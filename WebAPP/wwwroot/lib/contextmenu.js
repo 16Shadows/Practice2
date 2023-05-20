@@ -10,26 +10,55 @@
         To prevent this behaviour, specify 'context-menu-block' attribute on an element and the script will not search the element and any other elements
         higher in the hierarchy.
 
-        Variable ActiveContextMenu contains the element which is currently used as the context menu.
-        Variable ActiveContextMenu.ContextMenuSource contains the element which specified the context-menu attribute.
-        Variable ActiveContextMenu.ContextMenuClickSource contains the element which was clicked to open the context-menu.
+    Methods and variables:
+        Variable ContextMenu.ActiveMenu contains the element which is currently used as the context menu. May be null.
+        Variable ContextMenu.Source contains the element which specified the context-menu attribute.
+        Variable ContextMenu.ClickSource contains the element which was clicked to open the context-menu.
+
+        Method ContextMenu.Close() closes the currently opened context menu (if any)
+        
+        Method ContextMenu.Open(menu, position, source, clickSource) opens a context menu with specified parameters:
+            menu - the DOM element to use as context menu
+            position - the position at which to open the context menu (an object containing x and y - absolute pixel coordinates): {x:15, y:15}
+            source (optional) - the element to specify in ContextMenu.Source. If not provided, the variable will contain undefined.
+            clickSource (optional) - the element to specify in ContextMenu.ClickSource. If not specified, will contain the same value as source.
 */
 
-ActiveContextMenu = undefined;
+ContextMenu = {
+    ActiveMenu : undefined,
+    Source : undefined,
+    ClickSource: undefined
+}
+
+ContextMenu.Close = function () {
+    if (ContextMenu.ActiveMenu == undefined)
+        return;
+    ContextMenu.ActiveMenu.style.display = "none";
+    ContextMenu.Source = undefined;
+    ContextMenu.ClickSource = undefined;
+    ContextMenu.ActiveMenu = undefined;
+}
+ContextMenu.Open = function (menu, position, source, clickSource) {
+    ContextMenu.ActiveMenu = menu;
+    ContextMenu.Source = source;
+    ContextMenu.ClickSource = clickSource;
+    menu.style.display = "block";
+    menu.style.position = "absolute";
+    menu.style.zindex = 1000;
+    menu.style.top = position.y + "px";
+    menu.style.left = position.x + "px";
+}
 
 $(document).mouseup(event => {
-    if (ActiveContextMenu == undefined)
+    if (ContextMenu.ActiveMenu == undefined)
         return;
-    if (event.target == ActiveContextMenu || $(event.target).parents("#" + ActiveContextMenu.getAttribute("id")).length > 0)
+    if (event.target == ContextMenu.ActiveMenu || $(event.target).parents("#" + ContextMenu.ActiveMenu.getAttribute("id")).length > 0)
         return;
-    ActiveContextMenu.style.display = "none";
-    delete ActiveContextMenu.ContextMenuSource;
-    delete ActiveContextMenu.ContextMenuClickSource;
-    ActiveContextMenu = undefined;
+    ContextMenu.Close();
 });
 
 $(document).contextmenu(event => {
-    if (ActiveContextMenu != undefined && (ActiveContextMenu == event.target || $(event.target).parents("#" + ActiveContextMenu.getAttribute("id")).length > 0)) {
+    if (ContextMenu.ActiveMenu != undefined && (ContextMenu.ActiveMenu == event.target || $(event.target).parents("#" + ContextMenu.ActiveMenu.getAttribute("id")).length > 0)) {
         event.preventDefault();
         return;
     }
@@ -44,12 +73,5 @@ $(document).contextmenu(event => {
     if (menu == undefined)
         return;
     event.preventDefault();
-    ActiveContextMenu = menu;
-    menu.ContextMenuSource = source;
-    menu.ContextMenuClickSource = event.target;
-    ActiveContextMenu.style.display = "block";
-    ActiveContextMenu.style.position = "absolute";
-    ActiveContextMenu.style.zindex = 1000;
-    ActiveContextMenu.style.top = event.pageY + "px";
-    ActiveContextMenu.style.left = event.pageX + "px";
+    ContextMenu.Open(menu, {x:event.pageX, y:event.pageY}, source, event.target);
 });
