@@ -44,7 +44,7 @@ ContextMenu.Open = function (menu, position, source, clickSource) {
     ContextMenu.ClickSource = clickSource;
     menu.style.display = "block";
     menu.style.position = "absolute";
-    menu.style.zindex = 1000;
+    menu.style.zIndex = "1000";
     menu.style.top = position.y + "px";
     menu.style.left = position.x + "px";
 }
