@@ -110,17 +110,17 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (any)
 				return Conflict();
 
-			Document category = new Document()
+			Document document = new Document()
 			{
 				Title = name,
 				Category = target,
 				Organizer = target
 			};
-			dbContext.Documents.Add(category);
+			dbContext.Documents.Add(document);
 
 			await dbContext.SaveChangesAsync();
 
-			return Ok(new DocumentVM(category));
+			return Ok(new DocumentVM(document));
 		}
 	}
 }

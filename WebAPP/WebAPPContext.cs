@@ -80,12 +80,6 @@ public class WebAPPContext : IdentityDbContext<UserAccount>
                .IsRequired();
 
         builder.Entity<SectionBase>()
-               .HasOne(s => s.Category)
-               .WithMany()
-               .HasForeignKey(s => s.CategoryId)
-               .IsRequired();
-
-        builder.Entity<SectionBase>()
                .HasOne(s => s.Organizer)
                .WithMany()
                .HasForeignKey(s => s.OrganizerId)
