@@ -61,14 +61,14 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
 		[HttpDelete("delete")]
-		public async Task<ActionResult<CategoryVM>> DeleteDocument(int organizerId, int categoryId)
+		public async Task<ActionResult<CategoryVM>> DeleteDocument(int organizerId, int documentId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
 			if (!dbContext.HasOrganizer(user, organizerId)) 
 				return NotFound();
 
-			Document? document = dbContext.GetDocument(organizerId, categoryId);
+			Document? document = dbContext.GetDocument(organizerId, documentId);
 
 			if (document == null)
 				return NotFound();

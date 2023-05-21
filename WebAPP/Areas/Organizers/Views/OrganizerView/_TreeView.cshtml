@@ -25,9 +25,18 @@
 			return result;
 		}
 	}
+
+	var TreeViewDocumentMapper = {
+		create: function(options) {
+			var result = ko.mapping.fromJS(options.data);
+			result.parent = options.parent;
+			return result;
+		}
+	}
 	
 	var TreeViewNodeMapper = {
-		"subcategories" : TreeViewCategoryMapper
+		"subcategories" : TreeViewCategoryMapper,
+		"documents" : TreeViewDocumentMapper
 	};
 
 	//VM for tree view
@@ -36,8 +45,11 @@
 		documents : ko.observableArray(),
 		newNameClean : ko.observable(""),
 		nameLookupObject : null,
-		targetObject: null
+		fallbackTargetObject : {
+			name : ko.observable()
+		}
 	};
+	RootVM.TreeViewVM.targetObject = ko.observable(RootVM.TreeViewVM.fallbackTargetObject);
 
 	RootVM.TreeViewVM.newName = ko.pureComputed({
 		read: RootVM.TreeViewVM.newNameClean,
@@ -83,11 +95,11 @@
 			method : "POST"
 		})
 		.then(response => response.json())
-		.then(json => target.documents.push(ko.mapping.fromJS(json, TreeViewNodeMapper)));
+		.then(json => target.documents.push(ko.mapping.fromJS(json, TreeViewDocumentMapper)));
 	};
 
 	RootVM.TreeViewVM.RenameCategory = function() {
-		var target = RootVM.TreeViewVM.targetObject;
+		var target = RootVM.TreeViewVM.targetObject();
 		fetch("/Organizers/" + RootVM.OrganizerID + "/category/" + target.id() + "/rename/" + RootVM.TreeViewVM.newName(), {
 			method : "POST"
 		})
@@ -96,7 +108,7 @@
 	};
 
 	RootVM.TreeViewVM.RenameDocument = function() {
-		var target = RootVM.TreeViewVM.targetObject;
+		var target = RootVM.TreeViewVM.targetObject();
 		fetch("/Organizers/" + RootVM.OrganizerID + "/document/" + target.id() + "/rename/" + RootVM.TreeViewVM.newName(), {
 			method : "POST"
 		})
@@ -104,12 +116,61 @@
 		.then(json => ko.mapping.fromJS(json, {}, target));
 	};
 
+	RootVM.TreeViewVM.DeleteCategory = function() {
+		var target = RootVM.TreeViewVM.targetObject();
+		var parent = RootVM.TreeViewVM.nameLookupObject;
+		fetch("/Organizers/" + RootVM.OrganizerID + "/category/" + target.id() + "/delete", {
+			method : "DELETE"
+		})
+		.then(response => response.json())
+		.then(json => parent.subcategories.remove(x => x.id() == json.id));
+	};
+
+	RootVM.TreeViewVM.DeleteDocument = function() {
+		var target = RootVM.TreeViewVM.targetObject();
+		var parent = RootVM.TreeViewVM.nameLookupObject;
+		fetch("/Organizers/" + RootVM.OrganizerID + "/document/" + target.id() + "/delete", {
+			method : "DELETE"
+		})
+		.then(response => response.json())
+		.then(json => parent.documents.remove(x => x.id() == json.id));
+	};
+
 	//Load data after page load
 	OnLoadCallback.push(() => {
-		$("#createCategoryModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
-		$("#createDocumentModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
-		$("#renameCategoryModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
-		$("#renameDocumentModal")[0].addEventListener("hidden.bs.modal", (event) => RootVM.TreeViewVM.newName(""));
+		[
+			$("#createCategoryModal")[0], 
+			$("#createDocumentModal")[0],
+			$("#renameCategoryModal")[0],
+			$("#renameDocumentModal")[0],
+			$("#deleteCategoryModal")[0],
+			$("#deleteDocumentModal")[0]
+		]
+		.forEach(el => el.addEventListener("hidden.bs.modal", (event) => {
+			RootVM.TreeViewVM.targetObject(RootVM.TreeViewVM.fallbackTargetObject);
+			RootVM.TreeViewVM.nameLookupObject = null;
+			RootVM.TreeViewVM.newName("");
+		}));
+		
+		[
+			$("#treeview-category-contextmenu-createcategory")[0],
+			$("#treeview-category-contextmenu-createdocument")[0],
+			$("#treeview-root-contextmenu-createcategory")[0],
+			$("#treeview-root-contextmenu-createdocument")[0]
+		]
+		.forEach(el => el.addEventListener("click", (event) => RootVM.TreeViewVM.nameLookupObject = ko.dataFor(ContextMenu.Source)));
+
+		[
+			$("#treeview-category-contextmenu-rename")[0],
+			$("#treeview-category-contextmenu-delete")[0],
+			$("#treeview-document-contextmenu-rename")[0],
+			$("#treeview-document-contextmenu-delete")[0]
+		]
+		.forEach(el => el.addEventListener("click", (event) => {
+			RootVM.TreeViewVM.targetObject(ko.dataFor(ContextMenu.Source));
+			RootVM.TreeViewVM.newName(RootVM.TreeViewVM.targetObject().name());
+			RootVM.TreeViewVM.nameLookupObject = RootVM.TreeViewVM.targetObject().parent;
+		}));
 
 		fetch("/Organizers/" + RootVM.OrganizerID + "/root")
 		.then(response => response.json())
@@ -118,16 +179,16 @@
 </script>
 
 <script type="text/html" id="treeview-category-template">
-	<li>
-		<a role="button" context-menu="#treeview-category-contextmenu" data-bind="text: name"></a>
+	<li role="button" context-menu="#treeview-category-contextmenu">
+		<strong>[C] </strong><span data-bind="text: name"></span>
 		<ul data-bind="template: { name: 'treeview-category-template', foreach: subcategories }"></ul>
 		<ul data-bind="template: { name: 'treeview-document-template', foreach: documents }"></ul>
 	</li>
 </script>
 
 <script type="text/html" id="treeview-document-template">
-	<li>
-		<a role="button" data-bind="text: name"></a>
+	<li role="button" context-menu="#treeview-document-contextmenu">
+		<strong>[D] </strong><span data-bind="text: name"></span>
 	</li>
 </script>
 
@@ -138,24 +199,36 @@
 	</div>
 </div>
 
-<div id="treeview-category-contextmenu" class="card" style="display:none">
-	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
-		<a role="button">Create category</a>
+<div id="treeview-document-contextmenu" class="card" style="display:none">
+	<div class="row" role="button" id="treeview-document-contextmenu-rename" data-bs-toggle="modal" data-bs-target="#renameDocumentModal">
+		<span>Rename</span>
 	</div>
-	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createDocumentModal">
-		<a role="button">Create document</a>
+	<div class="row" role="button" id="treeview-document-contextmenu-delete" data-bs-toggle="modal" data-bs-target="#deleteDocumentModal">
+		<span>Delete</span>
+	</div>
+</div>
+
+<div id="treeview-category-contextmenu" class="card" style="display:none">
+	<div class="row" role="button" id="treeview-category-contextmenu-createcategory" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+		<span role="button">Create category</span>
+	</div>
+	<div class="row" role="button" id="treeview-category-contextmenu-createdocument" data-bs-toggle="modal" data-bs-target="#createDocumentModal">
+		<span>Create document</span>
 	</div>
 	<div class="border"></div>
-	<div class="row">
+	<div class="row" role="button" id="treeview-category-contextmenu-rename" data-bs-toggle="modal" data-bs-target="#renameCategoryModal">
 		<span>Rename</span>
+	</div>
+	<div class="row" role="button" id="treeview-category-contextmenu-delete" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal">
+		<span>Delete</span>
 	</div>
 </div>
 
 <div id="treeview-root-contextmenu" class="card" style="display:none">
-	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+	<div class="row" id="treeview-root-contextmenu-createcategory" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
 		<a role="button">Create category</a>
 	</div>
-	<div class="row" onclick="RootVM.TreeViewVM.nameLookupObject=ko.dataFor(ContextMenu.Source);" data-bs-toggle="modal" data-bs-target="#createDocumentModal">
+	<div class="row" id="treeview-root-contextmenu-createdocument" data-bs-toggle="modal" data-bs-target="#createDocumentModal">
 		<a role="button">Create document</a>
 	</div>
 </div>
@@ -222,7 +295,27 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameCategory, enable: newCategoryNameValid">
-					Create
+					Rename
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="deleteCategoryModal" data-bind="using: TreeViewVM" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Deleting category</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span> Are you sure you want to delete <span data-bind="text: targetObject().name"></span>?</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteCategory">
+					Delete
 				</button>
 			</div>
 		</div>
@@ -245,7 +338,27 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameDocument, enable: newDocumentNameValid">
-					Create
+					Rename
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="deleteDocumentModal" data-bind="using: TreeViewVM" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Deleting document</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span> Are you sure you want to delete <span data-bind="text: targetObject().name"></span>?</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteDocument">
+					Delete
 				</button>
 			</div>
 		</div>
