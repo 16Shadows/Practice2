@@ -18,7 +18,7 @@ namespace WebAPP.Controllers
 		public IActionResult Index()
 		{
 			return LocalRedirect("/Organizers");
-		}
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
