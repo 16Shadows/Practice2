@@ -69,53 +69,86 @@
 
 <!--Initial load-->
 <script type="text/javascript">
+	debugger;
+	require('jquery-ui/jquery-ui');
 	//fetch to load initial coords, size and content
 	//need knockout to create component of inner content
-</script>
-
-<!--Drag-->
-<script type="text/javascript">
-	//get parent for relative coordinates
-	var parent = $("div.DMOcontainer").parent(".page")[0];
-	var parentRect = parent.getBoundingClientRect();
-
-	// set database coordinates relative to page
-	$(".DMOcontainer").draggable();
-
-	//set rules - parent container and handle
-	$(".DMOcontainer").draggable("option", "containment", "parent");
-	$(".DMOcontainer").draggable("option", "handle", "#contDraggable");
 	
-	// function to update coordinates on server
-	$(".DMOcontainer").draggable({
-		stop: function () {
-			var offset = $(this).offset();
-			var xPos = offset.left;
-			var yPos = offset.top;
-			//console.log(xPos - parentRect.left, yPos - parentRect.top);
+	var ContVM = {
+		id: ko.observable(),
+		type: ko.observable(),
+		width: ko.observable(),
+		height: ko.observable(),
+		coordX: ko.observable(),
+		coordY: ko.observable()
+	};
 
-			// fetch to update coords
+	//............................Drag
+	// Set rules and get relative parent only after full page load to avoid errors
+	OnLoadCallback.push(() => {
+		new function () {
+			debugger;
+			var parent = $("div.DMOcontainer").parent(".page")[0];
+			var parentRect = parent.getBoundingClientRect();
+
+			// set database coordinates relative to page
+			$("div.DMOcontainer").first().draggable();
+
+			//set rules - parent container and handle
+			$("div.DMOcontainer").first().draggable("option", "containment", "parent");
+			$("div.DMOcontainer").first().draggable("option", "handle", "#contDraggable");
+
+			// function to update coordinates on server
+			$("div.DMOcontainer").first().draggable({ stop: RootVM.DragStopFunc });
+		}
+
+	});
+
+	RootVM.DragStopFunc = function () {
+		var offset = $(this).offset();
+		var xPos = offset.left;
+		var yPos = offset.top;
+		//console.log(xPos - parentRect.left, yPos - parentRect.top);
+
+		// fetch to update coords
+	}
+
+	//.............................Resize
+	// Set rules only after full page load to avoid errors
+	OnLoadCallback.push(() => {
+		new function () {
+			debugger;
+
+			$(".DMOcontainer").resizable();
+			//set rules
+			$(".DMOcontainer").resizable("option", "handles", "se");
+			$(".DMOcontainer").resizable("option", "containment", "parent");
+			$(".DMOcontainer").resizable("option", "minHeight", getComputedStyle(document.querySelector('.DMOcontainer')).minHeight);
+			$(".DMOcontainer").resizable("option", "minWidth", getComputedStyle(document.querySelector('.DMOcontainer')).minWidth);
+
+			// Set function to update server data
+			$(".selector").resizable({ stop: ResizeStopFunc });
 		}
 	});
+
+	RootVM.ResizeStopFunc = function (event, ui) {
+		var newWidth = ui.size[0];
+		var newHeight = ui.size[1];
+
+		console.log(newWidth, newHeight);
+		//fetch to update size
+	}
+//<script src="~/lib/jquery-ui/jquery-ui.js" type="text/javascript">
+</script>
+
+
+<script type="text/javascript">
+	
+	
 </script>
 
 <!--Resize-->
 <script type="text/javascript">
 
-	$(".DMOcontainer").resizable();
-	//set rules
-	$(".DMOcontainer").resizable("option", "handles", "se");
-	$(".DMOcontainer").resizable("option", "containment", "parent");
-	$(".DMOcontainer").resizable("option", "minHeight", getComputedStyle(document.querySelector('.DMOcontainer')).minHeight);
-	$(".DMOcontainer").resizable("option", "minWidth", getComputedStyle(document.querySelector('.DMOcontainer')).minWidth);
 
-	$( ".selector" ).resizable({
-	  stop: function( event, ui ) {
-		  var newWidth = ui.size[0];
-		  var newHeight = ui.size[1];
-		  
-		  console.log(newWidth, newHeight);
-			//fetch to update size
-	  }
-	});
 </script>
