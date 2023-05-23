@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
+using static WebAPP.Areas.Organizers.Controllers.PageController;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
@@ -32,28 +34,42 @@ namespace WebAPP.Areas.Organizers.Controllers
         [HttpGet("{id:int}")]
         public IActionResult Index(int id)
         {
-            if (!BookExists(id)) // need better check?
+			if (!BookExists(id)) // need better check?
             {
                 return NotFound();
             }
 			ViewData["BookID"] = id;
 
-            return View("Book");
+          
+
+			return View("Book");
         }
 
         [Authorize]
         [HttpGet("table")]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            if (_context.Books == null)
+			if (_context.Books == null)
             {
                 return NotFound();
             }
             var data = await _context.Books.ToListAsync();
-            return Json(new BooksPayload(data));
+            //return Json(new BooksPayload(data));
+            return View("_BookTable"); 
         }
+		[Authorize]
+		[HttpGet("tablelist")]
+		public async Task<ActionResult<IEnumerable<Book>>> GetBooklist()
+		{
+			if (_context.Books == null)
+			{
+				return NotFound();
+			}
+			var data = await _context.Books.ToListAsync();
+			return Json(new BooksPayload(data));
+		}
 
-        [Authorize]
+		[Authorize]
         [HttpGet("{bookId:int}/content")]
         public async Task<ActionResult<IEnumerable<PageDMO>>> GetBookContent(int bookId)
         {
@@ -64,13 +80,12 @@ namespace WebAPP.Areas.Organizers.Controllers
             var book = await _context.Books.Where(b => b.Id == bookId)
                 .Include(b => b.PageDMOs).FirstAsync();
 
-			                                        // TODO: change to payload
 			var j = Json(book);
-            return j;
+
+			return Json(new BooksPayload(new List<Book>() { book }));
 		}
 
-
-        [Authorize]
+		[Authorize]
 		[HttpPut("{bookId:int}")]
         public async Task<IActionResult> PutBook(int id, Book book)
         {

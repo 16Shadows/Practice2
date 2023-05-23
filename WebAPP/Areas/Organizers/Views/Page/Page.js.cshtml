@@ -1,0 +1,24 @@
+﻿<script type="text/javascript">
+	function ActivePageVM(pageId) {
+
+		var PageVM = this;
+
+		this.id = ko.observable();
+		this.position = ko.observable();
+		this.containerDMOs = ko.observableArray();
+
+		// request data only if page is selected
+		if (pageId != null)
+		{
+			// we get provided id of page and request all it's content to populate the model
+			fetch("/Organizers/Page/" + pageId + "/content")
+				.then(response => response.json())
+				.then((json) => {
+					console.log(json.pages[0]);
+					ko.mapping.fromJS(json.pages[0], {}, PageVM);
+					return json;
+				})
+				.catch(error => console.error('Unable to get items.', error));
+		}
+	}
+</script>

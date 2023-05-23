@@ -1,18 +1,17 @@
-﻿<script src="~/lib/dgoguerra-bootstrap-menu/dist/BootstrapMenu.min.js"></script>
+﻿<!-- SCRIPT FOR PAGE VIEW MODEL -->
+<partial name="../Page/Page.js"></partial>
 
-<script type="text/html" id="PageViewTemplate" src="~/Organizers/Views/Page/Page.cshtml"></script>
-<script type="text/html" id="test-template">
-	<h3 data-bind = "text: $data.id"></h3>
-</script>
 <!--
 	architorture: 
 	1) current selected page view, 
-		area must support page scrolling, if page can't fit inside,
+		++area must support page scrolling, if page can't fit inside,
 
 	2) ++list of current book pages,
-		with context menu (add page, delete page, add container? change page positions?)
-		pages in list are selectable
+		with menu (++add page, ++delete page, add container? change page positions?)
+		+~pages in list are selectable
 		page icon?
+
+		create modal for errors and book creation
 
 	++between - dragbar to change areas proportions,
 				page-list and page-area(?) has min-width
@@ -40,14 +39,64 @@
 	}
 
 </style>
+<script type="text/javascript">
+	// Book view model
+	var BookVM = {
+		id: ko.observable(),
+		name: ko.observable(),
+		parentCategoryId: ko.observable(),
+		pageDMOs: ko.observableArray()
+	};
+
+	// Id of this book view instance
+	var BookID = @ViewData["BookID"];
+	BookVM.ActivePageVM = ko.observable(null);
+
+
+	// request list data after page loading
+	OnLoadCallback.push(() => {
+		fetch("/Organizers/Book/" + BookID + "/content")
+			.then(response => response.json())
+			.then(json => ko.mapping.fromJS(json.books[0], {}, BookVM))
+			.catch(error => console.error('Unable to get items.', error));
+	});
+
+</script>
+
+<script id="fallback-template" type="text/html">
+	<h3>Select page...</h3>
+</script>
+
+<script id="templatePageVM" type="text/html">
+	<div data-bind="using: BookVM.ActivePageVM">
+			<partial name="../Page/Page"/>
+	</div>
+</script>
+
 
 <!--Body-->
 <div class="book">
 	<div class="pageViewContainer" id="pageVC">
-		<div id="mainPageView" data-bind="template: {name: 'test-template' , data:RootVM.ActivePage }"></div>
-		<!--<partial name="../Page/Page" style="margin:auto;"></partial>-->
+		<div data-bind="template: {name: (BookVM.ActivePageVM() ? 'templatePageVM' : 'fallback-template'), data:ActivePageVM}">
+
+		</div>
+		<!--
+		<div data-bind="if: BookVM.ActivePageVM()">
+			<div data-bind="using: BookVM.ActivePageVM">
+				<h3 data-bind="text: id"></h3>
+
+				<div data-bind="using: PageVM">
+					<partial name="../Page/Page" />
+				</div>
+
+			</div>
+		</div>
+		-->
+
 	</div>
+
 	<div class="resizer" id="dragbar"></div>
+
 	<div style="overflow: auto;">
 		<table class="table" id="pageTable">
 			<thead style="background-color:white;">
@@ -58,19 +107,16 @@
 				</tr>
 			</thead>
 			<tbody id="pageListContainer" data-bind="foreach: BookVM.pageDMOs" style="background-color:white; min-width:50px;">
-				<tr data-bind="attr: {id: $data.id}, click: $parent.SelectActivePage">
+				<tr data-bind="attr: {id: $data.id}, click: BookVM.SelectActivePage">
 					<td data-bind="text: $data.position" style="align-content:center;"></td>
-					<td><input data-bind="attr: {id: $data.id}, click: $parent.AddContainerOnPage" type="button" class="btn btn-outline-primary btn-sm" value="+" style="align-content:center;"></td>
-					<td><input data-bind="attr: {id: $data.id}, click: $parent.DeletePage" type="button" class="btn btn-outline-danger btn-sm" value="&times" style="align-content:center;"></td>
-
+					<td><input data-bind="attr: {id: $data.id}, click: BookVM.AddContainerOnPage" type="button" class="btn btn-outline-primary btn-sm" value="+" style="align-content:center;"></td>
+					<td><input data-bind="attr: {id: $data.id}, click: BookVM.DeletePage" type="button" class="btn btn-outline-danger btn-sm" value="&times" style="align-content:center;"></td>
 				</tr>
-
 			</tbody>
-			
 		</table>
 		<table id="addPgBth">
 			<tr>
-				<td><input onclick="AddPage()" type="button" class="btn btn-primary btn-sm" value="Add page" style="align-content:center; background-color:none;"></td>
+				<td><input onclick="BookVM.AddPage()" type="button" class="btn btn-primary btn-sm" value="Add page" style="align-content:center; background-color:none;"></td>
 			</tr>
 		</table>
 	</div>
@@ -78,49 +124,29 @@
 
 <!--Initial load-->
 <script type="text/javascript">
-	// Id of this book view instance
-	RootVM.BookID = @ViewData["BookID"];
-	// Active page to be displayed in left area
-	RootVM.ActivePage = ko.observableArray();
-
-
-	//ko.components.register('currentPageView', {
-	//	viewModel: {require: ""},
-	//	template: {require: "~/Organizers/Page/Page.cshtml"}
-	//});
-
-	// Book view model
-	var BookVM = {
-		id: ko.observable(),
-		name: ko.observable(),
-		parentCategoryId: ko.observable(),
-		pageDMOs: ko.observableArray()
-	};
-
-	// request list data after page loading
-	OnLoadCallback.push(() => {
-		fetch("/Organizers/Book/" + RootVM.BookID + "/content")
-			.then(response => response.json())
-			.then(json => ko.mapping.fromJS(json,{}, BookVM))
-            .catch(error => console.error('Unable to get items.', error));
-	});
-
+	
 	// Select row and set new active page view
-	RootVM.SelectActivePage = function(row){
-		debugger;
-		var newPage = row;
+	BookVM.SelectActivePage = function (row) {
+		var newPageId = row.id();
 
-		if (RootVM.ActivePage() != newPage)
+		if (BookVM.ActivePageVM() != null)
 		{
-			
-			// need to change colors to mark selected row
-			RootVM.ActivePage(row);
+			if (BookVM.ActivePageVM().id() != newPageId) {
+				// need to change colors to mark selected row
+				BookVM.ActivePageVM(new ActivePageVM(newPageId));
+			}
 		}
+		else 
+		{ 
+			// need to change colors to mark selected row
+			BookVM.ActivePageVM(new ActivePageVM(newPageId));
+		}
+		
 	}
 
 	// Create new page and add in the last position of the book
-	function AddPage(){
-
+	BookVM.AddPage = function () {
+		debugger;
 		let newPos;
 		// calculate unique position for new page
 		if (BookVM.pageDMOs().length == 0) {
@@ -135,35 +161,39 @@
 		fetch("/Organizers/Page/create/" + BookVM.id() + "/" + newPos,
 		{ method: "POST" })
 			.then(response => response.json())
-			.then(json => BookVM.pageDMOs.push(ko.mapping.fromJS(json.pages[0])))
+			.then(json => BookVM.pageDMOs.push(ko.mapping.fromJS(json.value.pages[0])))
             .catch(error => console.error('Unable to add items.', error));
 
 	}
 
 	// Add new blanc container on chosen page
-	function AddContainerOnPage(elem){
+	BookVM.AddContainerOnPage = function (row, event) {
+		debugger;
 		console.log("add cont on ", this);
+		event.stopPropagation();
 	}
 
 	// Delete chosen page from book, other page's position will be updated
-	RootVM.DeletePage = function(row) {
-
+	BookVM.DeletePage = function (row, event) {
+		debugger;
+		event.stopPropagation();
 		// Id of page, represented by table row
 		var pId = row.id();
 
 		fetch("/Organizers/Page/delete/" + BookVM.id() + "/" + pId,
 		{method: "DELETE"})
 		.then((response) => {
+			debugger;
 			// check if deletion was successful
-			if (response.status == Number(202)){
-				// check if deleted page was open as view
-				if (RootVM.ActivePage().length >= 1)
+			if (response.status == Number(202))
+			{
+				//check if deleted page was open as view
+				if (BookVM.ActivePageVM() != null) 
 				{
-					if (RootVM.ActivePage()[RootVM.ActivePage().length-1].id() == pId) 
+					if (BookVM.ActivePageVM().id() == pId) 
 					{
-						RootVM.ActivePage.removeAll();
+						BookVM.ActivePageVM(null);
 					}
-					
 				}
 			}
 			else
@@ -244,5 +274,3 @@
 	resizer.addEventListener('mousedown', mouseDownHandler);
 
 </script>
-
-

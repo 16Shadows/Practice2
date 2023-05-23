@@ -53,9 +53,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 			var page = await _context.Pages.Where(p => p.Id == pageId)
 				.Include(p => p.ContainerDMOs).FirstAsync();
 			
-														// TODO: change to payload
             var j = Json(page);
-			return j;
+			return Json(new PagesPayload(new List<PageDMO>() { page}));
 		}
 
 		// POST new page to the book by bookID
@@ -74,7 +73,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			{
 				Position = position,
 				ParentBookId = bookId,
-				ParentBook = _context.Books.First(b => b.Id == bookId),
+				ParentBook = _context.Books.First(b => b.Id == bookId)
 
 			};
 
@@ -85,8 +84,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 			// get instance of new page with id
 			var newPage = _context.Pages.Where(p => p.ParentBookId == bookId)
 				.Where(p => p.Position == position).First();
-
-			return Accepted(new PagesPayload(new List<PageDMO>() { newPage }));
+			var j = Json(new PagesPayload(new List<PageDMO>() { newPage }));
+			return Accepted(j);
 		}
 
 		// DELETE

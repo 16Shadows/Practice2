@@ -1,29 +1,20 @@
 ﻿<style>
-	/* Need to think about coordinates and page size, now 150dpi (1684x1190) */
+	/* Need to think about coordinates and page size, now 75dpi (824x595), 150dpi=(1684x1190) */
 	.page {
 		background-color: wheat; /*for debug*/
-		margin: auto;
+		margin: 10px;
 		height: 824px;
 		width: 595px;
-		position:relative;
+		position: relative;
 	}
 </style>
 
+
 <!--Body-->
-<div class="page">
-
+<div class="page" id="containerParent">
 	<p style="text-align:center;">Page view here.</p>
-	<h3 data-bind = "text: $data.id"></h3>
-	<partial name="../Container/Container" />
-</div
+	<h3 data-bind="text: id"></h3>
 
-<script type="text/javascript">
-	<!--
-		need to generate container with its object
-		container must be draggable, need to get and send coord updates to server
-		containers must be pinned to coordinates of page
-		coordinates of containers movement must be in local page coordinates !
-
-		context menu on page-click with creation of new blank container?
-	-->
-</script>
+	<!--<partial name="../Container/Container" />
+		-->
+</div>
