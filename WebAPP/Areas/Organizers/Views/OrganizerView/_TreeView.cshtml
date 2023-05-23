@@ -2,19 +2,19 @@
 
 <script type="text/html" data-bind="attr: { id : CategoryTemplateID }">
 	<li role="button" data-bind="attr: { 'context-menu' : '#'+TreeVM.CategoryContextMenuID }">
-		<strong>[C] </strong><span data-bind="text: name"></span>
+		<img src="/resources/ExpandedCategoryIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
 		<ul data-bind="template: { name: TreeVM.CategoryTemplateID , foreach: subcategories }"></ul>
 		<ul data-bind="template: { name: TreeVM.DocumentTemplateID , foreach: documents }"></ul>
 	</li>
 </script>
 
 <script type="text/html" data-bind="attr: { id : DocumentTemplateID }">
-	<li role="button" data-bind="attr: { 'context-menu' : '#'+TreeVM.DocumentContextMenuID }">
-		<strong>[D] </strong><span data-bind="text: name"></span>
+	<li role="button" data-bind="attr: { 'context-menu' : '#'+TreeVM.DocumentContextMenuID }, click : TreeVM.ItemSelected">
+		<img src="/resources/DocumentIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
 	</li>
 </script>
 
-<div data-bind="attr: { 'context-menu' : '#'+RootContextMenuID }" style="overflow:auto;height:100%">
+<div data-bind="attr: { 'context-menu' : '#'+RootContextMenuID }" class="fill" style="overflow:auto">
 	<ul class="mb-0" data-bind="template: { name: CategoryTemplateID, foreach: subcategories }"></ul>
 	<ul data-bind="template: { name: DocumentTemplateID, foreach: documents }"></ul>
 </div>

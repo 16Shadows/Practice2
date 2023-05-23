@@ -39,7 +39,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
 		[HttpGet("root")]
-		public async Task<ActionResult<CategoryBaseVM>> Root(int organizerId)
+		public async Task<ActionResult<CategoryContentVM>> Root(int organizerId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
@@ -54,11 +54,11 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (target == null)
 				return NotFound();
 
-			return Ok ( new CategoryBaseVM(target) );
+			return Ok ( new CategoryContentVM(target) );
 		}
 
 		[HttpPost("createCategory/{name:minlength(1):required}")]
-		public async Task<ActionResult<CategoryBaseVM>> CreateCategory(int organizerId, string name)
+		public async Task<ActionResult<CategoryContentVM>> CreateCategory(int organizerId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);
 
@@ -91,7 +91,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
 		[HttpPost("createDocument/{name:minlength(1):required}")]
-		public async Task<ActionResult<CategoryBaseVM>> CreateDocument(int organizerId, string name)
+		public async Task<ActionResult<CategoryContentVM>> CreateDocument(int organizerId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);
 

@@ -17,3 +17,8 @@ body {
   margin-bottom: 60px;
 }
 
+.fill {
+    height : 100%;
+    width : 100%;
+    box-sizing : border-box;
+}

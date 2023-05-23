@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using WebAPP.Areas.Identity.Data;
+﻿using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 
 namespace WebAPP.Areas.Organizers.Controllers
@@ -34,6 +33,11 @@ namespace WebAPP.Areas.Organizers.Controllers
 		public static Document? GetDocument(this WebAPPContext context, int organizerId, int documentId)
 		{
 			return context.Documents.Where(x => x.OrganizerId == organizerId && x.Id == documentId).FirstOrDefault();
+		}
+
+		public static Section? GetSection(this WebAPPContext context, int organizerId, int sectionId)
+		{
+			return context.Sections.Where(x => x.OrganizerId == organizerId && x.Id == sectionId).FirstOrDefault();
 		}
 	}
 }

@@ -1,81 +1,81 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.CodeAnalysis;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Authorize]
 	[Area("Organizers")]
-	[Route("Organizers/{organizerId:int:required}/document/{documentId:int:required}")]
-	public class DocumentController : Controller
+	[Route("Organizers/{organizerId:int:required}/section/{sectionId:int:required}")]
+	public class SectionController : Controller
 	{
 		private readonly WebAPPContext dbContext;
 		private readonly UserManager<UserAccount> userManager;
 
-		public DocumentController(WebAPPContext dbContext, UserManager<UserAccount> userManager)
+		public SectionController(WebAPPContext dbContext, UserManager<UserAccount> userManager)
 		{
 			this.dbContext = dbContext;
 			this.userManager = userManager;
 		}
 
-		[HttpGet("")]
-		public async Task<ActionResult<DocumentContentVM>> Root(int organizerId, int documentId)
+		[Route("")]
+		public async Task<ActionResult<SectionContentVM>> Index(int organizerId, int sectionId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
 			if (!dbContext.HasOrganizer(user, organizerId))
 				return NotFound();
 
-			Document? document = dbContext
-								 .Documents
-								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
-								 .Include(x => x.Sections)
-								 .Include(x => x.Tags)
-								 .ToArray()
-								 .FirstOrDefault();
+			Section? section = dbContext
+							   .Sections
+							   .Where(x => x.OrganizerId == organizerId && x.Id == sectionId)
+							   .Include(x => x.Sections)
+							   .ToArray()
+							   .FirstOrDefault();
 
-			if (document == null)
+			if (section == null)
 				return NotFound();
 
-			return Ok(new DocumentContentVM(document));
+			return Ok(new SectionContentVM(section));
 		}
 
 		[HttpPost("rename/{name:required:minlength(1)}")]
-		public async Task<ActionResult<DocumentVM>> RenameDocument(int organizerId, int documentId, string name)
+		public async Task<ActionResult<SectionVM>> RenameSection(int organizerId, int sectionId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);
 
 			if (!dbContext.HasOrganizer(user, organizerId)) 
 				return NotFound();
 
-			Document? document = dbContext.GetDocument(organizerId, documentId);
+			Section? section = dbContext.GetSection(organizerId, sectionId);
 
-			if (document == null)
+			if (section == null)
 				return NotFound();
 
 			bool any = dbContext
-					   .Documents
-					   .Where(x => x.OrganizerId == organizerId && x.CategoryId == document.CategoryId && x.Id != documentId && x.Title == name)
-					   .Include(x => x.Category)
+					   .Sections
+					   .Where(x => x.OrganizerId == organizerId && x.ParentId == section.ParentId && x.Id != sectionId && x.Title == name)
+					   .Include(x => x.Parent)
 					   .ToArray()
-					   .Any(x => x.Category.Equals(document.Category));
+					   .Any(x => x.Parent.Equals(section.Parent));
 			
 			if (any)
 				return Conflict();
 
-			document.Title = name;
+			section.Title = name;
 
 			await dbContext.SaveChangesAsync();
 			
-			return Ok( new DocumentVM(document) );
+			return Ok( new SectionVM(section) );
 		}
 
 		[HttpPost("createSection/{name:required:minlength(1)}")]
-		public async Task<ActionResult<DocumentVM>> CreateSection(int organizerId, int documentId, string name)
+		public async Task<ActionResult<SectionVM>> CreateSection(int organizerId, int sectionId, string name)
 		{
 			var user = await userManager.GetUserAsync(User);
 
@@ -84,17 +84,17 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (organizer == null) 
 				return NotFound();
 
-			Document? document = dbContext.GetDocument(organizerId, documentId);
+			Section? parent = dbContext.GetSection(organizerId, sectionId);
 
-			if (document == null)
+			if (parent == null)
 				return NotFound();
 
 			bool any = dbContext
 					   .Sections
-					   .Where(x => x.OrganizerId == organizerId && x.ParentId == document.Id && x.Title == name)
+					   .Where(x => x.OrganizerId == organizerId && x.ParentId == parent.ParentId && x.Title == name)
 					   .Include(x => x.Parent)
 					   .ToArray()
-					   .Any(x => x.Parent.Equals(document));
+					   .Any(x => x.Parent.Equals(parent));
 			
 			if (any)
 				return Conflict();
@@ -103,7 +103,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			{
 				Title = name,
 				Organizer = organizer,
-				Parent = document
+				Parent = parent
 			};
 
 			dbContext.Sections.Add(section);
@@ -114,21 +114,21 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
 		[HttpDelete("delete")]
-		public async Task<ActionResult<DocumentVM>> DeleteDocument(int organizerId, int documentId)
+		public async Task<ActionResult<SectionVM>> DeleteSection(int organizerId, int sectionId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
 			if (!dbContext.HasOrganizer(user, organizerId)) 
 				return NotFound();
 
-			Document? document = dbContext.GetDocument(organizerId, documentId);
+			Section? section = dbContext.GetSection(organizerId, sectionId);
 
-			if (document == null)
+			if (section == null)
 				return NotFound();
 
-			DocumentVM vm = new DocumentVM(document);
+			SectionVM vm = new SectionVM(section);
 
-			dbContext.Documents.Remove(document);
+			dbContext.Sections.Remove(section);
 
 			await dbContext.SaveChangesAsync();
 

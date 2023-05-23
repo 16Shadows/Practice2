@@ -1,0 +1,27 @@
+﻿<script type="text/javascript">
+	/*
+		organizerId - int
+		documentData - { id - int, name - string, type - string }
+	*/
+	function DocumentViewVM(organizerId, documentData) {
+		this.OrganizerID = organizerId;
+		this.id = ko.utils.get(documentData.id);
+		this.name = ko.observable(ko.utils.get(documentData.name)).extend({ store : true });
+		this.type = ko.observable(ko.utils.get(documentData.type));
+		this.loading = false;
+
+		function loader(target) {
+			if (target.loading != false)
+				return;
+			fetch("/Organizers/" + target.OrganizerID + "/document/" + target.id)
+			.then(result => result.json())
+			.then(json => ko.mapping.fromJS(json, { "sections" : ko.Mapper.Section }, target));
+			//Free up memory
+			delete target.loading;
+		}
+
+		this.sections = ko.onDemandObservableArray(loader, this);
+		this.content = ko.onDemandObservable(loader, this).extend({ store : true });
+		this.tags = ko.onDemandObservableArray(loader, this);
+	}
+</script>

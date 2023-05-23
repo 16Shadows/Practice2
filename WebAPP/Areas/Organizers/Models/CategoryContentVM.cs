@@ -2,9 +2,9 @@
 
 namespace WebAPP.Areas.Organizers.Models
 {
-	public class CategoryBaseVM
+	public class CategoryContentVM
 	{
-		public CategoryBaseVM(CategoryBase category)
+		public CategoryContentVM(CategoryBase category)
 		{
 			Subcategories = category.Subcategories.Select(x => new CategoryVM(x)).ToList();
 			Documents = category.Documents.Select(x => new DocumentVM(x)).ToList();

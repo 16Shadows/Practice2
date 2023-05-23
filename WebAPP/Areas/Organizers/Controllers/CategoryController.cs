@@ -23,7 +23,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
 		[HttpGet("")]
-		public async Task<ActionResult<CategoryBaseVM>> Root(int organizerId, int categoryId)
+		public async Task<ActionResult<CategoryContentVM>> Root(int organizerId, int categoryId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
@@ -41,7 +41,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (target == null)
 				return NotFound();
 
-			return Ok(new CategoryBaseVM(target));
+			return Ok(new CategoryContentVM(target));
 		}
 
 		[HttpPost("createCategory/{name:required:minlength(1)}")]

@@ -1,0 +1,33 @@
+﻿<script type="text/javascript">
+	ko.Mapper.Section = {
+		create: function(options) {
+			return new SectionViewVM(options.data, options.parent);
+		}
+	}
+	
+	/*
+		sectionData - { id - int, name - string }
+		parent - object
+	*/
+	function SectionViewVM(sectionData, parent) {
+		this.OrganizerID = parent.OrganizerID;
+		this.id = ko.utils.get(sectionData.id);
+		this.name = ko.observable(ko.utils.get(sectionData.name)).extend({ store : true });
+		this.type = ko.observable(ko.utils.get(sectionData.type));
+		this.loading = false;
+		this.parent = parent;
+
+		function loader(target) {
+			if (target.loading != false)
+				return;
+			fetch("/Organizers/" + target.OrganizerID + "/section/" + target.id)
+			.then(result => result.json())
+			.then(json => ko.mapping.fromJS(json, { "sections" : ko.Mapper.Section }, target));
+			//Free up memory
+			delete target.loading;
+		}
+
+		this.sections = ko.onDemandObservableArray(loader, this);
+		this.content = ko.onDemandObservable(loader, this).extend({ store : true });
+	}
+</script>

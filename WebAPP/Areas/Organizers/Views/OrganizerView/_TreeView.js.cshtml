@@ -1,6 +1,7 @@
 ﻿<script type="text/javascript">
-	function TreeViewVM(organizerId) {
+	function TreeViewVM(organizerId, itemSelectedCallback) {
 		this.OrganizerID = organizerId;
+		this.ItemSelectedCallback = itemSelectedCallback;
 
 		var TreeVM = this;
 
@@ -11,16 +12,15 @@
 
 				function loader(target)
 				{
-							if (target.loading != false)
-				return;
-				target.loading = true;
-				//Load actual data
-				fetch("/Organizers/" + TreeVM.OrganizerID + "/category/" + target.id())
-							.then(response => response.json())
-							.then(json => ko.mapping.fromJS(json, TreeVM.TreeViewNodeMapper, target));
-				//Free up memory
-				delete target.loading;
-						}
+					if (target.loading != false)
+						return;
+					//Load actual data
+					fetch("/Organizers/" + TreeVM.OrganizerID + "/category/" + target.id())
+					.then(response => response.json())
+					.then(json => ko.mapping.fromJS(json, TreeVM.TreeViewNodeMapper, target));
+					//Free up memory
+					delete target.loading;
+				}
 
 				result.loading = false;
 				result.subcategories = ko.onDemandObservableArray(loader, result);
@@ -141,6 +141,11 @@
 			})
 			.then(response => response.json())
 			.then(json => parent.documents.remove(x => x.id() == json.id));
+		};
+
+		//Proxy-function for callback in case I will need to do something else with it later.
+		this.ItemSelected = function(item, event) {
+			TreeVM.ItemSelectedCallback(item);
 		};
 
 		//Modal state setters
