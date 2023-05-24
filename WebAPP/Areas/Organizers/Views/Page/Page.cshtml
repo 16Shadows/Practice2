@@ -1,20 +1,23 @@
 ﻿<style>
-	/* Need to think about coordinates and page size, now 75dpi (824x595), 150dpi=(1684x1190) */
-	.page {
-		background-color: wheat; /*for debug*/
-		margin: 10px;
-		height: 824px;
-		width: 595px;
-		position: relative;
-	}
+/* Need to think about coordinates and page size, now 75dpi (824x595), 150dpi=(1684x1190) */
+.page {
+	background-color: wheat; /*for debug*/
+	margin: 10px;
+	height: 824px;
+	width: 595px;
+	position: relative;
+}
 </style>
 
 
 <!--Body-->
-<div class="page" id="containerParent">
+<div class="page" id="PageViewTemplate">
 	<p style="text-align:center;">Page view here.</p>
 	<h3 data-bind="text: id"></h3>
 
-	<!--<partial name="../Container/Container" />
-		-->
+	
+	<div class="container-fluid" data-bind="foreach: containerDMOs">
+		<partial name="../Container/Container"/>
+	</div>
+		
 </div>

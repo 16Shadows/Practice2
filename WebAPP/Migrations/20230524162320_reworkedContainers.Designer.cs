@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPP;
 
@@ -10,9 +11,11 @@ using WebAPP;
 namespace WebAPP.Migrations
 {
     [DbContext(typeof(WebAPPContext))]
-    partial class WebAPPContextModelSnapshot : ModelSnapshot
+    [Migration("20230524162320_reworkedContainers")]
+    partial class reworkedContainers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");

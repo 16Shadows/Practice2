@@ -13,8 +13,10 @@ namespace WebAPP.Areas.Organizers.Data
         public uint Height { get; set; }
         public int CoordX { get; set; }
         public int CoordY { get; set; }
-        // required many-to-many: pages/containers
-        public List<PageDMO> PageDMOs { get; set; } = new List<PageDMO>();
+		// required one-to-many: pages/containers
+		public int ParentPageId { get; set; } // Required foreign key property
+		public PageDMO ParentPage { get; set; } // Required reference navigation to principal
+
         // required many-to-many: containers/objects
         public List<ObjectDMO> ObjectDMOs { get; set; }
     }
