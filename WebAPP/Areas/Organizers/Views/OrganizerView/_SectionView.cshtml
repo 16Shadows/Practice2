@@ -1,1 +1,48 @@
-﻿
+﻿<script type="text/javascript">
+	ko.Mapper.Section = {
+		create: function(options) {
+			return new SectionViewVM(options.data, options.parent);
+		}
+	}
+	
+	/*
+		sectionData - { id - int, name - string }
+		parent - object
+	*/
+	function SectionViewVM(sectionData, parent) {
+		this.OrganizerID = parent.OrganizerID;
+		this.id = ko.utils.get(sectionData.id);
+		this.name = ko.observable(ko.utils.get(sectionData.name)).extend({ store : true });
+		this.type = ko.observable(ko.utils.get(sectionData.type));
+		this.loading = false;
+		this.parent = parent;
+
+		function loader(target) {
+			if (target.loading != false)
+				return;
+			fetch("/Organizers/" + target.OrganizerID + "/section/" + target.id)
+			.then(result => result.json())
+			.then(json => ko.mapping.fromJS(json, { "sections" : ko.Mapper.Section }, target));
+			//Free up memory
+			delete target.loading;
+		}
+
+		this.sections = ko.onDemandObservableArray(loader, this);
+		this.content = ko.onDemandObservable(loader, this).extend({ store : true });
+	}
+</script>
+
+<script type="text/html" id="SectionViewTemplate">
+	<div class="container-fluid pb-2 ps-2">
+		<div class="fill border-bottom border-top border-start border-dark p-1">
+			<h3 data-bind="text: name"></h3>
+			<hr />
+			<div class="container-fluid">
+				<span>Text goes here</span>
+				<span data-bind="text: content"></span>
+			</div>
+			<hr />
+			<div class="container-fluid" data-bind="template: { name: 'SectionViewTemplate', foreach: sections }"></div>
+		</div>
+	</div>
+</script>

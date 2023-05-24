@@ -25,3 +25,16 @@
 		this.tags = ko.onDemandObservableArray(loader, this);
 	}
 </script>
+
+<script type="text/html" id="DocumentViewTemplate">
+	<div class="fill">
+		<h1 data-bind="text: name"></h1>
+		<hr />
+		<div class="container-fluid">
+			<span>Text goes here</span>
+			<span data-bind="text: content"></span>
+		</div>
+		<hr />
+		<div class="container-fluid" data-bind="template: { name: 'SectionViewTemplate', foreach: sections }"></div>
+	</div>
+</script>
