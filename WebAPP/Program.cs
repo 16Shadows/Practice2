@@ -31,8 +31,8 @@ namespace WebAPP
             }).AddEntityFrameworkStores<WebAPPContext>();
 
             // ???
-            builder.Services.AddControllers().AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+            builder.Services.AddControllers(o => o.InputFormatters.Add(new TextPlainInputFormatter()))
+                            .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
             builder.Services.AddDbContext<WebAPPContext>();
 

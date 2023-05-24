@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Web;
+using System.Xml.Linq;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
@@ -44,9 +46,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok(new DocumentContentVM(document));
 		}
 
-		[HttpPost("rename/{name:required:minlength(1)}")]
-		public async Task<ActionResult<DocumentVM>> RenameDocument(int organizerId, int documentId, string name)
+		[HttpPost("rename")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<DocumentVM>> RenameDocument(int organizerId, int documentId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			if (!dbContext.HasOrganizer(user, organizerId)) 
@@ -71,12 +77,37 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			await dbContext.SaveChangesAsync();
 			
-			return Ok( new DocumentVM(document) );
+			return Ok();
 		}
 
-		[HttpPost("createSection/{name:required:minlength(1)}")]
-		public async Task<ActionResult<DocumentVM>> CreateSection(int organizerId, int documentId, string name)
+		[HttpPost("setContent")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult> SetContent(int organizerId, int documentId, [FromBody] string newContent)
 		{
+			var user = await userManager.GetUserAsync(User);
+
+			if (!dbContext.HasOrganizer(user, organizerId))
+				return NotFound();
+
+			Document? document = dbContext.GetDocument(organizerId, documentId);
+
+			if (document == null)
+				return NotFound();
+
+			document.Text = newContent;
+
+			await dbContext.SaveChangesAsync();
+
+			return Ok();
+		}
+
+		[HttpPost("createSection")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<DocumentVM>> CreateSection(int organizerId, int documentId, [FromBody] string name)
+		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			Organizer? organizer = dbContext.GetOrganizer(user, organizerId);

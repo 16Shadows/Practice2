@@ -44,9 +44,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok(new CategoryContentVM(target));
 		}
 
-		[HttpPost("createCategory/{name:required:minlength(1)}")]
-		public async Task<ActionResult<CategoryVM>> CreateCategory(int organizerId, int categoryId, string name)
+		[HttpPost("createCategory")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<CategoryVM>> CreateCategory(int organizerId, int categoryId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			Organizer? organizer = dbContext.GetOrganizer(user, organizerId);
@@ -82,9 +86,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok(new CategoryVM(category));
 		}
 
-		[HttpPost("createDocument/{name:required:minlength(1)}")]
-		public async Task<ActionResult<DocumentVM>> CreateDocument(int organizerId, int categoryId, string name)
+		[HttpPost("createDocument")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<DocumentVM>> CreateDocument(int organizerId, int categoryId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			Organizer? organizer = dbContext.GetOrganizer(user, organizerId);
@@ -120,9 +128,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok(new DocumentVM(document));
 		}
 
-		[HttpPost("rename/{name:required:minlength(1)}")]
-		public async Task<ActionResult<CategoryVM>> RenameCategory(int organizerId, int categoryId, string name)
+		[HttpPost("rename")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<CategoryVM>> RenameCategory(int organizerId, int categoryId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			if (!dbContext.HasOrganizer(user, organizerId)) 

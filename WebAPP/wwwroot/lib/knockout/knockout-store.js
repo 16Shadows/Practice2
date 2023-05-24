@@ -1,17 +1,24 @@
 ﻿ko.extenders.store = function (target) {
-    target.subscribe(function (newValue) {
-        if (target.original == undefined)
-            target.original = newValue;
-    });
+    target.subscribe(function (oldValue) {
+        if (Object.hasOwn(target, "original"))
+            return;
+        target.original = oldValue;
+    }, null, "beforeChange");
+
     target.commit = function () {
-        if (target.original == undefined)
+        if (!Object.hasOwn(target, "original"))
             return;
         delete target.original;
-    }
+    };
+
     target.revert = function () {
-        if (target.original == undefined)
+        if (!Object.hasOwn(target, "original"))
             return;
         target(target.original);
         delete target.original;
-    }
+    };
+
+    target.hasChanged = function () {
+        return Object.hasOwn(target, "original");
+    };
 }

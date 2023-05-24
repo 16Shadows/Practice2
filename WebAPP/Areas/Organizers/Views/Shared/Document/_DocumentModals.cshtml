@@ -1,0 +1,150 @@
+﻿<script type="text/javascript">
+	RootVM.DocumentModals = {
+		CreateDocument : ko.observable(new function() {
+			var self = this;
+
+			this.Parent = ko.observable(null);
+
+			this.SetParent = function(parent) {
+				self.Parent(parent);
+			}
+
+			this.NewName = ko.pureComputedEx({
+				read : (value) => value,
+				write : (value) => value.trim()
+			});
+
+			this.NewNameValid = ko.pureComputed(() => {
+				if (self.Parent() == null)
+					return true;
+				for (document in self.Parent().documents())
+				{
+					if (document.name() != self.NewName())
+						continue;
+					return false;
+				}
+				return true;
+			});
+
+			this.CreateDocument = function() {
+				self.Parent().CreateDocument(self.NewName());
+				self.SetParent(null);
+				self.NewName("");
+			};
+		}),
+		DeleteDocument : ko.observable(new function() {
+			var self = this;
+			this.Item = ko.observable(null);
+
+			this.SetItem = function(item) {
+				self.Item(item);
+			}
+
+			this.DeleteDocument = function() {
+				self.Item().Delete();
+				self.SetItem(null);
+				self.NewName("");
+			};
+		}),
+		RenameDocument : ko.observable(new function() {
+			var self = this;
+
+			this.Parent = ko.observable(null);
+			this.Item = ko.observable(null);
+
+			this.SetItem = function(item) {
+				self.Item(item);
+				self.Parent(item.parent);
+			}
+
+			this.NewName = ko.pureComputedEx({
+				read : (value) => value,
+				write : (value) => value.trim()
+			});
+
+			this.NewNameValid = ko.pureComputed(() => {
+				if (self.Parent() == null)
+					return true;
+				for (document in self.Parent().documents())
+				{
+					if (document.name() != self.NewName())
+						continue;
+					return false;
+				}
+				return true;
+			});
+
+			this.RenameDocument = function() {
+				self.Parent().RenameCategory(self.NewName());
+				self.SetParent(null);
+				self.NewName("");
+			};
+		})
+	};
+</script>
+
+<div class="modal fade" id="DocumentModals_CreateDocument" data-bind="using : DocumentModals.CreateDocument" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Creating document</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the new document:</span>
+				<input data-bind="textInput: NewName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateDocument, enable: NewNameValid">
+					Create
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="DocumentModals_RenameDocument" data-bind="using : DocumentModals.RenameDocument" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Renaming document</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the document <span data-bind="text: Item() ? Item().name : 'error'"></span>:</span>
+				<input data-bind="textInput: NewName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameDocument, enable: NewNameValid">
+					Rename
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="DocumentModals_DeleteDocument" data-bind="using : DocumentModals.DeleteDocument" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Deleting document</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span> Are you sure you want to delete <span data-bind="text: Item() ? Item().name : 'error'"></span>?</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteDocument">
+					Delete
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,64 @@
+﻿@* 
+	Dependencies:
+		Document/_DocumentModals
+		Category/_CategoryModals
+		Organizer/_OrganizerTreeViewVM
+*@
+
+@* This is the template which is intended to be used within a scope where data = OrganizerTreeViewVM *@
+<script type="text/html" id="OrganizerTreeView_RootTemplate">
+	<div class="fill" style="overflow:auto" context-menu="#OrganizerTreeView_RootContextMenu">
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
+		<ul data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+	</div>
+</script>
+
+@*Everything else is components which are used by the item above*@
+
+<div id="OrganizerTreeView_RootContextMenu"  class="card" style="display:none">
+	<div class="row" data-bs-toggle="modal" data-bs-target="#CategoryModals_CreateCategory" onclick="RootVM.CategoryModals.CreateCategory.SetParent(ko.dataFor(ContextMenu.Source));">
+		<a role="button">Create category</a>
+	</div>
+	<div class="row" data-bs-toggle="modal" data-bs-target="#DocumentModals_CreateDocument" onclick="RootVM.DocumentModals.CreateDocument.SetParent(ko.dataFor(ContextMenu.Source));">
+		<a role="button">Create document</a>
+	</div>
+</div>
+
+<script type="text/html" id="OrganizerTreeView_CategoryTemplate">
+	<li context-menu="#OrganizerTreeView_CategoryContextMenu">
+		<img src="/resources/ExpandedCategoryIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
+		<ul data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
+		<ul data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+	</li>
+</script>
+
+<div id="OrganizerTreeView_CategoryContextMenu"  class="card" style="display:none">
+	<div class="row" data-bs-toggle="modal" data-bs-target="#CategoryModals_CreateCategory" onclick="RootVM.CategoryModals.CreateCategory.SetParent(ko.dataFor(ContextMenu.Source));">
+		<a role="button">Create category</a>
+	</div>
+	<div class="row" data-bs-toggle="modal" data-bs-target="#DocumentModals_CreateDocument" onclick="RootVM.DocumentModals.CreateDocument.SetParent(ko.dataFor(ContextMenu.Source));">
+		<a role="button">Create document</a>
+	</div>
+	<div class="border"></div>
+	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#CategoryModals_RenameCategory" onclick="RootVM.CategoryModals.RenameCategory.SetItem(ko.dataFor(ContextMenu.Source));">
+		<span>Rename</span>
+	</div>
+	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#CategoryModals_DeleteCategory" onclick="RootVM.CategoryModals.DeleteCategory.SetItem(ko.dataFor(ContextMenu.Source));">
+		<span>Delete</span>
+	</div>
+</div>
+
+<script type="text/html" id="OrganizerTreeView_DocumentTemplate">
+	<li role="button" data-bind="click : ItemSelected" context-menu="#OrganizerTreeView_DocumentContextMenu">
+		<img src="/resources/DocumentIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
+	</li>
+</script>
+
+<div id="OrganizerTreeView_DocumentContextMenu" class="card" style="display:none">
+	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#DocumentModals_RenameDocument" onclick="RootVM.DocumentModals.RenameDocument.SetItem(ko.dataFor(ContextMenu.Source));">
+		<span>Rename</span>
+	</div>
+	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#DocumentModals_DeleteDocument" onclick="RootVM.DocumentModals.DeleteDocument.SetItem(ko.dataFor(ContextMenu.Source));">
+		<span>Delete</span>
+	</div>
+</div>

@@ -1,0 +1,63 @@
+﻿@*
+	Dependencies:
+		Category/_CategoryVM
+*@
+
+<script type="text/javascript">
+	ko.Mapper.Organizer = {
+		create : function(options) {
+			return new OrganizerVM(options.data);
+		}
+	};
+
+	/*
+		organizerData - { id - int, name - string }
+	*/
+	function OrganizerVM(organizerData) {
+		this.organizerID = this.id = organizerData.id;
+		this.name = ko.observable(organizerData.name);
+		this.type = ko.observable("Organizer");
+		this.loading = false;
+
+		var self = this;
+
+		function loader(target)
+		{
+			if (target.loading != false)
+				return;
+			//Load actual data
+			fetch("/Organizers/" + target.id + "/root")
+			.then(response => response.json())
+			.then(json => ko.mapping.fromJS(json, ko.Mapper.CategoryContent, target));
+			//Free up memory
+			delete target.loading;
+		}
+
+		this.subcategories = ko.onDemandObservableArray(loader, this);
+		this.documents = ko.onDemandObservableArray(loader, this);
+
+		this.CreateCategory = function(name) {
+			fetch("/Organizers/" + self.id + "/createCategory", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => response.json())
+			.then(json => self.subcategories.push(new CategoryVM(json, self)));
+		}
+
+		this.CreateDocument = function(name) {
+			fetch("/Organizers/" + self.id + "/createDocument", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => response.json())
+			.then(json => self.documents.push(new CategoryVM(json, self)));
+		}
+	};
+</script>

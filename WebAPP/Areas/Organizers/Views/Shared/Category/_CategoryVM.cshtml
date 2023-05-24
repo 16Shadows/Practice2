@@ -1,0 +1,47 @@
+﻿@*
+	Dependencies:
+		Document/_DocumentVM
+*@
+
+<script type="text/javascript">
+	ko.Mapper.Category = {
+		create : function(options) {
+			return new CategoryVM(options.data, options.parent);
+		}
+	}
+
+	ko.Mapper.CategoryContent = {
+		"subcategories" : ko.Mapper.Category,
+		"documents" : ko.Mapper.Document
+	}
+
+	/*
+		categoryData - { id - int, name - string }
+		parent - OrganizerVM or CategoryVM
+	*/
+	function CategoryVM(categoryData, parent) {
+		var self = this;
+
+		this.organizerID = parent.organizerID;
+		this.id = categoryData.id;
+		this.name = ko.observable(categoryData.name);
+		this.type = ko.observable("Category");
+		this.parent = parent;
+		this.loading = false;
+
+		function loader(target)
+		{
+			if (target.loading != false)
+				return;
+			//Load actual data
+			fetch("/Organizers/" + target.organizerID + "/category/" + target.id)
+			.then(response => response.json())
+			.then(json => ko.mapping.fromJS(json, ko.Mapper.CategoryContent, target));
+			//Free up memory
+			delete target.loading;
+		}
+
+		this.subcategories = ko.onDemandObservableArray(loader, this);
+		this.documents = ko.onDemandObservableArray(loader, this);
+	};
+</script>

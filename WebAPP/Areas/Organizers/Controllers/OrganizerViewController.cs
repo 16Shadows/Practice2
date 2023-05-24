@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Web;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
@@ -32,7 +33,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (target == null)
 				return NotFound();
 
-			ViewData["Title"] = target.Name;
+			ViewData["OrganizerName"] = ViewData["Title"] = target.Name;
 			ViewData["OrganizerID"] = organizerId;
 
 			return View("Organizer");
@@ -57,9 +58,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok ( new CategoryContentVM(target) );
 		}
 
-		[HttpPost("createCategory/{name:minlength(1):required}")]
-		public async Task<ActionResult<CategoryContentVM>> CreateCategory(int organizerId, string name)
+		[HttpPost("createCategory")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<CategoryContentVM>> CreateCategory(int organizerId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			Organizer? target = dbContext.GetOrganizer(user, organizerId);
@@ -90,9 +95,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok(new CategoryVM(category));
 		}
 
-		[HttpPost("createDocument/{name:minlength(1):required}")]
-		public async Task<ActionResult<CategoryContentVM>> CreateDocument(int organizerId, string name)
+		[HttpPost("createDocument")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<CategoryContentVM>> CreateDocument(int organizerId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			Organizer? target = dbContext.GetOrganizer(user, organizerId);

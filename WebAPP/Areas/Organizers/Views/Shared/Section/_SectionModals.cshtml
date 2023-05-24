@@ -1,0 +1,93 @@
+﻿<script type="text/javascript">
+	RootVM.SectionModals = {
+		CreateSection : ko.observable(new function() {
+			var self = this;
+
+			this.Parent = ko.observable(null);
+
+			this.SetParent = function(parent) {
+				self.Parent(parent);
+			}
+
+			this.NewName = ko.pureComputedEx({
+				read : (value) => value,
+				write : (value) => value.trim()
+			});
+
+			this.NewNameValid = ko.pureComputed(() => {
+				if (self.Parent() == null)
+					return true;
+				for (section in self.Parent().sections())
+				{
+					if (section.name() != self.NewName())
+						continue;
+					return false;
+				}
+				return true;
+			});
+
+			this.CreateSection = function() {
+				self.Parent().CreateSection(self.NewName());
+				self.SetParent(null);
+				self.NewName("");
+			};
+		}),
+		DeleteSection : ko.observable(new function() {
+			var self = this;
+			this.Item = ko.observable(null);
+
+			this.SetItem = function(item) {
+				self.Item(item);
+			}
+
+			this.DeleteSection = function() {
+				self.Item().Delete();
+				self.SetItem(null);
+				self.NewName("");
+			};
+		})
+	};
+</script>
+
+<div class="modal fade" id="SectionModals_CreateSection" data-bind="using : SectionModals.CreateSection" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Creating section</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the new section:</span>
+				<input data-bind="textInput: NewName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateSection, enable: NewNameValid">
+					Create
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="SectionModals_DeleteSection" data-bind="using : SectionModals.DeleteSection" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Deleting section</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span> Are you sure you want to delete <span data-bind="text: Item() ? Item().name : 'error'"></span>?</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteSection">
+					Delete
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

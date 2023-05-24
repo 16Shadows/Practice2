@@ -6,6 +6,7 @@ using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.CodeAnalysis;
+using System.Web;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
@@ -44,9 +45,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok(new SectionContentVM(section));
 		}
 
-		[HttpPost("rename/{name:required:minlength(1)}")]
-		public async Task<ActionResult<SectionVM>> RenameSection(int organizerId, int sectionId, string name)
+		[HttpPost("rename")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<SectionVM>> RenameSection(int organizerId, int sectionId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			if (!dbContext.HasOrganizer(user, organizerId)) 
@@ -74,9 +79,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok( new SectionVM(section) );
 		}
 
-		[HttpPost("createSection/{name:required:minlength(1)}")]
-		public async Task<ActionResult<SectionVM>> CreateSection(int organizerId, int sectionId, string name)
+		[HttpPost("createSection")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<SectionVM>> CreateSection(int organizerId, int sectionId, [FromBody] string name)
 		{
+			if (name.Length == 0)
+				return BadRequest();
+
 			var user = await userManager.GetUserAsync(User);
 
 			Organizer? organizer = dbContext.GetOrganizer(user, organizerId);
@@ -111,6 +120,27 @@ namespace WebAPP.Areas.Organizers.Controllers
 			await dbContext.SaveChangesAsync();
 			
 			return Ok( new SectionVM(section) );
+		}
+
+		[HttpPost("setContent")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult> SetContent(int organizerId, int sectionId, [FromBody] string newContent)
+		{
+			var user = await userManager.GetUserAsync(User);
+
+			if (!dbContext.HasOrganizer(user, organizerId))
+				return NotFound();
+
+			Section? section = dbContext.GetSection(organizerId, sectionId);
+
+			if (section == null)
+				return NotFound();
+
+			section.Text = newContent;
+
+			await dbContext.SaveChangesAsync();
+
+			return Ok();
 		}
 
 		[HttpDelete("delete")]

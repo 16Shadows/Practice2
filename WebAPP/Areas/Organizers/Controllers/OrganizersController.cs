@@ -69,9 +69,13 @@ namespace WebAPP.Areas.Organizers.Controllers
             );
         }
 
-        [HttpPost("create/{name:required:minlength(1)}")]
-        public async Task<ActionResult<OrganizerVM>> Create(string name)
+        [HttpPost("create")]
+        [Consumes("text/plain")]
+        public async Task<ActionResult<OrganizerVM>> Create([FromBody] string name)
         {
+            if (name.Length == 0)
+				return BadRequest();
+
             var user = await userManager.GetUserAsync(User);
 
             if (dbContext.HasOrganizer(user, name))
@@ -109,9 +113,13 @@ namespace WebAPP.Areas.Organizers.Controllers
             return Ok(vm);
         }
 
-        [HttpPost("{id:int:required}/rename/{name:required:minlength(1)}")]
-        public async Task<ActionResult<OrganizerVM>> Rename(int id, string name)
+        [HttpPost("{id:int:required}/rename")]
+        [Consumes("text/plain")]
+        public async Task<ActionResult<OrganizerVM>> Rename(int id, [FromBody] string name)
         {
+            if (name.Length == 0)
+				return BadRequest();
+
             var user = await userManager.GetUserAsync(User);
 
             Organizer? target = dbContext.GetOrganizer(user, id);
@@ -126,7 +134,7 @@ namespace WebAPP.Areas.Organizers.Controllers
             if (any)
                 return Conflict();
 
-            target.Name = HttpUtility.HtmlEncode(name);
+            target.Name = name;
 
             await dbContext.SaveChangesAsync();
 

@@ -1,0 +1,23 @@
+﻿@*
+	Dependencies:
+		Section/_SectionView
+		Document/_DocumentVM
+*@
+
+<script type="text/html" id="DocumentViewTemplate">
+	<div class="fill">
+		<div class="d-flex">
+			<input class="h1 m-1" data-bind="textInput: name"></input>
+			<button class="btn btn-sm btn-primary align-self-center m-1" data-bind="click: SaveName">Save</button>
+			<button class="btn btn-sm btn-danger align-self-center m-1" data-bind="click: RevertName">Revert</button>
+		</div>
+		<hr />
+		<input data-bind="textInput: content" class="container-fluid p-1 mb-1"></input>
+		<div class="container-fluid d-flex justify-content-end">
+			<button class="btn btn-primary m-1" data-bind="click: SaveContent">Save</button>
+			<button class="btn btn-danger m-1" data-bind="click: RevertContent">Revert</button>
+		</div>
+		<hr />
+		<div class="container-fluid" data-bind="template: { name: 'SectionViewTemplate', foreach: sections }"></div>
+	</div>
+</script>

@@ -1,0 +1,25 @@
+﻿@*
+	Dependencies:
+		Section/_SectionModals
+		Section/_SectionVM
+*@
+
+<script type="text/html" id="SectionViewTemplate">
+	<div class="container-fluid pb-2 ps-2">
+		<div class="fill border-bottom border-top border-start border-dark p-1">
+			<div class="d-flex">
+				<input class="h3 m-1" data-bind="textInput: name"></input>
+				<button class="btn btn-sm btn-primary m-1" data-bind="click: SaveContent">Save</button>
+				<button class="btn btn-sm btn-danger m-1" data-bind="click: RevertContent">Revert</button>
+			</div>
+			<hr />
+			<input data-bind="textInput: content" class="container-fluid p-1 mb-1"></input>
+			<div class="container-fluid d-flex justify-content-end">
+				<button class="btn btn-primary m-1" data-bind="click: SaveContent">Save</button>
+				<button class="btn btn-danger m-1" data-bind="click: RevertContent">Revert</button>
+			</div>
+			<hr />
+			<div class="container-fluid" data-bind="template: { name: 'SectionViewTemplate', foreach: sections }"></div>
+		</div>
+	</div>
+</script>
