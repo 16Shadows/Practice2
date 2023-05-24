@@ -34,29 +34,27 @@ namespace WebAPP.Areas.Organizers.Controllers
         [HttpGet("{id:int}")]
         public IActionResult Index(int id)
         {
+            //// test
+			//var b = new Book()
+			//{
+			//	Name = "test",
+			//	ParentCategory = _context.Organizers.First(),
+			//	ParentCategoryId = _context.Organizers.First().Id
+			//};
+			//_context.Books.Add(b);
+			//_context.SaveChangesAsync();
+
+
 			if (!BookExists(id)) // need better check?
             {
                 return NotFound();
             }
 			ViewData["BookID"] = id;
 
-          
-
+            // will need to make it partial and return object itself
 			return View("Book");
         }
 
-        [Authorize]
-        [HttpGet("table")]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-        {
-			if (_context.Books == null)
-            {
-                return NotFound();
-            }
-            var data = await _context.Books.ToListAsync();
-            //return Json(new BooksPayload(data));
-            return View("_BookTable"); 
-        }
 		[Authorize]
 		[HttpGet("tablelist")]
 		public async Task<ActionResult<IEnumerable<Book>>> GetBooklist()
@@ -85,36 +83,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Json(new BooksPayload(new List<Book>() { book }));
 		}
 
-		[Authorize]
-		[HttpPut("{bookId:int}")]
-        public async Task<IActionResult> PutBook(int id, Book book)
-        {
-            if (id != book.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(book).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BookExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
+        // not implemented
 		[Authorize]
 		[HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
@@ -152,5 +121,19 @@ namespace WebAPP.Areas.Organizers.Controllers
         {
             return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();
         }
-    }
+
+        // test
+		[Authorize]
+		[HttpGet("table")]
+		public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+		{
+			if (_context.Books == null)
+			{
+				return NotFound();
+			}
+			var data = await _context.Books.ToListAsync();
+			//return Json(new BooksPayload(data));
+			return View("_BookTable");
+		}
+	}
 }

@@ -131,35 +131,6 @@ namespace WebAPP.Areas.Organizers.Controllers
 			await _context.SaveChangesAsync();
 		}
 
-		[Authorize]
-		[HttpPut("{pageId:int}")]
-        public async Task<IActionResult> PutPageDMO(int pageId, PageDMO pageDMO)
-        {
-            if (pageId != pageDMO.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(pageDMO).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PageDMOExists(pageId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
         private bool PageDMOExists(int id)
         {
             return (_context.Pages?.Any(e => e.Id == id)).GetValueOrDefault();

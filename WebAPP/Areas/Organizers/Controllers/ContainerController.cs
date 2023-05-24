@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
+using static WebAPP.Areas.Organizers.Controllers.PageController;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
@@ -31,19 +33,8 @@ namespace WebAPP.Areas.Organizers.Controllers
             _context = context;
         }
 
-        // GET: api/Containers
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ContainerDMO>>> GetContainers()
-        {
-            if (_context.Containers == null)
-            {
-                return NotFound();
-            }
-            return await _context.Containers.ToListAsync();
-        }
-
-        // GET: api/Containers/5
-        [HttpGet("{id}")]
+		[Authorize]
+		[HttpGet("{id:int}")]
         public async Task<ActionResult<ContainerDMO>> GetContainerDMO(int id)
         {
             if (_context.Containers == null)
@@ -57,54 +48,44 @@ namespace WebAPP.Areas.Organizers.Controllers
                 return NotFound();
             }
 
-            return containerDMO;
-        }
+            return Json(new ContainersPayload(new List<ContainerDMO>() { containerDMO }));
+		}
 
-        // PUT: api/Containers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutContainerDMO(int id, ContainerDMO containerDMO)
-        {
-            if (id != containerDMO.ID)
+		// POST new default container in the page by pageID
+		[Authorize]
+		[HttpPost("create/{pageId:int}")]
+		public async Task<ActionResult<PageDMO>> PostPageDMO(int pageId)
+		{
+			var ok = _context.Pages.Find(pageId);
+			if (ok == null) //check that book exists
+			{
+				return NotFound();
+			}
+
+            // create new container with parent
+            ContainerDMO cont = new ContainerDMO()
             {
-                return BadRequest();
-            }
 
-            _context.Entry(containerDMO).State = EntityState.Modified;
+                Type = 1,
+                Width = 200,
+                Height = 200,
+                CoordX = 20,
+                CoordY = 20,
+                ParentPageId = pageId,
+                ParentPage = _context.Pages.First(p => p.Id == pageId)
+            };
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ContainerDMOExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			await _context.Containers.AddAsync(cont);
 
-            return NoContent();
-        }
+			await _context.SaveChangesAsync();
 
-        // POST: api/Containers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<ContainerDMO>> PostContainerDMO(ContainerDMO containerDMO)
-        {
-            if (_context.Containers == null)
-            {
-                return Problem("Entity set 'DMOrganizerDBContext.Containers'  is null.");
-            }
-            _context.Containers.Add(containerDMO);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetContainerDMO", new { id = containerDMO.ID }, containerDMO);
-        }
+			// get instance of new page with id
+			var newCont = _context.Containers.Where(p => p.ParentPageId == pageId)
+                .Include(c => c.ObjectDMOs)
+				.First();
+			var j = Json(new ContainersPayload(new List<ContainerDMO>() { newCont }));
+			return Accepted(j);
+		}
 
         // DELETE: api/Containers/5
         [HttpDelete("{id}")]
