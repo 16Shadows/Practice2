@@ -1,145 +1,182 @@
 ﻿<style>
 	.DMOcontainer {
-		width: 200px;
-		height: 150px;
-		min-width:100px;
+		min-width: 100px;
 		min-height: 40px;
-
 		padding: 2px;
 		position: absolute;
 		z-index: 9;
 		background-color: white;
-		display:flex;
+		display: flex;
 		flex-direction: column;
+		border: 2px solid grey;
 	}
 
-	.containerHeader{
+	.containerHeader {
 		flex: 0;
 		z-index: 10;
-		display:flex;
+		display: flex;
 	}
 
 	.draggable {
 		min-width: 20px;
 		min-height: 20px;
-
 		cursor: move;
 		box-sizing: border-box;
-		background-color: darkgray;
-		flex:0;
+		background-color: #dff2ff;
+		flex: 0;
 	}
 
-	.content{
-		flex:1;
+	.content {
+		flex: 1;
 		overflow: auto;
-		margin-top:0px;
-		margin-right:10px;
-		margin-left:10px;
-		margin-bottom:10px;
+		margin-top: 0px;
+		margin-right: 10px;
+		margin-left: 10px;
+		margin-bottom: 10px;
 	}
 
-	.resizeButton{
+	.resizeButton {
 		min-width: 10px;
 		min-height: 10px;
-		max-width:10px;
-		max-height:10px;
-		cursor:se-resize;
-		background-color:grey;
-
-		position:absolute;
-		bottom:0px;
-		right:0px;
-		flex:2;
+		max-width: 10px;
+		max-height: 10px;
+		cursor: se-resize;
+		background-color: darkgrey;
+		position: absolute;
+		bottom: 0px;
+		right: 0px;
+		flex: 2;
 	}
 </style>
 
-<div class="DMOcontainer" id="ContainerViewTemplate">
-	<div class="container containerHeader">
-		<div class="draggable" id="contDraggable"></div>
-		<button id="setB" class="btn btn-outline-primary btn-sm">Set</button>
-		<button id="delB" class="btn btn-danger btn-sm">&times;</button>
-	</div>
-    
-    <div class="content">
-        dfDSFdfsdfffMRmrmrrRRrffffffffffffff
-    </div>
-	<div class="ui-resizable-se resizeButton"></div>
-</div>
+<template id="ContainerViewTemplate" type="text/html">
+	<div class="DMOcontainer" data-bind="style: { width: width(), height: height(), left: coordX(), top: coordY() }">
+		<div class="d-flex containerHeader">
+			<div class="draggable flex-grow-1" id="contDraggable"></div>
+			<button id="setB" data-bind="click: SetContent" class="btn btn-outline-primary btn-sm">Set</button>
+			<button id="delB" data-bind="click: DeleteContainer" class="btn btn-danger btn-sm">&times;</button>
+		</div>
 
+		<div class="content">
+		</div>
+
+		<div class="ui-resizable-se resizeButton"></div>
+	</div>
+</template>
 
 <script type="text/javascript" id="ContainerVM">
-	function ContainerVM(containerId) {
+	function ContainerVM(containerId, parentPageVM) {
 		var self = this;
-		debugger;
-		require('jquery-ui/jquery-ui');
 
-		this.id = ko.observable();
-		this.type = ko.observable();
-		this.width = ko.observable();
-		this.height = ko.observable();
-		this.coordX = ko.observable();
-		this.coordY = ko.observable();
+		self.id = ko.observable();
+		self.type = ko.observable();
+		self.width = ko.observable();
+		self.height = ko.observable();
+		self.coordX = ko.observable();
+		self.coordY = ko.observable();
+		self.objectDMOs = ko.observableArray();
+		self.ParentPageVM = parentPageVM;
+	
+			//fetch to load initial coords, size and content
+		fetch("/Organizers/Container/" + containerId + "/content")
+			.then(response => response.json())
+			.then((json) => {
+				ko.mapping.fromJS(json, {}, self);
+				return json;
+			})
+			.catch(error => console.error('Unable to get items.', error));
 
-
-		//fetch to load initial coords, size and content
-		//need knockout to create component of inner content
-
-
-		//............................Drag
-		// Set rules and get relative parent only after full page load to avoid errors
-
-		this.loadResize() {
-			debugger;
-			var parent = $("div.DMOcontainer").parent(".page")[0];
-			var parentRect = parent.getBoundingClientRect();
-
-			// set database coordinates relative to page
-			$("div.DMOcontainer").first().draggable();
-
-			//set rules - parent container and handle
-			$("div.DMOcontainer").first().draggable("option", "containment", "parent");
-			$("div.DMOcontainer").first().draggable("option", "handle", "#contDraggable");
-
-			// function to update coordinates on server
-			$("div.DMOcontainer").first().draggable({ stop: RootVM.DragStopFunc });
+		self.SetContent = function (data, event) {
+			console.log(data);
 		};
 
-		this.DragStopFunc = function () {
-			var offset = $(this).offset();
-			var xPos = offset.left;
-			var yPos = offset.top;
-			//console.log(xPos - parentRect.left, yPos - parentRect.top);
+		self.DeleteContainer = function (data, event) {
+			console.log(data);
+			fetch("/Organizers/Container/delete/" + data.id(),
+			{ method: "DELETE" })
+				.then((response) => {
+					// check if deletion was successful
+					if (response.status == Number(202)) {
+						debugger;
+						console.log("deleted");
+						var parentContainer = data.ParentPageVM.containerDMOs;
+						if (parentContainer != null)
+						{
+							parentContainer.remove(data);
+						}
+					}
 
-			// fetch to update coords
-		}
-
-		//.............................Resize
-		// Set rules only after full page load to avoid errors
-		this.loadDrag() {
-			debugger;
-
-			$(".DMOcontainer").resizable();
-			//set rules
-			$(".DMOcontainer").resizable("option", "handles", "se");
-			$(".DMOcontainer").resizable("option", "containment", "parent");
-			$(".DMOcontainer").resizable("option", "minHeight", getComputedStyle(document.querySelector('.DMOcontainer')).minHeight);
-			$(".DMOcontainer").resizable("option", "minWidth", getComputedStyle(document.querySelector('.DMOcontainer')).minWidth);
-
-			// Set function to update server data
-			$(".selector").resizable({ stop: ResizeStopFunc });
+					return response;
+				})
+				.catch(error => console.error('Unable to delete items.', error));
+			
 		};
-
-		this.ResizeStopFunc = function (event, ui) {
-			var newWidth = ui.size[0];
-			var newHeight = ui.size[1];
-
-			console.log(newWidth, newHeight);
-			//fetch to update size
-		}
-
-		OnLoadCallback.push(() => {
-			this.loadResize();
-			this.loadDrag();
-		});
 	}
+
 </script>
+
+<script type="text/javascript">
+
+	//set observer for container creation
+	var target = document;
+	const config = { childList: true, subtree: true };
+	const callback = function (mutationsList, observer) {
+		for (let mutation of mutationsList) {
+			if (mutation.type === 'childList') {
+				mutation.addedNodes.forEach((node) => {
+					if (typeof node.classList != "undefined") {
+						// Set draggable and resizable properties for DMOcontainer
+						if (node.classList.contains("DMOcontainer")) {
+							//.............................Drag
+							var parent = node.closest(".PageContentContainer");
+							var parentRect = parent.getBoundingClientRect();
+
+							// set container coordinates relative to page
+							$(node).draggable();
+
+							//set rules - parent container and handle
+							$(node).draggable("option", "containment", "parent");
+							$(node).draggable("option", "handle", "#contDraggable");
+
+							// function to update coordinates on server
+							$(node).draggable({
+								stop: function (event, ui) {
+									var offset = $(this).offset();
+									var xPos = offset.left;
+									var yPos = offset.top;
+									//console.log(xPos - parentRect.left, yPos - parentRect.top);
+
+									// fetch to update coords
+								}
+							});
+
+							//.............................Resize
+							$(node).resizable();
+							//set rules
+							$(node).resizable("option", "handles", "se");
+							$(node).resizable("option", "containment", "parent");
+							$(node).resizable("option", "minHeight", getComputedStyle(document.querySelector('.DMOcontainer')).minHeight);
+							$(node).resizable("option", "minWidth", getComputedStyle(document.querySelector('.DMOcontainer')).minWidth);
+
+							// Set function to update server data
+							$(node).resizable({
+								stop: function (event, ui) {
+									var newWidth = ui.size[0];
+									var newHeight = ui.size[1];
+
+									console.log(newWidth, newHeight);
+									//fetch to update size} });
+								}
+							});
+						}
+					}
+
+				});
+			}
+		}
+	};
+	const ContainerObserver = new MutationObserver(callback);
+	//set observer
+	ContainerObserver.observe(target, config);
+</script>
+

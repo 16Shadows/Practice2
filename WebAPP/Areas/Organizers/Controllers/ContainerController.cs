@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -34,21 +35,21 @@ namespace WebAPP.Areas.Organizers.Controllers
         }
 
 		[Authorize]
-		[HttpGet("{id:int}")]
-        public async Task<ActionResult<ContainerDMO>> GetContainerDMO(int id)
+		[HttpGet("{contId:int}/content")]
+        public async Task<ActionResult<ContainerDMO>> GetContainerDMO(int contId)
         {
             if (_context.Containers == null)
             {
                 return NotFound();
             }
-            var containerDMO = await _context.Containers.FindAsync(id);
+            var containerDMO = _context.Containers.Where(c => c.ID == contId).Include(c => c.ObjectDMOs).First();
 
             if (containerDMO == null)
             {
                 return NotFound();
             }
 
-            return Json(new ContainersPayload(new List<ContainerDMO>() { containerDMO }));
+            return Json(containerDMO);
 		}
 
 		// POST new default container in the page by pageID
@@ -86,28 +87,29 @@ namespace WebAPP.Areas.Organizers.Controllers
 			var j = Json(new ContainersPayload(new List<ContainerDMO>() { newCont }));
 			return Accepted(j);
 		}
+		// DELETE
+		[Authorize]
+		[HttpDelete("delete/{containerId:int}")]
+		public async Task<IActionResult> DeleteContainerDMO(int containerId)
+		{
+			if (_context.Containers == null)
+			{
+				return NotFound();
+			}
+			var containerDMO = await _context.Containers.FindAsync(containerId);
+			if (containerDMO == null)
+			{
+				return NotFound();
+			}
 
-        // DELETE: api/Containers/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteContainerDMO(int id)
-        {
-            if (_context.Containers == null)
-            {
-                return NotFound();
-            }
-            var containerDMO = await _context.Containers.FindAsync(id);
-            if (containerDMO == null)
-            {
-                return NotFound();
-            }
+			_context.Containers.Remove(containerDMO);
+			await _context.SaveChangesAsync();
 
-            _context.Containers.Remove(containerDMO);
-            await _context.SaveChangesAsync();
+			return Accepted();
+		}
 
-            return NoContent();
-        }
 
-        private bool ContainerDMOExists(int id)
+		private bool ContainerDMOExists(int id)
         {
             return (_context.Containers?.Any(e => e.ID == id)).GetValueOrDefault();
         }

@@ -39,7 +39,7 @@
 	OnLoadCallback.push(() => {
 		fetch("/Organizers/Book/" + BookID + "/content")
 			.then(response => response.json())
-			.then(json => ko.mapping.fromJS(json.books[0], {}, BookVM))
+			.then(json => ko.mapping.fromJS(json, {}, BookVM))
 			.catch(error => console.error('Unable to get items.', error));
 	});
 
@@ -62,7 +62,6 @@
 
 	// Create new page and add in the last position of the book
 	BookVM.AddPage = function () {
-		debugger;
 		let newPos;
 		// calculate unique position for new page
 		if (BookVM.pageDMOs().length == 0) {
@@ -89,19 +88,26 @@
 		fetch("/Organizers/Container/create/" + row.id() + "/",
 		{ method: "POST" })
 			.then(response => response.json())
+			.then((json) => {
+				// check if page is current active and need to be updated
+				if (row.id() == BookVM.ActivePageVM().id())
+				{
+					var newContVM = new ContainerVM(row.id(), BookVM.ActivePageVM());
+					BookVM.ActivePageVM().containerDMOs.push(newContVM);
+				}
+				return json;
+			})
 			.catch(error => console.error('Unable to add items.', error));
 	}
 
 	// Delete chosen page from book, other page's position will be updated
 	BookVM.DeletePage = function (row, event) {
-		debugger;
 		event.stopPropagation();
 		var pId = row.id();
 
 		fetch("/Organizers/Page/delete/" + BookVM.id() + "/" + pId,
 		{ method: "DELETE" })
 			.then((response) => {
-				debugger;
 				// check if deletion was successful
 				if (response.status == Number(202)) {
 					//check if deleted page was open as view
@@ -127,6 +133,7 @@
 <!--PAGE VM SCRIPT-->
 <partial name="../Page/Page.js"></partial>
 
+<partial name="../Container/Container"></partial>
 
 <!-- Templates for page VM-->
 <script id="page-fallback-template" type="text/html">
