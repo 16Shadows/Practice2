@@ -9,17 +9,15 @@
 				self.Parent(parent);
 			}
 
-			this.NewName = ko.pureComputedEx({
-				read : (value) => value,
-				write : (value) => value.trim()
-			});
+			this.NewName = ko.observable("");
 
 			this.NewNameValid = ko.pureComputed(() => {
-				if (self.Parent() == null)
-					return true;
-				for (category in self.Parent().subcategories())
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (category of self.Parent().subcategories())
 				{
-					if (category.name() != self.NewName())
+					if (category.name() != name)
 						continue;
 					return false;
 				}
@@ -43,7 +41,6 @@
 			this.DeleteCategory = function() {
 				self.Item().Delete();
 				self.SetItem(null);
-				self.NewName("");
 			};
 		},
 		RenameCategory : new function() {
@@ -54,20 +51,19 @@
 
 			this.SetItem = function(item) {
 				self.Item(item);
-				self.Parent(item.parent);
+				self.Parent(item?.parent);
+				self.NewName(item?.name());
 			}
 
-			this.NewName = ko.pureComputedEx({
-				read : (value) => value,
-				write : (value) => value.trim()
-			});
+			this.NewName = ko.observable("");
 
 			this.NewNameValid = ko.pureComputed(() => {
-				if (self.Parent() == null)
-					return true;
-				for (category in self.Parent().subcategories())
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (category of self.Parent().subcategories())
 				{
-					if (category.name() != self.NewName())
+					if (category.name() != name)
 						continue;
 					return false;
 				}
@@ -75,9 +71,8 @@
 			});
 
 			this.RenameCategory = function() {
-				self.Parent().RenameCategory(self.NewName());
-				self.SetParent(null);
-				self.NewName("");
+				self.Item().Rename(self.NewName());
+				self.SetItem(null);
 			};
 		}
 	};

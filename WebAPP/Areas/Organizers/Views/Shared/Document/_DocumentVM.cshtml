@@ -36,49 +36,73 @@
 		this.content = ko.onDemandObservable(loader, this).extend({ store : true });
 		this.tags = ko.onDemandObservableArray(loader, this);
 
-		this.SaveContent = function() {
-			var value = this.content();
+		this.Rename = function(name) {
+			name = name.trim();
+			success = false;
+			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/rename", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => {
+				if (response.ok)
+				{
+					this.name(name);
+					this.name.commit();
+					success = true;
+				}
+			});
+			return success;
+		}
+
+		this.SetContent = function(content) {
+			success = false;
 			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/setContent", {
 				method : "POST",
 				headers : {
 					"Content-Type": "text/plain"
 				},
-				body : value
+				body : content
 			})
 			.then(response => {
-				//Needs proper error-checks
-				this.content(value);
-				this.content.commit();
+				if (response.ok)
+				{
+					this.content(content);
+					this.content.commit();
+					success = true;
+				}
+			});
+			return success;
+		}
+
+		this.Delete = function() {
+			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/delete", {
+				method : "DELETE"
+			})
+			.then(response => {
+				if (response.ok)
+					this.parent.documents.remove(this);
 			});
 		}
 
-		this.RevertContent = function() {
-			this.content.revert();
-		}
-
-		this.AddSection = function() {
-
-		}
-
-		this.SaveName = function() {
-			var value = this.name();
-			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/rename", {
+		this.CreateSection = function(name) {
+			name = name.trim();
+			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/createSection", {
 				method : "POST",
-				headers: {
-					"Content-Type" : "text/plain"
+				headers : {
+					"Content-Type": "text/plain"
 				},
-				body: value
+				body : name
 			})
-			.then(response => {
-				this.name(value);
-				this.name.commit();
-			});
-
+			.then(response => response.json())
+			.then(json => this.sections.push(new SectionVM(json, this)));
 		}
 
-		this.RevertName = function() {
-			this.name.revert();
-		}
+		@* Allow other parts of the script to patch this object as needed. Used instead of modifying prototype because its impossible to create observables using 'this' by extending the prototype. *@
+		if (this.patch != undefined)
+			this.patch();
 	}
 </script>
 

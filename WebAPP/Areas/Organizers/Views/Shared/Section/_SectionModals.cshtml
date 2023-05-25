@@ -1,6 +1,6 @@
 ﻿<script type="text/javascript">
 	RootVM.SectionModals = {
-		CreateSection : ko.observable(new function() {
+		CreateSection : new function() {
 			var self = this;
 
 			this.Parent = ko.observable(null);
@@ -9,17 +9,15 @@
 				self.Parent(parent);
 			}
 
-			this.NewName = ko.pureComputedEx({
-				read : (value) => value,
-				write : (value) => value.trim()
-			});
+			this.NewName = ko.observable("");
 
 			this.NewNameValid = ko.pureComputed(() => {
-				if (self.Parent() == null)
-					return true;
-				for (section in self.Parent().sections())
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (section of self.Parent().sections())
 				{
-					if (section.name() != self.NewName())
+					if (section.name() != name)
 						continue;
 					return false;
 				}
@@ -31,8 +29,8 @@
 				self.SetParent(null);
 				self.NewName("");
 			};
-		}),
-		DeleteSection : ko.observable(new function() {
+		},
+		DeleteSection : new function() {
 			var self = this;
 			this.Item = ko.observable(null);
 
@@ -43,9 +41,8 @@
 			this.DeleteSection = function() {
 				self.Item().Delete();
 				self.SetItem(null);
-				self.NewName("");
 			};
-		})
+		}
 	};
 </script>
 

@@ -1,6 +1,6 @@
 ﻿<script type="text/javascript">
 	RootVM.DocumentModals = {
-		CreateDocument : ko.observable(new function() {
+		CreateDocument : new function() {
 			var self = this;
 
 			this.Parent = ko.observable(null);
@@ -9,17 +9,15 @@
 				self.Parent(parent);
 			}
 
-			this.NewName = ko.pureComputedEx({
-				read : (value) => value,
-				write : (value) => value.trim()
-			});
+			this.NewName = ko.observable("");
 
 			this.NewNameValid = ko.pureComputed(() => {
-				if (self.Parent() == null)
-					return true;
-				for (document in self.Parent().documents())
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (doc of self.Parent().documents())
 				{
-					if (document.name() != self.NewName())
+					if (doc.name() != name)
 						continue;
 					return false;
 				}
@@ -31,8 +29,8 @@
 				self.SetParent(null);
 				self.NewName("");
 			};
-		}),
-		DeleteDocument : ko.observable(new function() {
+		},
+		DeleteDocument : new function() {
 			var self = this;
 			this.Item = ko.observable(null);
 
@@ -43,10 +41,9 @@
 			this.DeleteDocument = function() {
 				self.Item().Delete();
 				self.SetItem(null);
-				self.NewName("");
 			};
-		}),
-		RenameDocument : ko.observable(new function() {
+		},
+		RenameDocument : new function() {
 			var self = this;
 
 			this.Parent = ko.observable(null);
@@ -54,20 +51,19 @@
 
 			this.SetItem = function(item) {
 				self.Item(item);
-				self.Parent(item.parent);
+				self.Parent(item?.parent);
+				self.NewName(item?.name());
 			}
 
-			this.NewName = ko.pureComputedEx({
-				read : (value) => value,
-				write : (value) => value.trim()
-			});
+			this.NewName = ko.observable("");
 
 			this.NewNameValid = ko.pureComputed(() => {
-				if (self.Parent() == null)
-					return true;
-				for (document in self.Parent().documents())
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (doc of self.Parent().documents())
 				{
-					if (document.name() != self.NewName())
+					if (doc.name() != name)
 						continue;
 					return false;
 				}
@@ -75,11 +71,10 @@
 			});
 
 			this.RenameDocument = function() {
-				self.Parent().RenameCategory(self.NewName());
-				self.SetParent(null);
-				self.NewName("");
+				self.Item().Rename(self.NewName());
+				self.SetItem(null);
 			};
-		})
+		}
 	};
 </script>
 

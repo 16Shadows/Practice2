@@ -24,7 +24,10 @@
 
 		this.organizerID = parent.organizerID;
 		this.id = categoryData.id;
-		this.name = ko.observable(categoryData.name);
+		this.name = ko.pureComputedEx({
+			write : (value) => value?.trim(),
+			initial : categoryData.name
+		});
 		this.type = ko.observable("Category");
 		this.parent = parent;
 		this.loading = false;
@@ -43,5 +46,60 @@
 
 		this.subcategories = ko.onDemandObservableArray(loader, this);
 		this.documents = ko.onDemandObservableArray(loader, this);
+
+		this.CreateCategory = function(name) {
+			name = name.trim();
+			fetch("/Organizers/" + self.organizerID + "/category/" + self.id + "/createCategory", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => response.json())
+			.then(json => self.subcategories.push(new CategoryVM(json, self)));
+		};
+
+		this.CreateDocument = function(name) {
+			name = name.trim();
+			fetch("/Organizers/" + self.organizerID + "/category/" + self.id + "/createDocument", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => response.json())
+			.then(json => self.documents.push(new DocumentVM(json, self)));
+		};
+
+		this.Rename = function(name) {
+			name = name.trim();
+			fetch("/Organizers/" + self.organizerID + "/category/" + self.id + "/rename", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => {
+				if (response.ok)
+					self.name(name);
+			});
+		};
+
+		this.Delete = function() {
+			fetch("/Organizers/" + self.organizerID + "/category/" + self.id + "/delete", {
+				method : "DELETE"
+			})
+			.then(response => {
+				if (response.ok)
+					self.parent.subcategories.remove(self);
+			});
+		};
+
+		@* Allow other parts of the script to patch this object as needed. Used instead of modifying prototype because its impossible to create observables using 'this' by extending the prototype. *@
+		if (this.patch != undefined)
+			this.patch();
 	};
 </script>

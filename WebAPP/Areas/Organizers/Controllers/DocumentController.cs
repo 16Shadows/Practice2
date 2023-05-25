@@ -157,13 +157,11 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (document == null)
 				return NotFound();
 
-			DocumentVM vm = new DocumentVM(document);
-
 			dbContext.Documents.Remove(document);
 
 			await dbContext.SaveChangesAsync();
 
-			return Ok(vm);
+			return Ok();
 		}
 	}
 }

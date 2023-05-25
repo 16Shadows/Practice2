@@ -15,7 +15,10 @@
 	*/
 	function OrganizerVM(organizerData) {
 		this.organizerID = this.id = organizerData.id;
-		this.name = ko.observable(organizerData.name);
+		this.name = ko.pureComputedEx({
+			write : (value) => value?.trim(),
+			initial : organizerData.name
+		});
 		this.type = ko.observable("Organizer");
 		this.loading = false;
 
@@ -37,6 +40,7 @@
 		this.documents = ko.onDemandObservableArray(loader, this);
 
 		this.CreateCategory = function(name) {
+			name = name.trim();
 			fetch("/Organizers/" + self.id + "/createCategory", {
 				method : "POST",
 				headers : {
@@ -46,9 +50,10 @@
 			})
 			.then(response => response.json())
 			.then(json => self.subcategories.push(new CategoryVM(json, self)));
-		}
+		};
 
 		this.CreateDocument = function(name) {
+			name = name.trim();
 			fetch("/Organizers/" + self.id + "/createDocument", {
 				method : "POST",
 				headers : {
@@ -57,7 +62,11 @@
 				body : name
 			})
 			.then(response => response.json())
-			.then(json => self.documents.push(new CategoryVM(json, self)));
-		}
+			.then(json => self.documents.push(new DocumentVM(json, self)));
+		};
+
+		@* Allow other parts of the script to patch this object as needed. Used instead of modifying prototype because its impossible to create observables using 'this' by extending the prototype. *@
+		if (this.patch != undefined)
+			this.patch();
 	};
 </script>
