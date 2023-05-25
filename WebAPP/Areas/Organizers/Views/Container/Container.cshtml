@@ -50,7 +50,7 @@
 </style>
 
 <template id="ContainerViewTemplate" type="text/html">
-	<div class="DMOcontainer" data-bind="style: { width: width(), height: height(), left: coordX(), top: coordY() }">
+	<div class="DMOcontainer" data-bind="attr: {id: id()},style: { width: width(), height: height(), left: coordX(), top: coordY() }">
 		<div class="d-flex containerHeader">
 			<div class="draggable flex-grow-1" id="contDraggable"></div>
 			<button id="setB" data-bind="click: SetContent" class="btn btn-outline-primary btn-sm">Set</button>
@@ -60,7 +60,7 @@
 		<div class="content">
 		</div>
 
-		<div class="ui-resizable-se resizeButton"></div>
+		<div class="ui-resizable-se resizeButton" data-bind="attr: {id: id()}"></div>
 	</div>
 </template>
 
@@ -141,12 +141,30 @@
 							// function to update coordinates on server
 							$(node).draggable({
 								stop: function (event, ui) {
-									var offset = $(this).offset();
-									var xPos = offset.left;
-									var yPos = offset.top;
-									//console.log(xPos - parentRect.left, yPos - parentRect.top);
+									var newX = ui.position.left;
+									var newY = ui.position.top;
+									var containerID = event.target.getAttribute("id");
+									debugger;
+									var data = {
+									"CoordX": newX,
+									"CoordY": newY,
+									"Width": null,
+									"Height": null,
+									"Type": null
+									};
 
-									// fetch to update coords
+									//fetch to update coordinates
+									fetch("/Organizers/Container/update/" + containerID,
+									{ 
+										method: "PUT",
+										headers: {'Content-Type': 'application/json'},
+										body: JSON.stringify(data)
+									})
+									.then(response => {
+										console.log(response);
+										return response;
+									})
+									.catch(error => console.error('Unable to update items.', error));
 								}
 							});
 
@@ -161,11 +179,32 @@
 							// Set function to update server data
 							$(node).resizable({
 								stop: function (event, ui) {
-									var newWidth = ui.size[0];
-									var newHeight = ui.size[1];
+									debugger;
+									var newWidth = Math.round(ui.size.width);
+									var newHeight = Math.round(ui.size.height);
+									var containerID = event.target.getAttribute("id");
 
-									console.log(newWidth, newHeight);
-									//fetch to update size} });
+									//fetch to update size
+									var data = {
+										"Width": newWidth,
+										"Height": newHeight,
+										"CoordX": null,
+										"CoordY": null,
+										"Type": null
+									};
+
+									//fetch to update coordinates
+									fetch("/Organizers/Container/update/" + containerID,
+									{
+										method: "PUT",
+										headers: {'Content-Type': 'application/json'},
+										body: JSON.stringify(data)
+									})
+									.then(response => {
+										console.log(response);
+										return response;
+									})
+									.catch(error => console.error('Unable to update items.', error));
 								}
 							});
 						}
