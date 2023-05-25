@@ -144,7 +144,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok( new SectionVM(section) );
 		}
 
-		[HttpDelete("delete")]
+		[HttpDelete]
 		public async Task<ActionResult<DocumentVM>> DeleteDocument(int organizerId, int documentId)
 		{
 			var user = await userManager.GetUserAsync(User);

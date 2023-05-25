@@ -89,7 +89,7 @@
 		};
 
 		this.Delete = function() {
-			fetch("/Organizers/" + self.organizerID + "/category/" + self.id + "/delete", {
+			fetch("/Organizers/" + self.organizerID + "/category/" + self.id, {
 				method : "DELETE"
 			})
 			.then(response => {

@@ -143,7 +143,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok();
 		}
 
-		[HttpDelete("delete")]
+		[HttpDelete]
 		public async Task<ActionResult<SectionVM>> DeleteSection(int organizerId, int sectionId)
 		{
 			var user = await userManager.GetUserAsync(User);

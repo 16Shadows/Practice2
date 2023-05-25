@@ -26,4 +26,9 @@
 	DocumentVM.prototype.ItemSelected = utils.patch(DocumentVM.prototype.ItemSelected, function (item) {
 		this.parent.ItemSelected(item);
 	});
+	DocumentVM.prototype.patch = utils.patch(DocumentVM.prototype.patch, function() {
+		this.Delete = utils.patch(this.Delete, function () {
+			this.parent.ItemSelected(null);
+		});
+	});
 </script>

@@ -1,0 +1,145 @@
+﻿<script type="text/javascript">
+	RootVM.OrganizerModals = {
+		CreateOrganizer : new function() {
+			var self = this;
+
+			this.Parent = ko.observable(null);
+
+			this.SetParent = function(parent) {
+				self.Parent(parent);
+			}
+
+			this.NewName = ko.observable("");
+
+			this.NewNameValid = ko.pureComputed(() => {
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (organizer of self.Parent().organizers())
+				{
+					if (organizer.name() != name)
+						continue;
+					return false;
+				}
+				return true;
+			});
+
+			this.CreateOrganizer = function() {
+				self.Parent().CreateOrganizer(self.NewName());
+				self.SetParent(null);
+				self.NewName("");
+			};
+		},
+		DeleteOrganizer : new function() {
+			var self = this;
+			this.Item = ko.observable(null);
+
+			this.SetItem = function(item) {
+				self.Item(item);
+			}
+
+			this.DeleteOrganizer = function() {
+				self.Item().Delete();
+				self.SetItem(null);
+			};
+		},
+		RenameOrganizer : new function() {
+			var self = this;
+
+			this.Parent = ko.observable(null);
+			this.Item = ko.observable(null);
+
+			this.SetItem = function(item) {
+				self.Item(item);
+				self.Parent(item?.parent);
+				self.NewName(item?.name());
+			}
+
+			this.NewName = ko.observable("");
+
+			this.NewNameValid = ko.pureComputed(() => {
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (organizer of self.Parent().organizers())
+				{
+					if (organizer.name() != name)
+						continue;
+					return false;
+				}
+				return true;
+			});
+
+			this.RenameOrganizer = function() {
+				self.Item().Rename(self.NewName());
+				self.SetItem(null);
+			};
+		}
+	};
+</script>
+
+<div class="modal fade" id="OrganizerModals_CreateOrganizer" data-bind="using : OrganizerModals.CreateOrganizer" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Creating organizer</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the new organizer:</span>
+				<input data-bind="textInput: NewName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateOrganizer, enable: NewNameValid">
+					Create
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="OrganizerModals_RenameOrganizer" data-bind="using : OrganizerModals.RenameOrganizer" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Renaming organizer</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the organizer <span data-bind="text: Item() ? Item().name : 'Error'"></span>:</span>
+				<input data-bind="textInput: NewName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameOrganizer, enable: NewNameValid">
+					Rename
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="OrganizerModals_DeleteOrganizer" data-bind="using : OrganizerModals.DeleteOrganizer" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Deleting organizer</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span> Are you sure you want to delete <span data-bind="text: Item() ? Item().name : 'error'"></span>?</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteOrganizer">
+					Delete
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

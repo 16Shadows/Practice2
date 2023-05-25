@@ -167,7 +167,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok();
 		}
 
-		[HttpDelete("delete")]
+		[HttpDelete]
 		public async Task<ActionResult<CategoryVM>> DeleteCategory(int organizerId, int categoryId)
 		{
 			var user = await userManager.GetUserAsync(User);

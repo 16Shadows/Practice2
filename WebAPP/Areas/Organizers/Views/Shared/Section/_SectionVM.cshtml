@@ -72,7 +72,7 @@
 		}
 
 		this.Delete = function() {
-			fetch("/Organizers/" + this.organizerID + "/section/" + this.id + "/delete", {
+			fetch("/Organizers/" + this.organizerID + "/section/" + this.id, {
 				method : "DELETE"
 			})
 			.then(response => {

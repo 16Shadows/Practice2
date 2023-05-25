@@ -1,0 +1,31 @@
+﻿@*
+	Dependencies:
+		Organizer/_OrganizerVM
+		Organizer/_OrganizerModals
+*@
+
+<script type="text/javascript">
+	OrganizerVM.prototype.patch = utils.patch(OrganizerVM.prototype.patch, function() {
+		var self = this;
+		this.link = ko.pureComputed(() => "Organizers/" + self.id);
+	});
+</script>
+
+<script type="text/html" id="OrganizerCardViewTemplate">
+	<div class="card border-primary mb-3">
+		<span class="card-body">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col">
+						<span class="h2" data-bind="text: name"></span>
+					</div>
+					<div class="col col-auto">
+						<a role="button" class="btn btn-primary m-1" data-bind="attr: { href: link }">Open</a>
+						<div role="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#OrganizerModals_RenameOrganizer" onclick="RootVM.OrganizerModals.RenameOrganizer.SetItem(ko.dataFor(this));">Rename</div>
+						<div role="button" class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#OrganizerModals_DeleteOrganizer" onclick="RootVM.OrganizerModals.DeleteOrganizer.SetItem(ko.dataFor(this));">Delete</div>
+					</div>
+				</div>
+			</div>
+		</span>
+	</div>
+</script>
