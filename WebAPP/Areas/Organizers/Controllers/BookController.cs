@@ -78,9 +78,7 @@ namespace WebAPP.Areas.Organizers.Controllers
             var book = await _context.Books.Where(b => b.Id == bookId)
                 .Include(b => b.PageDMOs).FirstAsync();
 
-			var j = Json(book);
-
-			return Json(new BooksPayload(new List<Book>() { book }));
+			return Json(book);
 		}
 
         // not implemented

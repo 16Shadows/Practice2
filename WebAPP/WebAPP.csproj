@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Organizers\Pages\**" />
+    <Content Remove="Areas\Organizers\Pages\**" />
+    <EmbeddedResource Remove="Areas\Organizers\Pages\**" />
+    <None Remove="Areas\Organizers\Pages\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Areas\Organizers\Views\Container\william.png" />
   </ItemGroup>
 
