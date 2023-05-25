@@ -1,6 +1,6 @@
 ﻿<script type="text/javascript">
-	RootVM.CategoryModals = {
-		CreateCategory : new function() {
+	RootVM.OrganizerModals = {
+		CreateOrganizer : new function() {
 			var self = this;
 
 			this.Parent = ko.observable(null);
@@ -15,22 +15,22 @@
 				name = self.NewName()?.trim() || "";
 				if (self.Parent() == null || name.length == 0)
 					return false;
-				for (category of self.Parent().subcategories())
+				for (organizer of self.Parent().organizers())
 				{
-					if (category.name() != name)
+					if (organizer.name() != name)
 						continue;
 					return false;
 				}
 				return true;
 			});
 
-			this.CreateCategory = function() {
-				self.Parent().CreateCategory(self.NewName());
+			this.CreateOrganizer = function() {
+				self.Parent().CreateOrganizer(self.NewName());
 				self.SetParent(null);
 				self.NewName("");
 			};
 		},
-		DeleteCategory : new function() {
+		DeleteOrganizer : new function() {
 			var self = this;
 			this.Item = ko.observable(null);
 
@@ -38,12 +38,12 @@
 				self.Item(item);
 			}
 
-			this.DeleteCategory = function() {
+			this.DeleteOrganizer = function() {
 				self.Item().Delete();
 				self.SetItem(null);
 			};
 		},
-		RenameCategory : new function() {
+		RenameOrganizer : new function() {
 			var self = this;
 
 			this.Parent = ko.observable(null);
@@ -61,16 +61,16 @@
 				name = self.NewName()?.trim() || "";
 				if (self.Parent() == null || name.length == 0)
 					return false;
-				for (category of self.Parent().subcategories())
+				for (organizer of self.Parent().organizers())
 				{
-					if (category.name() != name)
+					if (organizer.name() != name)
 						continue;
 					return false;
 				}
 				return true;
 			});
 
-			this.RenameCategory = function() {
+			this.RenameOrganizer = function() {
 				self.Item().Rename(self.NewName());
 				self.SetItem(null);
 			};
@@ -78,22 +78,22 @@
 	};
 </script>
 
-<div class="modal fade" id="CategoryModals_CreateCategory" data-bind="using : CategoryModals.CreateCategory" tabindex=-1>
+<div class="modal fade" id="OrganizerModals_CreateOrganizer" data-bind="using : OrganizerModals.CreateOrganizer" tabindex=-1>
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Creating category</h5>
+				<h5 class="modal-title">Creating organizer</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
 			<div class="modal-body">
-				<span>Enter a unique name for the new category:</span>
+				<span>Enter a unique name for the new organizer:</span>
 				<input data-bind="textInput: NewName"></input>
 				<p />
 				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateCategory, enable: NewNameValid">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateOrganizer, enable: NewNameValid">
 					Create
 				</button>
 			</div>
@@ -101,22 +101,22 @@
 	</div>
 </div>
 
-<div class="modal fade" id="CategoryModals_RenameCategory" data-bind="using : CategoryModals.RenameCategory" tabindex=-1>
+<div class="modal fade" id="OrganizerModals_RenameOrganizer" data-bind="using : OrganizerModals.RenameOrganizer" tabindex=-1>
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Renaming category</h5>
+				<h5 class="modal-title">Renaming organizer</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
 			<div class="modal-body">
-				<span>Enter a unique name for the category <span data-bind="text: Item() ? Item().name : 'Error'"></span>:</span>
+				<span>Enter a unique name for the organizer <span data-bind="text: Item() ? Item().name : 'Error'"></span>:</span>
 				<input data-bind="textInput: NewName"></input>
 				<p />
 				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameCategory, enable: NewNameValid">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameOrganizer, enable: NewNameValid">
 					Rename
 				</button>
 			</div>
@@ -124,11 +124,11 @@
 	</div>
 </div>
 
-<div class="modal fade" id="CategoryModals_DeleteCategory" data-bind="using : CategoryModals.DeleteCategory" tabindex=-1>
+<div class="modal fade" id="OrganizerModals_DeleteOrganizer" data-bind="using : OrganizerModals.DeleteOrganizer" tabindex=-1>
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Deleting category</h5>
+				<h5 class="modal-title">Deleting organizer</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
 			<div class="modal-body">
@@ -136,7 +136,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteCategory">
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteOrganizer">
 					Delete
 				</button>
 			</div>

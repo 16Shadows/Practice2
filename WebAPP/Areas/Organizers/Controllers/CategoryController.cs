@@ -164,10 +164,10 @@ namespace WebAPP.Areas.Organizers.Controllers
 			
 			await dbContext.SaveChangesAsync();
 
-			return Ok( new CategoryVM(category) );
+			return Ok();
 		}
 
-		[HttpDelete("delete")]
+		[HttpDelete]
 		public async Task<ActionResult<CategoryVM>> DeleteCategory(int organizerId, int categoryId)
 		{
 			var user = await userManager.GetUserAsync(User);
@@ -180,13 +180,11 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (category == null)
 				return NotFound();
 
-			CategoryVM vm = new CategoryVM(category);
-
 			dbContext.Categories.Remove(category);
 
 			await dbContext.SaveChangesAsync();
 
-			return Ok(vm);
+			return Ok();
 		}
 	}
 }

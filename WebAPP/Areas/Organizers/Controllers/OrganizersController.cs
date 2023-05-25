@@ -94,7 +94,7 @@ namespace WebAPP.Areas.Organizers.Controllers
             return Accepted ( new OrganizerVM(org) );
         }
 
-        [HttpDelete("{id:int:required}/delete")]
+        [HttpDelete("{id:int:required}")]
         public async Task<ActionResult<OrganizerVM>> Delete(int id)
         {
             var user = await userManager.GetUserAsync(User);
@@ -104,13 +104,11 @@ namespace WebAPP.Areas.Organizers.Controllers
             if (target == null)
                 return NotFound();
 
-            OrganizerVM vm = new OrganizerVM(target);
-
             dbContext.Organizers.Remove(target);
             
             await dbContext.SaveChangesAsync();
 
-            return Ok(vm);
+            return Ok();
         }
 
         [HttpPost("{id:int:required}/rename")]

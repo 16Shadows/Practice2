@@ -12,7 +12,7 @@
 	function SectionVM(sectionData, parent) {
 		this.organizerID = parent.organizerID;
 		this.id = ko.utils.get(sectionData.id);
-		this.name = ko.observable(ko.utils.get(sectionData.name)).extend({ store : true });
+		this.name = ko.observable(sectionData.name).extend({ store : true });
 		this.type = ko.observable(ko.utils.get(sectionData.type));
 		this.loading = false;
 		this.parent = parent;
@@ -30,24 +30,72 @@
 		this.sections = ko.onDemandObservableArray(loader, this);
 		this.content = ko.onDemandObservable(loader, this).extend({ store : true });
 
-		this.SaveContent = function() {
-			var value = this.content();
+		this.Rename = function(name) {
+			name = name.trim();
+			success = false;
+			fetch("/Organizers/" + this.organizerID + "/section/" + this.id + "/rename", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => {
+				if (response.ok)
+				{
+					this.name(name);
+					this.name.commit();
+					success = true;
+				}
+			});
+			return success;
+		}
+
+		this.SetContent = function(content) {
+			success = false;
 			fetch("/Organizers/" + this.organizerID + "/section/" + this.id + "/setContent", {
 				method : "POST",
 				headers : {
 					"Content-Type": "text/plain"
 				},
-				body : this.content()
+				body : content
 			})
 			.then(response => {
-				//Needs proper error-checks
-				this.content(value);
-				this.content.commit();
+				if (response.ok)
+				{
+					this.content(content);
+					this.content.commit();
+					success = true;
+				}
+			});
+			return success;
+		}
+
+		this.Delete = function() {
+			fetch("/Organizers/" + this.organizerID + "/section/" + this.id, {
+				method : "DELETE"
+			})
+			.then(response => {
+				if (response.ok)
+					this.parent.sections.remove(this);
 			});
 		}
 
-		this.RevertContent = function() {
-			this.content.revert();
+		this.CreateSection = function(name) {
+			name = name.trim();
+			fetch("/Organizers/" + this.organizerID + "/section/" + this.id + "/createSection", {
+				method : "POST",
+				headers : {
+					"Content-Type": "text/plain"
+				},
+				body : name
+			})
+			.then(response => response.json())
+			.then(json => this.sections.push(new SectionVM(json, this)));
 		}
+
+		@* Allow other parts of the script to patch this object as needed. Used instead of modifying prototype because its impossible to create observables using 'this' by extending the prototype. *@
+		if (this.patch != undefined)
+			this.patch();
 	}
 </script>

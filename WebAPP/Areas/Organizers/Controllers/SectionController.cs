@@ -76,7 +76,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			await dbContext.SaveChangesAsync();
 			
-			return Ok( new SectionVM(section) );
+			return Ok();
 		}
 
 		[HttpPost("createSection")]
@@ -143,7 +143,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Ok();
 		}
 
-		[HttpDelete("delete")]
+		[HttpDelete]
 		public async Task<ActionResult<SectionVM>> DeleteSection(int organizerId, int sectionId)
 		{
 			var user = await userManager.GetUserAsync(User);
@@ -156,13 +156,11 @@ namespace WebAPP.Areas.Organizers.Controllers
 			if (section == null)
 				return NotFound();
 
-			SectionVM vm = new SectionVM(section);
-
 			dbContext.Sections.Remove(section);
 
 			await dbContext.SaveChangesAsync();
 
-			return Ok(vm);
+			return Ok();
 		}
 	}
 }

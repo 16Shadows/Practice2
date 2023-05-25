@@ -1,0 +1,38 @@
+﻿@*
+	Dependencies:
+		Organizer/_OrganizerVM
+*@
+
+<script type="text/javascript">
+	function OrganizersHostVM() {
+		var self = this;
+
+		this.loading = false;
+		
+		function loader(target) {
+			if (target.loading != false)
+				return;
+
+			fetch("/Organizers/list")
+			.then(response => response.json())
+			.then(json => ko.mapping.fromJS(json, { "organizers": ko.Mapper.Organizer }, target));
+
+			delete target.loading;
+		}
+
+		this.organizers = ko.onDemandObservableArray(loader, this);
+
+		this.CreateOrganizer = function(name) {
+			name = name.trim();
+			fetch("/Organizers/create/", {
+				method: "POST",
+				headers: {
+					"Content-Type" : "text/plain"
+				},
+				body: name
+			})
+			.then(response => response.json())
+			.then(json => self.organizers.push(new OrganizerVM(json, self)));
+		};
+	};
+</script>
