@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
-using static WebAPP.Areas.Organizers.Controllers.PageController;
+using Newtonsoft.Json;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
@@ -55,10 +51,10 @@ namespace WebAPP.Areas.Organizers.Controllers
 		// POST new default container in the page by pageID
 		[Authorize]
 		[HttpPost("create/{pageId:int}")]
-		public async Task<ActionResult<PageDMO>> PostPageDMO(int pageId)
+		public async Task<ActionResult<PageDMO>> PostContainerDMO(int pageId)
 		{
 			var ok = _context.Pages.Find(pageId);
-			if (ok == null) //check that book exists
+			if (ok == null) //check that page exists
 			{
 				return NotFound();
 			}
@@ -107,8 +103,36 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			return Accepted();
 		}
+		public class ContentData
+		{
+			public int? Width { get; set; }
+			public int? Height { get; set; }
+			public int? CoordX { get; set; }
+			public int? CoordY { get; set; }
+			public int? Type { get; set; }
+		}
 
+		// UPDATE container by containerID
+		[Authorize]
+		[HttpPut("update/{containerID:int}")]
+		public async Task<ActionResult<PageDMO>> UpdateContainerDMO(int containerID, [FromBody] ContentData newData)
+		{
+			var cont = _context.Containers.Find(containerID);
+			if (cont == null) //check that container exists
+			{
+				return NotFound();
+			}
 
+			if (newData.Width != null) { cont.Width = (uint)newData.Width; }
+			if (newData.Height != null) { cont.Height = (uint)newData.Height; }
+			if (newData.CoordX != null) { cont.CoordX = (int)newData.CoordX; }
+			if (newData.CoordY != null) { cont.CoordY = (int)newData.CoordY; }
+			if (newData.Type != null) { cont.Type = (int)newData.Type; }
+
+			await _context.SaveChangesAsync();
+
+			return Ok();
+		}
 		private bool ContainerDMOExists(int id)
         {
             return (_context.Containers?.Any(e => e.ID == id)).GetValueOrDefault();
