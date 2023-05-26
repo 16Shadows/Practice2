@@ -32,6 +32,8 @@
 			delete target.loading;
 		}
 
+		var self = this;
+
 		this.sections = ko.onDemandObservableArray(loader, this);
 		this.content = ko.onDemandObservable(loader, this).extend({ store : true });
 		this.tags = ko.onDemandObservableArray(loader, this);
@@ -39,7 +41,7 @@
 		this.Rename = function(name) {
 			name = name.trim();
 			success = false;
-			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/rename", {
+			fetch("/Organizers/" + self.organizerID + "/document/" + self.id + "/rename", {
 				method : "POST",
 				headers : {
 					"Content-Type" : "text/plain"
@@ -49,8 +51,8 @@
 			.then(response => {
 				if (response.ok)
 				{
-					this.name(name);
-					this.name.commit();
+					self.name(name);
+					self.name.commit();
 					success = true;
 				}
 			});
@@ -59,7 +61,7 @@
 
 		this.SetContent = function(content) {
 			success = false;
-			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/setContent", {
+			fetch("/Organizers/" + self.organizerID + "/document/" + self.id + "/setContent", {
 				method : "POST",
 				headers : {
 					"Content-Type": "text/plain"
@@ -69,8 +71,8 @@
 			.then(response => {
 				if (response.ok)
 				{
-					this.content(content);
-					this.content.commit();
+					self.content(content);
+					self.content.commit();
 					success = true;
 				}
 			});
@@ -78,18 +80,18 @@
 		}
 
 		this.Delete = function() {
-			fetch("/Organizers/" + this.organizerID + "/document/" + this.id, {
+			fetch("/Organizers/" + self.organizerID + "/document/" + self.id, {
 				method : "DELETE"
 			})
 			.then(response => {
 				if (response.ok)
-					this.parent.documents.remove(this);
+					self.parent.documents.remove(self);
 			});
 		}
 
 		this.CreateSection = function(name) {
 			name = name.trim();
-			fetch("/Organizers/" + this.organizerID + "/document/" + this.id + "/createSection", {
+			fetch("/Organizers/" + self.organizerID + "/document/" + self.id + "/createSection", {
 				method : "POST",
 				headers : {
 					"Content-Type": "text/plain"
@@ -97,7 +99,38 @@
 				body : name
 			})
 			.then(response => response.json())
-			.then(json => this.sections.push(new SectionVM(json, this)));
+			.then(json => self.sections.push(new SectionVM(json, self)));
+		}
+
+		this.AddTag = function(name) {
+			name = name.trim();
+
+			fetch("/Organizers/" + self.organizerID + "/document/" + self.id + "/addTag", {
+				method : "POST",
+				headers : {
+					"Content-Type": "text/plain"
+				},
+				body : name
+			})
+			.then(response => {
+				if (response.ok)
+					self.tags.push(name);
+			});
+		}
+
+		this.RemoveTag = function(name) {
+			name = name.trim();
+			fetch("/Organizers/" + self.organizerID + "/document/" + self.id + "/removeTag", {
+				method : "DELETE",
+				headers : {
+					"Content-Type": "text/plain"
+				},
+				body : name
+			})
+			.then(response => {
+				if (response.ok)
+					self.tags.remove(name);
+			});
 		}
 
 		@* Allow other parts of the script to patch this object as needed. Used instead of modifying prototype because its impossible to create observables using 'this' by extending the prototype. *@

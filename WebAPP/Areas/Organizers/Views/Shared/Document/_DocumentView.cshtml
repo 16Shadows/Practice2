@@ -51,6 +51,23 @@
 		</div>
 		<span data-bind="hidden: IsNameUnique" class="text-danger">The name must be unique and not empty.</span>
 		<hr />
+		<div class="row">
+			<div class="col">
+				<div class="p-2" data-bind="foreach : tags">
+					<div class="p-2 border border-primary rounded-pill mt-2 mb-2" style="display:inline-block">
+						<div class="d-flex">
+							<span class="p-3 p-sm-1" data-bind="text: $data"></span>
+							<button class="btn btn-danger rounded-circle float-end align-self-center" style="padding: 0.2rem 0.4rem;font-size: 0.5rem;border-radius: 0.2rem;" data-bind="click: $parent.RemoveTag">X</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-auto d-flex">
+				<button class="btn btn-primary align-self-center" data-bs-toggle="modal" data-bs-target="#DocumentModals_AddTag" onclick="RootVM.DocumentModals.AddTag.SetItem(ko.dataFor(this));">Add tag</button>
+			</div>
+		</div>
+		
+		<hr />
 		<textarea data-bind="textInput: content" class="container-fluid p-1 mb-1"></textarea>
 		<div class="container-fluid d-flex justify-content-end">
 			<button class="btn btn-primary m-1" data-bind="click: SaveContent">Save</button>

@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Web;
-using System.Xml.Linq;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
@@ -48,7 +46,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 		[HttpPost("rename")]
 		[Consumes("text/plain")]
-		public async Task<ActionResult<DocumentVM>> RenameDocument(int organizerId, int documentId, [FromBody] string name)
+		public async Task<ActionResult> RenameDocument(int organizerId, int documentId, [FromBody] string name)
 		{
 			if (name.Length == 0)
 				return BadRequest();
@@ -145,7 +143,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
 		[HttpDelete]
-		public async Task<ActionResult<DocumentVM>> DeleteDocument(int organizerId, int documentId)
+		public async Task<ActionResult> DeleteDocument(int organizerId, int documentId)
 		{
 			var user = await userManager.GetUserAsync(User);
 
@@ -158,6 +156,80 @@ namespace WebAPP.Areas.Organizers.Controllers
 				return NotFound();
 
 			dbContext.Documents.Remove(document);
+
+			await dbContext.SaveChangesAsync();
+
+			return Ok();
+		}
+
+		[HttpPost("addTag")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult> AddTag(int organizerId, int documentId, [FromBody] string tagText)
+		{
+			var user = await userManager.GetUserAsync(User);
+
+			if (!dbContext.HasOrganizer(user, organizerId))
+				return NotFound();
+
+			Document? document = dbContext
+								 .Documents
+								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
+								 .Include(x => x.Tags.Where(x => x.Name == tagText))
+								 .ToArray()
+								 .FirstOrDefault();
+
+			if (document == null)
+				return NotFound();
+			else if (document.Tags.Count > 0)
+				return Conflict();
+
+			Tag? tag = dbContext
+					   .Tags
+					   .Where(x => x.Name == tagText)
+					   .ToArray()
+					   .FirstOrDefault();
+
+			if (tag == null)
+			{
+				tag = new Tag();
+				tag.Name = tagText;
+			}
+
+			tag.Documents.Add(document);
+			document.Tags.Add(tag);
+
+			await dbContext.SaveChangesAsync();
+
+			return Ok();
+		}
+
+		[HttpDelete("removeTag")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult> RemoveTag(int organizerId, int documentId, [FromBody] string tagText)
+		{
+			var user = await userManager.GetUserAsync(User);
+
+			if (!dbContext.HasOrganizer(user, organizerId))
+				return NotFound();
+
+			Document? document = dbContext
+								 .Documents
+								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
+								 .Include(x => x.Tags.Where(x => x.Name == tagText))
+								 .ThenInclude(x => x.Documents)
+								 .ToArray()
+								 .FirstOrDefault();
+
+			if (document == null || document.Tags.Count == 0)
+				return NotFound();
+
+			Tag tag = document.Tags.First();
+
+			tag.Documents.Remove(document);
+			document.Tags.Remove(tag);
+
+			if (tag.Documents.Count == 0)
+				dbContext.Tags.Remove(tag);
 
 			await dbContext.SaveChangesAsync();
 

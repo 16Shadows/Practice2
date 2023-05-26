@@ -20,13 +20,17 @@
 	}
 
 	//Patch documents and categories so that they have an will propagate ItemSelected event.
-	CategoryVM.prototype.ItemSelected = utils.patch(CategoryVM.prototype.ItemSelected, function (item) {
-		this.parent.ItemSelected(item);
-	});
-	DocumentVM.prototype.ItemSelected = utils.patch(DocumentVM.prototype.ItemSelected, function (item) {
-		this.parent.ItemSelected(item);
-	});
+	CategoryVM.prototype.patch = utils.patch(CategoryVM.prototype.patch, function() {
+		this.ItemSelected = utils.patch(this.ItemSelected, function (item) {
+			this.parent.ItemSelected(item);
+		});
+	})
+
 	DocumentVM.prototype.patch = utils.patch(DocumentVM.prototype.patch, function() {
+		this.ItemSelected = utils.patch(this.ItemSelected, function (item) {
+			this.parent.ItemSelected(item);
+		});
+
 		this.Delete = utils.patch(this.Delete, function () {
 			this.parent.ItemSelected(null);
 		});
