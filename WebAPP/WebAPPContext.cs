@@ -99,4 +99,5 @@ public class WebAPPContext : IdentityDbContext<UserAccount>
     public DbSet<PageDMO> Pages { get; set; }
     public DbSet<ContainerDMO> Containers { get; set; }
     public DbSet<ObjectDMO> Objects { get; set; }
+    public DbSet<Tag> Tags { get; set; }
 }

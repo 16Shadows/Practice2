@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPP;
 
@@ -10,9 +11,11 @@ using WebAPP;
 namespace WebAPP.Migrations
 {
     [DbContext(typeof(WebAPPContext))]
-    partial class WebAPPContextModelSnapshot : ModelSnapshot
+    [Migration("20230526173355_ImplementedTags")]
+    partial class ImplementedTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
@@ -256,14 +259,9 @@ namespace WebAPP.Migrations
                     b.Property<int>("ParentCategoryId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ParentOrganizerId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ParentCategoryId");
-
-                    b.HasIndex("ParentOrganizerId");
 
                     b.ToTable("Books");
                 });
@@ -562,15 +560,7 @@ namespace WebAPP.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "ParentOrganizer")
-                        .WithMany()
-                        .HasForeignKey("ParentOrganizerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("ParentCategory");
-
-                    b.Navigation("ParentOrganizer");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ContainerDMO", b =>
