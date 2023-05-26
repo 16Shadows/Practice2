@@ -1,0 +1,111 @@
+﻿<!-- MUST BE PLACED BEFORE BOOK VIEW SCRIPT -->
+
+<script type="text/javascript">
+	function BookVM(bookId, parentVM) {
+		debugger;
+		this.ActivePageVM = ko.observable(null);
+
+		this.id = ko.observable();
+		this.name = ko.observable();
+		this.parentCategoryId = ko.observable();
+		this.pageDMOs = ko.observableArray();
+		this.parent = parentVM;
+
+		// request list data after page loading
+		fetch("/Organizers/Book/" + bookId + "/content")
+		.then(response => response.json())
+		.then(json => ko.mapping.fromJS(json, {}, this))
+		.catch(error => console.error('Unable to get items.', error));
+
+
+		// Select row and set new active page view
+		this.SelectActivePage = function (row) {
+			var newPageId = row.id();
+
+			if (BookVM.ActivePageVM() != null) {
+				if (BookVM.ActivePageVM().id() != newPageId) {
+					// need to change colors to mark selected row
+					BookVM.ActivePageVM(new ActivePageVM(newPageId));
+				}
+			}
+			else {
+				// need to change colors to mark selected row
+				BookVM.ActivePageVM(new ActivePageVM(newPageId));
+			}
+
+		}
+
+		// Create new page and add in the last position of the book
+		this.AddPage = function () {
+			let newPos;
+			// calculate unique position for new page
+			if (BookVM.pageDMOs().length == 0) {
+				newPos = 1;
+			}
+			else {
+				// 'add page' pushes new page with biggest position at the end of array
+				var obj = BookVM.pageDMOs()[BookVM.pageDMOs().length - 1];
+				newPos = obj.position() + 1;
+			}
+
+			fetch("/Organizers/Page/create/" + BookVM.id() + "/" + newPos,
+			{ method: "POST" })
+				.then(response => response.json())
+				.then(json => BookVM.pageDMOs.push(ko.mapping.fromJS(json.value.pages[0])))
+				.catch(error => console.error('Unable to add items.', error));
+		}
+
+		// Add new blanc container on chosen page
+		this.AddContainerOnPage = function (row, event) {
+			event.stopPropagation();
+			// post new default container on page
+
+			fetch("/Organizers/Container/create/" + row.id() + "/",
+			{ method: "POST" })
+				.then(response => response.json())
+				.then((json) => {
+					// check if page is current active and need to be updated
+					if (row.id() == BookVM.ActivePageVM().id()) {
+						var newContVM = new ContainerVM(row.id(), BookVM.ActivePageVM());
+						BookVM.ActivePageVM().containerDMOs.push(newContVM);
+					}
+					return json;
+				})
+				.catch(error => console.error('Unable to add items.', error));
+		}
+
+		// Delete chosen page from book, other page's position will be updated
+		this.DeletePage = function (row, event) {
+			event.stopPropagation();
+			var pId = row.id();
+
+			fetch("/Organizers/Page/delete/" + BookVM.id() + "/" + pId,
+			{ method: "DELETE" })
+				.then((response) => {
+					// check if deletion was successful
+					if (response.status == Number(202)) {
+						//check if deleted page was open as view
+						if (BookVM.ActivePageVM() != null) {
+							if (BookVM.ActivePageVM().id() == pId) {
+								BookVM.ActivePageVM(null);
+							}
+						}
+					}
+					else {
+						console.error("Something went wrong when deleting. Page pos:",
+							row.position(),
+							response.status);
+					}
+
+					return response.json();
+				})
+				.then(json => ko.mapping.fromJS(json.pages, {}, BookVM.pageDMOs))
+				.catch(error => console.error('Unable to delete items.', error));
+		}
+
+		// Allow other parts of the script to patch this object
+		if (this.patch != undefined)
+			this.patch();
+	}
+
+</script>

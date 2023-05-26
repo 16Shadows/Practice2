@@ -9,6 +9,19 @@
 	
 }
 
+@*Container*@
+<partial name="../Container/_ContainerVM" />
+<partial name="../Container/_ContainerView" />
+
+@*Page*@
+<partial name="../Page/_PageVM"/>
+
+@*Book*@
+<partial name="../Book/_BookVM"/>
+<partial name="../Book/_BookModals"/>
+<partial name="../Book/_BookView"/>
+@*<partial name="../Book/_resizer"/>*@
+
 @*Section*@
 <partial name="Section/_SectionVM" />
 <partial name="Section/_SectionModals" />
@@ -39,12 +52,24 @@
 			return 'EmptyTemplate';
 		else if (RootVM.ActiveItemVM().type() == "Document")
 			return 'DocumentViewTemplate';
+		else if (RootVM.ActiveItemVM().type() == "Book")
+			return 'BookViewTemplate';
 	});
 </script>
 
 <script type="text/html" id="EmptyTemplate">
 	<div></div>
 </script>
+
+<template id="page-fallback-template" type="text/html">
+	<h3>No page is selected</h3>
+</template>
+
+<template id="page-template" type="text/html">
+	<div data-bind="using: ActivePageVM">
+		<partial name="../Page/_PageView" />
+	</div>
+</template>
 
 <div class="fill d-flex flex-column border border-primary" style="overflow:hidden">
 	<div class="row flex-grow-1 g-0" style="maxwidth:100%">

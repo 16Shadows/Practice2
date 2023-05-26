@@ -1,0 +1,97 @@
+﻿<style type="text/css">
+	.book {
+		min-height: 200px;
+		max-height:500px;
+		background-color: darkgray;
+		margin: 10px;
+		display: flex;
+		overflow: auto;
+	}
+	.pageViewContainer {
+		width: 75%;
+		min-width: 200px;
+		overflow: auto;
+		align-items:center;
+		padding:20px;
+	}
+	.resizer {
+		cursor: ew-resize;
+		width:5px;
+		background-color: grey;
+	}
+
+</style>
+
+<script type="text/javascript">
+	@* Extend book VM with methods used by View *@
+
+		BookVM.prototype.patch = utils.patch(BookVM.prototype.patch, function () {
+			var self = this;
+
+			this.SaveContent = function () {
+				if (!this.SetContent(this.content()))
+					this.content.revert();
+			}
+
+			this.RevertContent = function () {
+				this.content.revert();
+			}
+
+			this.SaveName = function () {
+				if (!this.Rename(this.name()))
+					this.name.revert();
+			}
+
+			this.RevertName = function () {
+				this.name.revert();
+			}
+
+			this.IsNameUnique = ko.pureComputed(function () {
+				if (self.name()?.length == 0)
+					return false;
+				for (doc of self.parent.documents()) {
+					if (doc == self || doc.name() != self.name())
+						continue;
+					return false;
+				}
+				return true;
+			});
+		});
+</script>
+
+<!--Body-->
+<script type="text/html" id="BookViewTemplate">
+
+	<div class="book">
+		<div class="pageViewContainer" id="pageVC">
+		@*<div data-bind="template: {name: (ActivePageVM() ? 'page-template' : 'page-fallback-template'), data:ActivePageVM}"></div>-->
+		*@</div>
+
+		<div class="resizer" id="dragbar"></div>
+
+		<div style="overflow: auto;">
+			<table class="table" id="pageTable">
+				<thead style="background-color:white;">
+					<tr>
+						<th scope="col">Page</th>
+						<th scope="col">Add container</th>
+						<th scope="col">Delete page</th>
+					</tr>
+				</thead>
+				<tbody id="pageListContainer" data-bind="foreach: pageDMOs" style="background-color:white; min-width:50px;">
+					<tr data-bind="attr: {id: $data.id}, click: SelectActivePage">
+						<td data-bind="text: $data.position" style="align-content:center;"></td>
+						<td><input data-bind="attr: {id: $data.id}, click: AddContainerOnPage" type="button" class="btn btn-outline-primary btn-sm" value="+" style="align-content:center;"></td>
+						<td><input data-bind="attr: {id: $data.id}, click: DeletePage" type="button" class="btn btn-outline-danger btn-sm" value="&times" style="align-content:center;"></td>
+					</tr>
+				</tbody>
+			</table>
+			<table id="addPgBth">
+				<tr>
+					<td><input onclick="AddPage()" type="button" class="btn btn-primary btn-sm" value="Add page" style="align-content:center; background-color:none;"></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</script>
+

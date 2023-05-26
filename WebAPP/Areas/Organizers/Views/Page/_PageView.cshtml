@@ -1,0 +1,18 @@
+﻿<style>
+/* Need to think about coordinates and page size, now 75dpi (824x595), 150dpi=(1684x1190) */
+.page {
+	background-color: white ; /*for debug*/
+	margin: auto;
+	height: 824px;
+	width: 595px;
+	position: relative;
+}
+</style>
+
+<script type="text/html">
+	<div class="page" id="PageViewTemplate">
+		<div class="PageContentContainer" 
+			data-bind="template: {name:'ContainerViewTemplate', foreach: containerDMOs }"
+			style="width:inherit; height:inherit"></div>
+	</div>
+</script>

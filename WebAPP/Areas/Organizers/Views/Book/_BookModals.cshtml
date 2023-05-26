@@ -1,0 +1,145 @@
+﻿<script type="text/javascript">
+	RootVM.BookModals = {
+		CreateBook: new function () {
+			var self = this;
+
+			this.Parent = ko.observable(null);
+
+			this.SetParent = function (parent) {
+				self.Parent(parent);
+			}
+
+			this.NewName = ko.observable("");
+
+			this.NewNameValid = ko.pureComputed(() => {
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (doc of self.Parent().documents()) {
+					if (doc.name() != name)
+						continue;
+					return false;
+				}
+				return true;
+			});
+
+			this.CreateBook = function () {
+				self.Parent().CreateBook(self.NewName());
+				self.SetParent(null);
+				self.NewName("");
+			};
+		},
+
+		DeleteBook: new function () {
+			var self = this;
+			this.Item = ko.observable(null);
+
+			this.SetItem = function (item) {
+				self.Item(item);
+			}
+
+			this.DeleteBook = function () {
+				self.Item().Delete();
+				self.SetItem(null);
+			};
+		},
+
+		RenameBook: new function () {
+			var self = this;
+
+			this.Parent = ko.observable(null);
+			this.Item = ko.observable(null);
+
+			this.SetItem = function (item) {
+				self.Item(item);
+				self.Parent(item?.parent);
+				self.NewName(item?.name());
+			}
+
+			this.NewName = ko.observable("");
+
+			this.NewNameValid = ko.pureComputed(() => {
+				name = self.NewName()?.trim() || "";
+				if (self.Parent() == null || name.length == 0)
+					return false;
+				for (doc of self.Parent().documents()) {
+					if (doc.name() != name)
+						continue;
+					return false;
+				}
+				return true;
+			});
+
+			this.RenameBook = function () {
+				self.Item().Rename(self.NewName());
+				self.SetItem(null);
+			};
+		}
+	};
+</script>
+
+<div class="modal fade" id="BookModals_CreateBook" data-bind="using : BookModals.CreateBook" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Creating book</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the new book:</span>
+				<input data-bind="textInput: NewName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: CreateBook, enable: NewNameValid">
+					Create
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="BookModals_RenameBook" data-bind="using : BookModals.RenameBook" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Renaming book</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span>Enter a unique name for the book <span data-bind="text: Item() ? Item().name : 'error'"></span>:</span>
+				<input data-bind="textInput: NewName"></input>
+				<p />
+				<span class="text-danger" data-bind="hidden: NewNameValid">The name must be unique and not empty.</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bind="click: RenameBook, enable: NewNameValid">
+					Rename
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="BookModals_DeleteBook" data-bind="using : BookModals.DeleteBook" tabindex=-1>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Deleting book</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<span> Are you sure you want to delete <span data-bind="text: Item() ? Item().name : 'error'"></span>?</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bind="click: DeleteBook">
+					Delete
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
-using static WebAPP.Areas.Organizers.Controllers.PageController;
+using WebAPP.Areas.Organizers.Models;
+using WebAPP.Areas.Identity.Data;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
@@ -24,48 +26,35 @@ namespace WebAPP.Areas.Organizers.Controllers
         }
 
         private readonly WebAPPContext _context;
+		private readonly UserManager<UserAccount> userManager;
 
-        public BookController(WebAPPContext context)
+		public BookController(WebAPPContext context, UserManager<UserAccount> _userManager)
         {
             _context = context;
-        }
+			userManager = _userManager;
+		}
 
         [Authorize]
-        [HttpGet("{id:int}")]
-        public IActionResult Index(int id)
+        [HttpGet("{bookId:int}")]
+        public async Task<ActionResult<DocumentContentVM>> GetBook(int organizerId, int bookId)
         {
-            //// test
-			//var b = new Book()
-			//{
-			//	Name = "test",
-			//	ParentCategory = _context.Organizers.First(),
-			//	ParentCategoryId = _context.Organizers.First().Id
-			//};
-			//_context.Books.Add(b);
-			//_context.SaveChangesAsync();
+            var user = await userManager.GetUserAsync(User);
+            if (!_context.HasOrganizer(user, organizerId))
+            {
+				return NotFound();
+			}
+                
+            var book = _context.Books
+                .Where(b => b.ParentOrganizerId == organizerId && b.Id == bookId)
+                .Include(b => b.PageDMOs).FirstOrDefault();
 
-
-			if (!BookExists(id)) // need better check?
+            if (book == null)
             {
                 return NotFound();
             }
-			ViewData["BookID"] = id;
 
-            // will need to make it partial and return object itself
-			return View("Book");
+			return Ok(Json(book));
         }
-
-		[Authorize]
-		[HttpGet("tablelist")]
-		public async Task<ActionResult<IEnumerable<Book>>> GetBooklist()
-		{
-			if (_context.Books == null)
-			{
-				return NotFound();
-			}
-			var data = await _context.Books.ToListAsync();
-			return Json(new BooksPayload(data));
-		}
 
 		[Authorize]
         [HttpGet("{bookId:int}/content")]
@@ -82,56 +71,43 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 
         // not implemented
-		[Authorize]
-		[HttpPost]
-        public async Task<ActionResult<Book>> PostBook(Book book)
-        {
-          if (_context.Books == null)
-          {
-              return Problem("Entity set 'WebAPPContext.Books'  is null.");
-          }
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+		//[Authorize]
+		//[HttpPost]
+  //      public async Task<ActionResult<Book>> PostBook(Book book)
+  //      {
+  //        if (_context.Books == null)
+  //        {
+  //            return Problem("Entity set 'WebAPPContext.Books'  is null.");
+  //        }
+  //          _context.Books.Add(book);
+  //          await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBook", new { id = book.Id }, book);
-        }
+  //          return CreatedAtAction("GetBook", new { id = book.Id }, book);
+  //      }
 
-		[Authorize]
-		[HttpDelete("{bookId:int}")]
-        public async Task<IActionResult> DeleteBook(int id)
-        {
-            if (_context.Books == null)
-            {
-                return NotFound();
-            }
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+        // not implemented
+		//[Authorize]
+		//[HttpDelete("{bookId:int}")]
+  //      public async Task<IActionResult> DeleteBook(int id)
+  //      {
+  //          if (_context.Books == null)
+  //          {
+  //              return NotFound();
+  //          }
+  //          var book = await _context.Books.FindAsync(id);
+  //          if (book == null)
+  //          {
+  //              return NotFound();
+  //          }
 
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
+  //          _context.Books.Remove(book);
+  //          await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+  //          return NoContent();
+  //      }
 		private bool BookExists(int id)
         {
             return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();
         }
-
-        // test
-		[Authorize]
-		[HttpGet("table")]
-		public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-		{
-			if (_context.Books == null)
-			{
-				return NotFound();
-			}
-			var data = await _context.Books.ToListAsync();
-			//return Json(new BooksPayload(data));
-			return View("_BookTable");
-		}
 	}
 }

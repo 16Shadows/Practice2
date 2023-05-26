@@ -1,69 +1,4 @@
-﻿<style>
-	.DMOcontainer {
-		min-width: 100px;
-		min-height: 40px;
-		padding: 2px;
-		position: absolute;
-		z-index: 9;
-		background-color: white;
-		display: flex;
-		flex-direction: column;
-		border: 2px solid grey;
-	}
-
-	.containerHeader {
-		flex: 0;
-		z-index: 10;
-		display: flex;
-	}
-
-	.draggable {
-		min-width: 20px;
-		min-height: 20px;
-		cursor: move;
-		box-sizing: border-box;
-		background-color: #dff2ff;
-		flex: 0;
-	}
-
-	.content {
-		flex: 1;
-		overflow: auto;
-		margin-top: 0px;
-		margin-right: 10px;
-		margin-left: 10px;
-		margin-bottom: 10px;
-	}
-
-	.resizeButton {
-		min-width: 10px;
-		min-height: 10px;
-		max-width: 10px;
-		max-height: 10px;
-		cursor: se-resize;
-		background-color: darkgrey;
-		position: absolute;
-		bottom: 0px;
-		right: 0px;
-		flex: 2;
-	}
-</style>
-
-<template id="ContainerViewTemplate" type="text/html">
-	<div class="DMOcontainer" data-bind="attr: {id: id()},style: { width: width(), height: height(), left: coordX(), top: coordY() }">
-		<div class="d-flex containerHeader">
-			<div class="draggable flex-grow-1" id="contDraggable"></div>
-			<button id="setB" data-bind="click: SetContent" class="btn btn-outline-primary btn-sm">Set</button>
-			<button id="delB" data-bind="click: DeleteContainer" class="btn btn-danger btn-sm">&times;</button>
-		</div>
-
-		<div class="content">
-		</div>
-
-		<div class="ui-resizable-se resizeButton" data-bind="attr: {id: id()}"></div>
-	</div>
-</template>
-
+﻿
 <script type="text/javascript" id="ContainerVM">
 	function ContainerVM(containerId, parentPageVM) {
 		var self = this;
@@ -76,8 +11,8 @@
 		self.coordY = ko.observable();
 		self.objectDMOs = ko.observableArray();
 		self.ParentPageVM = parentPageVM;
-	
-			//fetch to load initial coords, size and content
+
+		//fetch to load initial coords, size and content
 		fetch("/Organizers/Container/" + containerId + "/content")
 			.then(response => response.json())
 			.then((json) => {
@@ -100,8 +35,7 @@
 						debugger;
 						console.log("deleted");
 						var parentContainer = data.ParentPageVM.containerDMOs;
-						if (parentContainer != null)
-						{
+						if (parentContainer != null) {
 							parentContainer.remove(data);
 						}
 					}
@@ -109,15 +43,14 @@
 					return response;
 				})
 				.catch(error => console.error('Unable to delete items.', error));
-			
+
 		};
 	}
 
 </script>
 
-<script type="text/javascript">
-
-	//set observer for container creation
+<script id="ContainerObserver" type="text/javascript">
+	//set observer for container creation anywhere on the document
 	var target = document;
 	const config = { childList: true, subtree: true };
 	const callback = function (mutationsList, observer) {
@@ -146,25 +79,25 @@
 									var containerID = event.target.getAttribute("id");
 									debugger;
 									var data = {
-									"CoordX": newX,
-									"CoordY": newY,
-									"Width": null,
-									"Height": null,
-									"Type": null
+										"CoordX": newX,
+										"CoordY": newY,
+										"Width": null,
+										"Height": null,
+										"Type": null
 									};
 
 									//fetch to update coordinates
 									fetch("/Organizers/Container/update/" + containerID,
-									{ 
+									{
 										method: "PUT",
-										headers: {'Content-Type': 'application/json'},
+										headers: { 'Content-Type': 'application/json' },
 										body: JSON.stringify(data)
 									})
-									.then(response => {
-										console.log(response);
-										return response;
-									})
-									.catch(error => console.error('Unable to update items.', error));
+										.then(response => {
+											console.log(response);
+											return response;
+										})
+										.catch(error => console.error('Unable to update items.', error));
 								}
 							});
 
@@ -180,8 +113,8 @@
 							$(node).resizable({
 								stop: function (event, ui) {
 									debugger;
-									var newWidth = Math.round(ui.size.width);
-									var newHeight = Math.round(ui.size.height);
+									var newWidth = Math.floor(ui.size.width);
+									var newHeight = Math.floor(ui.size.height);
 									var containerID = event.target.getAttribute("id");
 
 									//fetch to update size
@@ -197,14 +130,14 @@
 									fetch("/Organizers/Container/update/" + containerID,
 									{
 										method: "PUT",
-										headers: {'Content-Type': 'application/json'},
+										headers: { 'Content-Type': 'application/json' },
 										body: JSON.stringify(data)
 									})
-									.then(response => {
-										console.log(response);
-										return response;
-									})
-									.catch(error => console.error('Unable to update items.', error));
+										.then(response => {
+											console.log(response);
+											return response;
+										})
+										.catch(error => console.error('Unable to update items.', error));
 								}
 							});
 						}
