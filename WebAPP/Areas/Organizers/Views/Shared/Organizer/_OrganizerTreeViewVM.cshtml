@@ -9,14 +9,15 @@
 		organizerData - { id - int, name - string }
 	*/
 	function OrganizerTreeViewVM(organizerData, itemSelectedCallback) {
-		OrganizerVM.call(this, organizerData);
-
 		itemSelectedCallback = itemSelectedCallback || (() => {});
 
 		//Proxy to call the callback
 		this.ItemSelected = function(item) {
 			itemSelectedCallback(item);
 		}
+
+		//Call parent constructor last to ensure that patch() is called after all initialization is finished.
+		OrganizerVM.call(this, organizerData);
 	}
 
 	//Patch documents and categories so that they have an will propagate ItemSelected event.
