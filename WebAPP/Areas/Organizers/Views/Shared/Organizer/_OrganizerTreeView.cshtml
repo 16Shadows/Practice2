@@ -10,9 +10,9 @@
 <script type="text/html" id="OrganizerTreeView_RootTemplate">
 	<div class="fill" style="overflow:auto" context-menu="#OrganizerTreeView_RootContextMenu">
 		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
-		<ul data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
 		<!--Book-->
-		<ul data-bind="template: { name: 'OrganizerTreeView_BookTemplate', foreach: books }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_BookTemplate', foreach: books }"></ul>
 	</div>
 </script>
 
@@ -34,10 +34,10 @@
 <script type="text/html" id="OrganizerTreeView_CategoryTemplate">
 	<li context-menu="#OrganizerTreeView_CategoryContextMenu">
 		<img src="/resources/ExpandedCategoryIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
-		<ul data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
-		<ul data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></u>
 		<!--Book-->
-		<ul data-bind="template: { name: 'OrganizerTreeView_BookTemplate', foreach: books }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_BookTemplate', foreach: books }"></ul>
 	</li>
 </script>
 

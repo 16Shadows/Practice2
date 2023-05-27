@@ -24,6 +24,8 @@
 			});
 
 			this.CreateBook = function () {
+				debugger;
+				console.log(self.Parent());
 				self.Parent().CreateBook(self.NewName());
 				self.SetParent(null);
 				self.NewName("");
@@ -31,6 +33,7 @@
 		},
 
 		DeleteBook: new function () {
+			debugger;
 			var self = this;
 			this.Item = ko.observable(null);
 

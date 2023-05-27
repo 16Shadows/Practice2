@@ -83,6 +83,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			var j = Json(new ContainersPayload(new List<ContainerDMO>() { newCont }));
 			return Accepted(j);
 		}
+
 		// DELETE
 		[Authorize]
 		[HttpDelete("delete/{containerId:int}")]
@@ -123,8 +124,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 				return NotFound();
 			}
 
-			if (newData.Width != null) { cont.Width = (uint)newData.Width; }
-			if (newData.Height != null) { cont.Height = (uint)newData.Height; }
+			if (newData.Width != null) { cont.Width = (int)newData.Width; }
+			if (newData.Height != null) { cont.Height = (int)newData.Height; }
 			if (newData.CoordX != null) { cont.CoordX = (int)newData.CoordX; }
 			if (newData.CoordY != null) { cont.CoordY = (int)newData.CoordY; }
 			if (newData.Type != null) { cont.Type = (int)newData.Type; }

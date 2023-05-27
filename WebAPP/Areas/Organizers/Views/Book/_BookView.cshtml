@@ -63,14 +63,14 @@
 <script type="text/html" id="BookViewTemplate">
 
 	<div class="book">
-		<div class="pageViewContainer" id="pageVC">
-		@*<div data-bind="template: {name: (ActivePageVM() ? 'page-template' : 'page-fallback-template'), data:ActivePageVM}"></div>-->
-		*@</div>
+		<div class="pageViewContainer">
+		<div data-bind="template: {name: ($data.ActivePageVM() ? 'PageViewTemplate' : 'EmptyTemplate'), data:$data.ActivePageVM}"></div>
+		</div>
 
-		<div class="resizer" id="dragbar"></div>
+		<div class="resizer"></div>
 
 		<div style="overflow: auto;">
-			<table class="table" id="pageTable">
+			<table class="table pageTable">
 				<thead style="background-color:white;">
 					<tr>
 						<th scope="col">Page</th>
@@ -78,17 +78,17 @@
 						<th scope="col">Delete page</th>
 					</tr>
 				</thead>
-				<tbody id="pageListContainer" data-bind="foreach: pageDMOs" style="background-color:white; min-width:50px;">
-					<tr data-bind="attr: {id: $data.id}, click: SelectActivePage">
+				<tbody class="pageListContainer" data-bind="foreach: $data.pageDMOs" style="background-color:white; min-width:50px;">
+					<tr data-bind="attr: {id: $data.id}, click: $parent.SelectActivePage">
 						<td data-bind="text: $data.position" style="align-content:center;"></td>
-						<td><input data-bind="attr: {id: $data.id}, click: AddContainerOnPage" type="button" class="btn btn-outline-primary btn-sm" value="+" style="align-content:center;"></td>
-						<td><input data-bind="attr: {id: $data.id}, click: DeletePage" type="button" class="btn btn-outline-danger btn-sm" value="&times" style="align-content:center;"></td>
+						<td><input data-bind="attr: {id: $data.id}, click: $parent.AddContainerOnPage" type="button" class="btn btn-outline-primary btn-sm" value="+" style="align-content:center;"></td>
+						<td><input data-bind="attr: {id: $data.id}, click: $parent.DeletePage" type="button" class="btn btn-outline-danger btn-sm" value="&times" style="align-content:center;"></td>
 					</tr>
 				</tbody>
 			</table>
 			<table id="addPgBth">
 				<tr>
-					<td><input onclick="AddPage()" type="button" class="btn btn-primary btn-sm" value="Add page" style="align-content:center; background-color:none;"></td>
+					<td><input data-bind="click: $data.AddPage" type="button" class="btn btn-primary btn-sm" value="Add page" style="align-content:center; background-color:none;"></td>
 				</tr>
 			</table>
 		</div>

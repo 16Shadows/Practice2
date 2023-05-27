@@ -19,10 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Areas\Organizers\Views\Container\william.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="jQuery" Version="3.6.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.15" />
@@ -48,7 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Areas\Organizers\Views\Container\william.png" />
     <Resource Include="wwwroot\resources\BookIcon.png" />
   </ItemGroup>
 

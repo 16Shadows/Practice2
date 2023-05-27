@@ -27,20 +27,6 @@ namespace WebAPP.Areas.Organizers.Controllers
             _context = context;
         }
 
-        // create blanc view of page with page ID
-		[Authorize]
-		[HttpGet("{pageId:int}")]
-		public IActionResult Index(int pageId)
-		{
-			if (!PageDMOExists(pageId))
-			{
-				return NotFound();
-			}
-            ViewData["PageID"] = pageId;
-
-			return View("Page");
-		}
-
         // get page object and its containers
 		[Authorize]
 		[HttpGet("{pageId:int}/content")]
@@ -86,7 +72,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 				.Include(p => p.ContainerDMOs)
 				.FirstAsync();
 
-			var j = Json(new PagesPayload(new List<PageDMO>() { newPage }));
+			var j = Json(newPage);
 			return Accepted(j);
 		}
 
@@ -116,7 +102,6 @@ namespace WebAPP.Areas.Organizers.Controllers
 				.OrderBy(p => p.Position)
 				.ToListAsync();
 
-			// !!!! need to return updated array to update positions
 			return Accepted(new PagesPayload(list));
 		}
 		// Changes all pages' positions in book after deleted one

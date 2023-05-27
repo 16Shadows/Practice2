@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
 using WebAPP.Areas.Organizers.Models;
 using WebAPP.Areas.Identity.Data;
+using static WebAPP.Areas.Organizers.Controllers.PageController;
+using System.Collections.Generic;
+using System.Reflection.Metadata;
+using static WebAPP.Areas.Organizers.Controllers.ContainerController;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
@@ -14,16 +18,6 @@ namespace WebAPP.Areas.Organizers.Controllers
     [ApiController]
     public class BookController : Controller
     {
-        class BooksPayload
-        {
-            // Class to wrap fetch data and additional info for views,
-            // will be converted into json object
-            public BooksPayload(List<Book> books)
-            {
-                Books = books;
-            }
-            public List<Book> Books { get; }
-        }
 
         private readonly WebAPPContext _context;
 		private readonly UserManager<UserAccount> userManager;
@@ -70,42 +64,51 @@ namespace WebAPP.Areas.Organizers.Controllers
 			return Json(book);
 		}
 
-        // not implemented
-		//[Authorize]
-		//[HttpPost]
-  //      public async Task<ActionResult<Book>> PostBook(Book book)
-  //      {
-  //        if (_context.Books == null)
-  //        {
-  //            return Problem("Entity set 'WebAPPContext.Books'  is null.");
-  //        }
-  //          _context.Books.Add(book);
-  //          await _context.SaveChangesAsync();
+		// UPDATE container by containerID
+		[Authorize]
+		[HttpPut("rename/{organizerId:int}/{bookId:int}")]
+		public async Task<ActionResult<Book>> RenameBook(int organizerId, int bookId, [FromBody] string newName)
+		{
+			var book = _context.Books
+                .Where(b => b.ParentOrganizerId == organizerId && b.Id == bookId)
+                .FirstOrDefault();
+			if (book == null)
+			{
+				return NotFound();
+			}
 
-  //          return CreatedAtAction("GetBook", new { id = book.Id }, book);
-  //      }
+			book.Name = newName;
+			
+			await _context.SaveChangesAsync();
 
-        // not implemented
-		//[Authorize]
-		//[HttpDelete("{bookId:int}")]
-  //      public async Task<IActionResult> DeleteBook(int id)
-  //      {
-  //          if (_context.Books == null)
-  //          {
-  //              return NotFound();
-  //          }
-  //          var book = await _context.Books.FindAsync(id);
-  //          if (book == null)
-  //          {
-  //              return NotFound();
-  //          }
+			return Ok();
+		}
 
-  //          _context.Books.Remove(book);
-  //          await _context.SaveChangesAsync();
 
-  //          return NoContent();
-  //      }
-		private bool BookExists(int id)
+		[Authorize]
+        [HttpDelete("delete/{organizerId:int}/{bookId:int}")]
+        public async Task<IActionResult> DeleteBook(int organizerId, int bookId)
+        {
+            if (_context.Books == null)
+            {
+                return NotFound();
+            }
+
+            var book = _context.Books
+                .Where(x => x.ParentOrganizerId == organizerId && x.Id == bookId)
+                .FirstOrDefault();
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            _context.Books.Remove(book);
+            await _context.SaveChangesAsync();
+
+			return Accepted();
+		}
+        private bool BookExists(int id)
         {
             return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();
         }
