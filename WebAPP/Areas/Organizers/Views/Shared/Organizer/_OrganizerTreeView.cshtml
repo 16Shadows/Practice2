@@ -35,7 +35,7 @@
 	<li context-menu="#OrganizerTreeView_CategoryContextMenu">
 		<img src="/resources/ExpandedCategoryIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
 		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
-		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></u>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
 		<!--Book-->
 		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_BookTemplate', foreach: books }"></ul>
 	</li>
@@ -49,7 +49,7 @@
 		<a role="button">Create document</a>
 	</div>
 	<!--Book-->
-	<div class="row" data-bs-toggle="modal" data-bs-target="#BookModals_CreateDocument" onclick="RootVM.BookModals.CreateBook.SetParent(ko.dataFor(ContextMenu.Source));">
+	<div class="row" data-bs-toggle="modal" data-bs-target="#BookModals_CreateBook" onclick="RootVM.BookModals.CreateBook.SetParent(ko.dataFor(ContextMenu.Source));">
 		<a role="button">Create book</a>
 	</div>
 	<div class="border"></div>
@@ -87,7 +87,7 @@
 	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#BookModals_RenameBook" onclick="RootVM.BookModals.RenameBook.SetItem(ko.dataFor(ContextMenu.Source));">
 		<span>Rename</span>
 	</div>
-	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#BookModals_DeleteDocument" onclick="RootVM.BookModals.DeleteBook.SetItem(ko.dataFor(ContextMenu.Source));">
+	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#BookModals_DeleteBook" onclick="RootVM.BookModals.DeleteBook.SetItem(ko.dataFor(ContextMenu.Source));">
 		<span>Delete</span>
 	</div>
 </div>

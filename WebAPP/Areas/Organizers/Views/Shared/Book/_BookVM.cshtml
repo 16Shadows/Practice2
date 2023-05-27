@@ -21,12 +21,13 @@
 		// request list data after page loading
 		fetch("/Organizers/Book/" + bookId + "/content")
 		.then(response => response.json())
-		.then(json => ko.mapping.fromJS(json, {}, this))
+		.then(json => ko.mapping.fromJS(json, {}, self))
 		.catch(error => console.error('Unable to get items.', error));
 
 
 		this.Delete = function () {
-			fetch("/Organizers/Book/delete/" + self.parentOrganizerID + self.id,
+			debugger;
+			fetch("/Organizers/Book/delete/" + self.parentOrganizerId() + "/" + self.id(),
 			{ method: "DELETE" })
 			.then((response) =>{
 				if (response.ok)
@@ -38,11 +39,12 @@
 		}
 
 		this.Rename = function (newName) {
+			debugger;
 			newName = newName.trim();
 
-			fetch("/Organizers/Book/rename/" + self.parentOrganizerID + self.id, 
+			fetch("/Organizers/Book/rename/" + self.parentOrganizerId() + "/" + self.id(), 
 			{
-				method: "POST",
+				method: "PUT",
 				headers: { "Content-Type": "text/plain" },
 				body: newName
 			})

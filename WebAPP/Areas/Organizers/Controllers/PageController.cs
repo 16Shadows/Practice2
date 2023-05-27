@@ -36,9 +36,9 @@ namespace WebAPP.Areas.Organizers.Controllers
 			{
 				return NotFound();
 			}
-			var page = await _context.Pages.Where(p => p.Id == pageId)
+			var page = _context.Pages.Where(p => p.Id == pageId)
 				.Include(p => p.ContainerDMOs)
-				.FirstAsync();
+				.FirstOrDefault();
 			
 			return Json(page);
 		}

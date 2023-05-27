@@ -33,6 +33,7 @@
 			};
 		},
 		DeleteDocument : new function() {
+			debugger;
 			var self = this;
 			this.Item = ko.observable(null);
 
@@ -41,6 +42,7 @@
 			}
 
 			this.DeleteDocument = function() {
+				debugger;
 				self.Item().Delete();
 				self.SetItem(null);
 			};
@@ -73,6 +75,7 @@
 			});
 
 			this.RenameDocument = function() {
+				debugger;
 				self.Item().Rename(self.NewName());
 				self.SetItem(null);
 			};

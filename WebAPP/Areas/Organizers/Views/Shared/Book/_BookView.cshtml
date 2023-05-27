@@ -15,7 +15,7 @@
 		padding:20px;
 	}
 	.resizer {
-		cursor: ew-resize;
+		/* cursor: ew-resize; */
 		width:5px;
 		background-color: grey;
 	}
@@ -49,8 +49,8 @@
 			this.IsNameUnique = ko.pureComputed(function () {
 				if (self.name()?.length == 0)
 					return false;
-				for (doc of self.parent.documents()) {
-					if (doc == self || doc.name() != self.name())
+				for (book of self.parent.books()) {
+					if (book == self || book.name() != self.name())
 						continue;
 					return false;
 				}

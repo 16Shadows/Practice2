@@ -42,12 +42,14 @@
 			}
 
 			this.DeleteBook = function () {
+				debugger;
 				self.Item().Delete();
 				self.SetItem(null);
 			};
 		},
 
 		RenameBook: new function () {
+			
 			var self = this;
 
 			this.Parent = ko.observable(null);
@@ -74,6 +76,7 @@
 			});
 
 			this.RenameBook = function () {
+				debugger;
 				self.Item().Rename(self.NewName());
 				self.SetItem(null);
 			};
