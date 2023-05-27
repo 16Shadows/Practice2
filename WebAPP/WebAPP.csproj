@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Areas\Organizers\Views\Container\william.png" />
+    <Content Remove="wwwroot\resources\BookIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Areas\Organizers\Views\Container\william.png" />
+    <Resource Include="wwwroot\resources\BookIcon.png" />
   </ItemGroup>
 
 </Project>

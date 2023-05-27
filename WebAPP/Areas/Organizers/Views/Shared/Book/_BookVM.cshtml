@@ -1,0 +1,149 @@
+﻿<!-- MUST BE PLACED BEFORE BOOK VIEW SCRIPT -->
+
+<script type="text/javascript">
+	ko.Mapper.Book = {
+		create: function (options) {
+			return new BookVM(options.data.id, options.parent);
+		}
+	}
+	function BookVM(bookId, parentVM) {
+		var self = this;
+		self.ActivePageVM = ko.observable(null);
+
+		this.id = ko.observable();
+		this.name = ko.observable();
+		this.parentCategoryId = ko.observable();
+		this.parentOrganizerId = ko.observable();
+		this.pageDMOs = ko.observableArray();
+		this.parent = parentVM;
+		this.type = ko.observable("Book");
+
+		// request list data after page loading
+		fetch("/Organizers/Book/" + bookId + "/content")
+		.then(response => response.json())
+		.then(json => ko.mapping.fromJS(json, {}, self))
+		.catch(error => console.error('Unable to get items.', error));
+
+
+		this.Delete = function () {
+			debugger;
+			fetch("/Organizers/Book/delete/" + self.parentOrganizerId() + "/" + self.id(),
+			{ method: "DELETE" })
+			.then((response) =>{
+				if (response.ok)
+				{
+					console.log("book deleted");
+					self.parent.books.remove(self);
+				}
+			});
+		}
+
+		this.Rename = function (newName) {
+			debugger;
+			newName = newName.trim();
+
+			fetch("/Organizers/Book/rename/" + self.parentOrganizerId() + "/" + self.id(), 
+			{
+				method: "PUT",
+				headers: { "Content-Type": "text/plain" },
+				body: newName
+			})
+				.then(response => {
+					if (response.ok) {
+						console.log("book renamed");
+						self.name(newName);
+					}
+				});
+		}
+
+		// Select row and set new active page view
+		this.SelectActivePage = function (row) {
+			var newPageId = row.id();
+
+			if (self.ActivePageVM() != null) {
+				if (self.ActivePageVM().id() != newPageId) {
+					// need to change colors to mark selected row
+					self.ActivePageVM(new ActivePageVM(newPageId));
+				}
+			}
+			else {
+				// need to change colors to mark selected row
+				self.ActivePageVM(new ActivePageVM(newPageId));
+			}
+
+		}
+
+		// Create new page and add in the last position of the book
+		this.AddPage = function () {
+			let newPos;
+			// calculate unique position for new page
+			if (self.pageDMOs().length == 0) {
+				newPos = 1;
+			}
+			else {
+				// 'add page' pushes new page with biggest position at the end of array
+				var obj = self.pageDMOs()[self.pageDMOs().length - 1];
+				newPos = obj.position() + 1;
+			}
+
+			fetch("/Organizers/Page/create/" + self.id() + "/" + newPos,
+			{ method: "POST" })
+				.then(response => response.json())
+				.then(json => self.pageDMOs.push(ko.mapping.fromJS(json.value)))
+				.catch(error => console.error('Unable to add items.', error));
+		}
+
+		// Add new blanc container on chosen page
+		this.AddContainerOnPage = function (row, event) {
+			event.stopPropagation();
+			// post new default container on page
+
+			fetch("/Organizers/Container/create/" + row.id() + "/",
+			{ method: "POST" })
+				.then(response => response.json())
+				.then((json) => {
+					// check if page is current active and need to be updated
+					if (row.id() == self.ActivePageVM().id()) {
+						var newContVM = new ContainerVM(row.id(), self.ActivePageVM());
+						self.ActivePageVM().containerDMOs.push(newContVM);
+					}
+					return json;
+				})
+				.catch(error => console.error('Unable to add items.', error));
+		}
+
+		// Delete chosen page from book, other page's position will be updated
+		this.DeletePage = function (row, event) {
+			event.stopPropagation();
+			var pId = row.id();
+
+			fetch("/Organizers/Page/delete/" + self.id() + "/" + pId,
+			{ method: "DELETE" })
+				.then((response) => {
+					// check if deletion was successful
+					if (response.status == Number(202)) {
+						//check if deleted page was open as view
+						if (self.ActivePageVM() != null) {
+							if (self.ActivePageVM().id() == pId) {
+								self.ActivePageVM(null);
+							}
+						}
+					}
+					else {
+						console.error("Something went wrong when deleting. Page pos:",
+							row.position(),
+							response.status);
+					}
+
+					return response.json();
+				})
+				.then(json => ko.mapping.fromJS(json.pages, {}, self.pageDMOs))
+				.catch(error => console.error('Unable to delete items.', error));
+		}
+
+		// Allow other parts of the script to patch this object
+		if (this.patch != undefined)
+			this.patch();
+	}
+
+</script>

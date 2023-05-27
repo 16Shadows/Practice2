@@ -49,6 +49,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 								.Where(x => x.OwnerId == user.Id && x.Id == organizerId)
 								.Include(x => x.Subcategories)
 								.Include(x => x.Documents)
+								.Include(x => x.Books)
 								.ToArray()
 								.FirstOrDefault();
 
@@ -130,6 +131,44 @@ namespace WebAPP.Areas.Organizers.Controllers
 			await dbContext.SaveChangesAsync();
 
 			return Ok(new DocumentVM(document));
+		}
+
+		// Book
+		[HttpPost("createBook")]
+		[Consumes("text/plain")]
+		public async Task<ActionResult<Book>> CreateBook(int organizerId, [FromBody] string name)
+		{
+			if (name.Length == 0)
+				return BadRequest();
+
+			var user = await userManager.GetUserAsync(User);
+
+			Organizer? target = dbContext.GetOrganizer(user, organizerId);
+
+			if (target == null)
+				return NotFound();
+
+			bool any = dbContext
+					   .Books
+					   .Where(b => b.ParentOrganizerId == organizerId && b.ParentCategoryId == organizerId && b.Name == name)
+					   .Include(b => b.ParentCategory)
+					   .ToArray()
+					   .Any(b => b.ParentCategory.GetType().IsAssignableTo(typeof(Organizer)));
+
+			if (any)
+				return Conflict();
+
+			Book book = new Book()
+			{
+				Name = name,
+				ParentCategory = target,
+				ParentOrganizer = target
+			};
+			dbContext.Books.Add(book);
+
+			await dbContext.SaveChangesAsync();
+
+			return Ok(book);
 		}
 	}
 }

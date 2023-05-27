@@ -9,8 +9,8 @@ namespace WebAPP.Areas.Organizers.Data
         // all not null
         public int ID { get; set; }
         public int Type { get; set; }
-        public uint Width { get; set; }
-        public uint Height { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         public int CoordX { get; set; }
         public int CoordY { get; set; }
 		// required one-to-many: pages/containers

@@ -2,6 +2,7 @@
 	Dependencies:
 		Document/_DocumentModals
 		Category/_CategoryModals
+		Book/_BookModals
 		Organizer/_OrganizerTreeViewVM
 *@
 
@@ -9,7 +10,9 @@
 <script type="text/html" id="OrganizerTreeView_RootTemplate">
 	<div class="fill" style="overflow:auto" context-menu="#OrganizerTreeView_RootContextMenu">
 		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
-		<ul data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+		<!--Book-->
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_BookTemplate', foreach: books }"></ul>
 	</div>
 </script>
 
@@ -22,13 +25,19 @@
 	<div class="row" data-bs-toggle="modal" data-bs-target="#DocumentModals_CreateDocument" onclick="RootVM.DocumentModals.CreateDocument.SetParent(ko.dataFor(ContextMenu.Source));">
 		<a role="button">Create document</a>
 	</div>
+	<!--Book-->
+	<div class="row" data-bs-toggle="modal" data-bs-target="#BookModals_CreateBook" onclick="RootVM.BookModals.CreateBook.SetParent(ko.dataFor(ContextMenu.Source));">
+		<a role="button">Create book</a>
+	</div>
 </div>
 
 <script type="text/html" id="OrganizerTreeView_CategoryTemplate">
 	<li context-menu="#OrganizerTreeView_CategoryContextMenu">
 		<img src="/resources/ExpandedCategoryIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
-		<ul data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
-		<ul data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
+		<!--Book-->
+		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_BookTemplate', foreach: books }"></ul>
 	</li>
 </script>
 
@@ -38,6 +47,10 @@
 	</div>
 	<div class="row" data-bs-toggle="modal" data-bs-target="#DocumentModals_CreateDocument" onclick="RootVM.DocumentModals.CreateDocument.SetParent(ko.dataFor(ContextMenu.Source));">
 		<a role="button">Create document</a>
+	</div>
+	<!--Book-->
+	<div class="row" data-bs-toggle="modal" data-bs-target="#BookModals_CreateBook" onclick="RootVM.BookModals.CreateBook.SetParent(ko.dataFor(ContextMenu.Source));">
+		<a role="button">Create book</a>
 	</div>
 	<div class="border"></div>
 	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#CategoryModals_RenameCategory" onclick="RootVM.CategoryModals.RenameCategory.SetItem(ko.dataFor(ContextMenu.Source));">
@@ -59,6 +72,22 @@
 		<span>Rename</span>
 	</div>
 	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#DocumentModals_DeleteDocument" onclick="RootVM.DocumentModals.DeleteDocument.SetItem(ko.dataFor(ContextMenu.Source));">
+		<span>Delete</span>
+	</div>
+</div>
+
+<!--Book-->
+<script type="text/html" id="OrganizerTreeView_BookTemplate">
+	<li role="button" data-bind="click : ItemSelected" context-menu="#OrganizerTreeView_BookContextMenu">
+		<img src="/resources/BookIcon.png" width="20" height="20"/><span data-bind="text: name"></span>
+	</li>
+</script>
+
+<div id="OrganizerTreeView_BookContextMenu" class="card" style="display:none">
+	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#BookModals_RenameBook" onclick="RootVM.BookModals.RenameBook.SetItem(ko.dataFor(ContextMenu.Source));">
+		<span>Rename</span>
+	</div>
+	<div class="row" role="button" data-bs-toggle="modal" data-bs-target="#BookModals_DeleteBook" onclick="RootVM.BookModals.DeleteBook.SetItem(ko.dataFor(ContextMenu.Source));">
 		<span>Delete</span>
 	</div>
 </div>

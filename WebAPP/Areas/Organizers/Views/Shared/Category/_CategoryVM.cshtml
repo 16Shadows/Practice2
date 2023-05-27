@@ -12,7 +12,8 @@
 
 	ko.Mapper.CategoryContent = {
 		"subcategories" : ko.Mapper.Category,
-		"documents" : ko.Mapper.Document
+		"documents" : ko.Mapper.Document,
+		"books" : ko.Mapper.Book
 	}
 
 	/*
@@ -46,6 +47,7 @@
 
 		this.subcategories = ko.onDemandObservableArray(loader, this);
 		this.documents = ko.onDemandObservableArray(loader, this);
+		this.books = ko.onDemandObservableArray(loader, this);
 
 		this.CreateCategory = function(name) {
 			name = name.trim();
@@ -71,6 +73,19 @@
 			})
 			.then(response => response.json())
 			.then(json => self.documents.push(new DocumentVM(json, self)));
+		};
+
+		this.CreateBook = function(name) {
+			name = name.trim();
+			fetch("/Organizers/" + self.organizerID + "/category/" + self.id + "/createBook", {
+				method : "POST",
+				headers : {
+					"Content-Type" : "text/plain"
+				},
+				body : name
+			})
+			.then(response => response.json())
+			.then(json => self.books.push(new BookVM(json.id, self)));
 		};
 
 		this.Rename = function(name) {

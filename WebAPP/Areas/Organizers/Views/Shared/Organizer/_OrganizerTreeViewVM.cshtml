@@ -36,4 +36,13 @@
 			this.parent.ItemSelected(null);
 		});
 	});
+	// Book
+	BookVM.prototype.ItemSelected = utils.patch(BookVM.prototype.ItemSelected, function (item) {
+		this.parent.ItemSelected(item);
+	});
+	BookVM.prototype.patch = utils.patch(BookVM.prototype.patch, function () {
+		this.Delete = utils.patch(this.Delete, function () {
+			this.parent.ItemSelected(null);
+		});
+	});
 </script>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPP;
 
@@ -10,9 +11,11 @@ using WebAPP;
 namespace WebAPP.Migrations
 {
     [DbContext(typeof(WebAPPContext))]
-    partial class WebAPPContextModelSnapshot : ModelSnapshot
+    [Migration("20230526165748_BookParentsUpdate")]
+    partial class BookParentsUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
@@ -303,7 +306,7 @@ namespace WebAPP.Migrations
                     b.Property<int>("CoordY")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Height")
+                    b.Property<uint>("Height")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ParentPageId")
@@ -312,7 +315,7 @@ namespace WebAPP.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Width")
+                    b.Property<uint>("Width")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
@@ -403,10 +406,7 @@ namespace WebAPP.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Tags");
+                    b.ToTable("Tag");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Category", b =>

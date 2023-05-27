@@ -8,9 +8,11 @@ namespace WebAPP.Areas.Organizers.Models
 		{
 			Subcategories = category.Subcategories.Select(x => new CategoryVM(x)).ToList();
 			Documents = category.Documents.Select(x => new DocumentVM(x)).ToList();
+			Books = category.Books.ToList();
 		}
 
 		public List<CategoryVM> Subcategories { get; }
 		public List<DocumentVM> Documents { get; }
+		public List<Book> Books { get; }
 	}
 }
