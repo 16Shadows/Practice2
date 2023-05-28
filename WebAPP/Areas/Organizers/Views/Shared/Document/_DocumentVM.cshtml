@@ -6,7 +6,7 @@
 <script type="text/javascript">
 	ko.Mapper.Document = {
 		create : function(options) {
-			return new DocumentVM(options.data, options.parent);
+			return DocumentVM.get(options.data, options.parent);
 		}
 	}
 	
@@ -17,7 +17,7 @@
 	function DocumentVM(documentData, parent) {
 		this.organizerID = parent.organizerID;
 		this.id = documentData.id;
-		this.name = ko.observable(documentData.name).extend({ store : true });
+		this.name = ko.observable(documentData.name);
 		this.type = ko.observable("Document");
 		this.parent = parent;
 		this.loading = false;
@@ -38,25 +38,18 @@
 		this.content = ko.onDemandObservable(loader, this).extend({ store : true });
 		this.tags = ko.onDemandObservableArray(loader, this);
 
-		this.Rename = function(name) {
+		this.Rename = async function(name) {
 			name = name.trim();
-			success = false;
-			fetch("/Organizers/" + self.organizerID + "/document/" + self.id + "/rename", {
+			response = await fetch("/Organizers/" + self.organizerID + "/document/" + self.id + "/rename", {
 				method : "POST",
 				headers : {
 					"Content-Type" : "text/plain"
 				},
 				body : name
-			})
-			.then(response => {
-				if (response.ok)
-				{
-					self.name(name);
-					self.name.commit();
-					success = true;
-				}
 			});
-			return success;
+			if (response.ok)
+				self.name(name);
+			return response.ok;
 		}
 
 		this.SetContent = function(content) {
@@ -99,7 +92,7 @@
 				body : name
 			})
 			.then(response => response.json())
-			.then(json => self.sections.push(new SectionVM(json, self)));
+			.then(json => self.sections.push(SectionVM.get(json, self)));
 		}
 
 		this.AddTag = function(name) {
@@ -136,6 +129,13 @@
 		@* Allow other parts of the script to patch this object as needed. Used instead of modifying prototype because its impossible to create observables using 'this' by extending the prototype. *@
 		if (this.patch != undefined)
 			this.patch();
+	}
+
+	DocumentVM.Cache = {};
+	DocumentVM.get = function(data, parent) {
+		if (DocumentVM.Cache[data.id] != undefined)
+			return DocumentVM.Cache[data.id];
+		return DocumentVM.Cache[data.id] = new DocumentVM(data, parent);
 	}
 </script>
 

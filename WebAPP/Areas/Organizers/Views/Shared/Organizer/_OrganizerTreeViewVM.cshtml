@@ -45,4 +45,11 @@
 			this.parent.ItemSelected(null);
 		});
 	});
+
+	OrganizerTreeViewVM.Cache = {};
+	OrganizerTreeViewVM.get = function(data, parent) {
+		if (OrganizerTreeViewVM.Cache[data.id] != undefined)
+			return OrganizerTreeViewVM.Cache[data.id];
+		return OrganizerTreeViewVM.Cache[data.id] = OrganizerVM.Cache[data.id] = new OrganizerVM(data, parent);
+	}
 </script>

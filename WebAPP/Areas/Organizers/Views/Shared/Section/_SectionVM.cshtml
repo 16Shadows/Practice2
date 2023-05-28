@@ -1,7 +1,7 @@
 ﻿<script type="text/javascript">
 	ko.Mapper.Section = {
 		create: function(options) {
-			return new SectionVM(options.data, options.parent);
+			return SectionVM.get(options.data, options.parent);
 		}
 	}
 
@@ -91,11 +91,18 @@
 				body : name
 			})
 			.then(response => response.json())
-			.then(json => this.sections.push(new SectionVM(json, this)));
+			.then(json => this.sections.push(SectionVM.get(json, this)));
 		}
 
 		@* Allow other parts of the script to patch this object as needed. Used instead of modifying prototype because its impossible to create observables using 'this' by extending the prototype. *@
 		if (this.patch != undefined)
 			this.patch();
+	}
+
+	SectionVM.Cache = {};
+	SectionVM.get = function(data, parent) {
+		if (SectionVM.Cache[data.id] != undefined)
+			return SectionVM.Cache[data.id];
+		return SectionVM.Cache[data.id] = new SectionVM(data, parent);
 	}
 </script>

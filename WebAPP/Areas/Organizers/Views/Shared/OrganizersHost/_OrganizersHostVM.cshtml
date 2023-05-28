@@ -32,7 +32,7 @@
 				body: name
 			})
 			.then(response => response.json())
-			.then(json => self.organizers.push(new OrganizerVM(json, self)));
+			.then(json => self.organizers.push(OrganizerVM.get(json, self)));
 		};
 	};
 </script>

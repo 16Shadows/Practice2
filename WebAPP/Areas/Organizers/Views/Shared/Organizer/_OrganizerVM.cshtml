@@ -52,7 +52,7 @@
 				body : name
 			})
 			.then(response => response.json())
-			.then(json => self.subcategories.push(new CategoryVM(json, self)));
+			.then(json => self.subcategories.push(CategoryVM.get(json, self)));
 		};
 
 		this.CreateDocument = function(name) {
@@ -65,7 +65,7 @@
 				body : name
 			})
 			.then(response => response.json())
-			.then(json => self.documents.push(new DocumentVM(json, self)));
+			.then(json => self.documents.push(DocumentVM.get(json, self)));
 		};
 
 		this.CreateBook = function (name) {
@@ -110,4 +110,11 @@
 		if (this.patch != undefined)
 			this.patch();
 	};
+
+	OrganizerVM.Cache = {};
+	OrganizerVM.get = function(data, parent) {
+		if (OrganizerVM.Cache[data.id] != undefined)
+			return OrganizerVM.Cache[data.id];
+		return OrganizerVM.Cache[data.id] = new OrganizerVM(data, parent);
+	}
 </script>

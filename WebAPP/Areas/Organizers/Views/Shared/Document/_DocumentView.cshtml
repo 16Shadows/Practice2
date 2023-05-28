@@ -10,6 +10,8 @@
 	DocumentVM.prototype.patch = utils.patch(DocumentVM.prototype.patch, function()  {
 		var self = this;
 
+		this.tempname = ko.observable(this.name()).extend({store:true});
+
 		this.SaveContent = function() {
 			if(!this.SetContent(this.content()))
 				this.content.revert();
@@ -19,21 +21,26 @@
 			this.content.revert();
 		}
 
-		this.SaveName = function() {
-			if (!this.Rename(this.name()))
-				this.name.revert();
+		this.SaveName = async function() {
+			if (await this.Rename(this.tempname()))
+			{
+				this.tempname(this.name());
+				this.tempname.commit();
+			}
+			else
+				this.tempname.revert();
 		}
 
 		this.RevertName = function() {
-			this.name.revert();
+			this.tempname.revert();
 		}
 
 		this.IsNameUnique = ko.pureComputed(function() {
-			if(self.name()?.length == 0)
+			if(self.tempname()?.length == 0)
 				return false;
 			for (doc of self.parent.documents())
 			{
-				if (doc == self || doc.name() != self.name())
+				if (doc == self || doc.name() != self.tempname())
 					continue;
 				return false;
 			}
@@ -45,7 +52,7 @@
 <script type="text/html" id="DocumentViewTemplate">
 	<div class="fill">
 		<div class="d-flex">
-			<input class="h1 m-1" data-bind="textInput: name"></input>
+			<input class="h1 m-1" data-bind="textInput: tempname"></input>
 			<button class="btn btn-sm btn-primary align-self-center m-1" data-bind="click: SaveName, enable: IsNameUnique">Save</button>
 			<button class="btn btn-sm btn-secondary align-self-center m-1" data-bind="click: RevertName">Revert</button>
 		</div>
