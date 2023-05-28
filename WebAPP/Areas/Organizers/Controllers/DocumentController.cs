@@ -168,13 +168,15 @@ namespace WebAPP.Areas.Organizers.Controllers
 		{
 			var user = await userManager.GetUserAsync(User);
 
-			if (!dbContext.HasOrganizer(user, organizerId))
+			Organizer? organizer = dbContext.GetOrganizer(user, organizerId);
+
+			if (organizer == null)
 				return NotFound();
 
 			Document? document = dbContext
 								 .Documents
 								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
-								 .Include(x => x.Tags.Where(x => x.Name == tagText))
+								 .Include(x => x.Tags.Where(x => x.Name == tagText && x.OrganizerId == organizerId))
 								 .ToArray()
 								 .FirstOrDefault();
 
@@ -185,18 +187,22 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			Tag? tag = dbContext
 					   .Tags
-					   .Where(x => x.Name == tagText)
+					   .Where(x => x.Name == tagText && x.OrganizerId == organizerId)
 					   .ToArray()
 					   .FirstOrDefault();
 
 			if (tag == null)
 			{
-				tag = new Tag();
-				tag.Name = tagText;
+				tag = new Tag()
+				{
+					Name = tagText,
+					Organizer = organizer
+				};
 			}
 
 			tag.Documents.Add(document);
 			document.Tags.Add(tag);
+			dbContext.Tags.Add(tag);
 
 			await dbContext.SaveChangesAsync();
 
@@ -215,7 +221,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			Document? document = dbContext
 								 .Documents
 								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
-								 .Include(x => x.Tags.Where(x => x.Name == tagText))
+								 .Include(x => x.Tags.Where(x => x.Name == tagText && x.OrganizerId == organizerId))
 								 .ThenInclude(x => x.Documents)
 								 .ToArray()
 								 .FirstOrDefault();
