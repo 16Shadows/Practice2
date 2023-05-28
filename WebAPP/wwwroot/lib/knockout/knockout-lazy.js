@@ -17,6 +17,7 @@ ko.onDemandObservable = function (callback, target) {
             //indicate that the value is now loaded and set it
             result.loaded(true);
             _value(newValue);
+            result.notifySubscribers(_value());
         },
         deferEvaluation: true  //do not evaluate immediately when created
     });
@@ -26,6 +27,17 @@ ko.onDemandObservable = function (callback, target) {
     //load it again
     result.refresh = function () {
         result.loaded(false);
+    };
+
+    result.getPromise = function () {
+        return new Promise((resolve) => {
+            if (!result.loaded()) {
+                _value.subscribe((newValue) => resolve(newValue));
+                callback(target);
+            }
+            else
+                resolve(_value());
+        });
     };
 
     return result;
@@ -63,6 +75,17 @@ ko.onDemandObservableArray = function (callback, target) {
     //Attach array-specific methods
     ["pop", "push", "reverse", "shift", "sort", "splice", "unshift", "remove", "removeAll", "destroy", "destroyAll", "indexOf", "replace", "sorted", "reversed", "slice"]
         .forEach(name => result[name] = function () { return _value[name].apply(_value, arguments); });
+
+    result.getPromise = function () {
+        return new Promise((resolve) => {
+            if (!result.loaded()) {
+                _value.subscribe((newValue) => resolve(newValue));
+                callback(target);
+            }
+            else
+                resolve(_value());
+        });
+    };
 
     return result;
 };

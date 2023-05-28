@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebAPP.Areas.Identity.Data;
 using WebAPP.Areas.Organizers.Data;
-using System.Web;
+using WebAPP.Areas.Organizers.Models;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
@@ -12,21 +12,6 @@ namespace WebAPP.Areas.Organizers.Controllers
     [Route("{area}")]
     public class OrganizersController : Controller
     {
-        public class OrganizerVM
-        {
-			public OrganizerVM(Organizer org)
-			{
-                if (org == null)
-                    throw new ArgumentNullException(nameof(org));
-
-				Id = org.Id;
-				Name = org.Name;
-			}
-
-			public int Id { get; }
-            public string Name { get; }
-        }
-
         public class OrganizersPayload
         {
             public OrganizersPayload(IEnumerable<OrganizerVM> organizers)
