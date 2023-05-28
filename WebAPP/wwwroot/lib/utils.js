@@ -39,7 +39,7 @@ utils.patch = function (target, injection, options) {
             if (options.interceptOnReturn) {
                 return function () {
                     var r = injection.apply(this, arguments);
-                    if (r == undefined)
+                    if (r === undefined)
                         target.apply(this, arguments);
                     return r;
                 };

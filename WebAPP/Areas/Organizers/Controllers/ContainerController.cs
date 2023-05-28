@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Area("Organizers")]
-	[Route("{area}/Container")]
+	[Route("Organizers/{organizerId:int:required}/Container")]
 	[ApiController]
     public class ContainerController : Controller
     {
@@ -32,13 +32,16 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 		[Authorize]
 		[HttpGet("{contId:int}/content")]
-        public async Task<ActionResult<ContainerDMO>> GetContainerDMO(int contId)
+        public async Task<ActionResult<ContainerDMO>> GetContainerDMO(int organizerId, int contId)
         {
             if (_context.Containers == null)
             {
                 return NotFound();
             }
-            var containerDMO = _context.Containers.Where(c => c.ID == contId).Include(c => c.ObjectDMOs).First();
+            var containerDMO = _context.Containers
+				.Where(c => c.OrganizerId == organizerId && c.Id == contId)
+				.Include(c => c.ObjectDMOs)
+				.FirstOrDefault();
 
             if (containerDMO == null)
             {
@@ -51,10 +54,12 @@ namespace WebAPP.Areas.Organizers.Controllers
 		// POST new default container in the page by pageID
 		[Authorize]
 		[HttpPost("create/{pageId:int}")]
-		public async Task<ActionResult<PageDMO>> PostContainerDMO(int pageId)
+		public async Task<ActionResult<PageDMO>> PostContainerDMO(int organizerId, int pageId)
 		{
-			var ok = _context.Pages.Find(pageId);
-			if (ok == null) //check that page exists
+			var page = _context.Pages
+				.Where(p => p.OrganizerId == organizerId && p.Id == pageId)
+				.FirstOrDefault();
+			if (page == null) //check that parent page exists
 			{
 				return NotFound();
 			}
@@ -69,7 +74,10 @@ namespace WebAPP.Areas.Organizers.Controllers
                 CoordX = 20,
                 CoordY = 20,
                 ParentPageId = pageId,
-                ParentPage = _context.Pages.First(p => p.Id == pageId)
+                ParentPage = _context.Pages.First(p => p.Id == pageId),
+				Organizer = page.Organizer,
+				OrganizerId = page.OrganizerId,
+				ObjectDMOs = new List<ObjectDMO>()
             };
 
 			await _context.Containers.AddAsync(cont);
@@ -80,20 +88,24 @@ namespace WebAPP.Areas.Organizers.Controllers
 			var newCont = _context.Containers.Where(p => p.ParentPageId == pageId)
                 .Include(c => c.ObjectDMOs)
 				.First();
-			var j = Json(new ContainersPayload(new List<ContainerDMO>() { newCont }));
+			var j = Json(newCont);
 			return Accepted(j);
 		}
 
 		// DELETE
 		[Authorize]
 		[HttpDelete("delete/{containerId:int}")]
-		public async Task<IActionResult> DeleteContainerDMO(int containerId)
+		public async Task<IActionResult> DeleteContainerDMO(int organizerId, int containerId)
 		{
 			if (_context.Containers == null)
 			{
 				return NotFound();
 			}
-			var containerDMO = await _context.Containers.FindAsync(containerId);
+
+			var containerDMO = _context.Containers
+				.Where(c => c.OrganizerId == organizerId && c.Id == containerId)
+				.FirstOrDefault();
+
 			if (containerDMO == null)
 			{
 				return NotFound();
@@ -115,10 +127,12 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 		// UPDATE container by containerID
 		[Authorize]
-		[HttpPut("update/{containerID:int}")]
-		public async Task<ActionResult<PageDMO>> UpdateContainerDMO(int containerID, [FromBody] ContentData newData)
+		[HttpPut("update/{containerId:int}")]
+		public async Task<ActionResult<PageDMO>> UpdateContainerDMO(int organizerId, int containerId, [FromBody] ContentData newData)
 		{
-			var cont = _context.Containers.Find(containerID);
+			var cont = _context.Containers
+				.Where(c => c.OrganizerId == organizerId && c.Id == containerId)
+				.FirstOrDefault();
 			if (cont == null) //check that container exists
 			{
 				return NotFound();
@@ -136,7 +150,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		}
 		private bool ContainerDMOExists(int id)
         {
-            return (_context.Containers?.Any(e => e.ID == id)).GetValueOrDefault();
+            return (_context.Containers?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

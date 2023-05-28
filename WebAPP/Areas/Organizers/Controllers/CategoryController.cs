@@ -150,7 +150,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			bool any = dbContext
 					   .Books
-					   .Where(b => b.ParentOrganizerId == organizerId && b.ParentCategoryId == categoryId && b.Name == name)
+					   .Where(b => b.OrganizerId == organizerId && b.ParentCategoryId == categoryId && b.Name == name)
 					   .Include(b => b.ParentCategory)
 					   .ToArray()
 					   .Any(b => b.ParentCategory.Equals(parent));
@@ -162,7 +162,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 			{
 				Name = name,
 				ParentCategory = parent,
-				ParentOrganizer = organizer
+				Organizer = organizer,
+				OrganizerId = organizerId
 			};
 			dbContext.Books.Add(book);
 

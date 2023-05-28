@@ -1,9 +1,8 @@
 ﻿<style type="text/css">
 	.book {
+		max-height:inherit;
 		min-height: 200px;
-		max-height:500px;
 		background-color: darkgray;
-		margin: 10px;
 		display: flex;
 		overflow: auto;
 	}
@@ -62,7 +61,7 @@
 <!--Body-->
 <script type="text/html" id="BookViewTemplate">
 
-	<div class="book">
+	<div class="book fill">
 		<div class="pageViewContainer">
 		<div data-bind="template: {name: ($data.ActivePageVM() ? 'PageViewTemplate' : 'EmptyTemplate'), data:$data.ActivePageVM}"></div>
 		</div>

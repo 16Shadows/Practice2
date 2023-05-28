@@ -1,50 +1,80 @@
 ﻿
 <script type="text/javascript" id="ContainerVM">
+	// Event and property to pass container Id to SetContent function
+	RootVM.SetContainerContentTriggerElement = ko.observable(null);
+
+	$(document).on('hidden.bs.modal', '#Container_SetContentModal', function (event) {
+		RootVM.SetContainerContentTriggerElement(null);
+	});
+
+	RootVM.SetContainerContent = function (containerVM, contentVM) {
+		debugger;
+		// Creating link to content
+		var link = contentVM.type().toLowerCase() + " " + contentVM.id;
+
+		//fetch to create object with link
+		fetch("/Organizers/" + RootVM.OrganizerVM.id + "/Object/create/" + containerVM.id(),
+			{
+				method: "POST",
+				headers: { 'Content-Type': "text/plain" },
+				body: link
+			})
+			.then(response => {
+				debugger;
+				if (response.ok)
+				{
+					debugger;
+					var newObjectId = response.json().id;
+					containerVM.objectDMOs.removeAll();
+					containerVM.objectDMOs.push(new ObjectVM(newObjectId, containerVM));
+				}
+				return response;
+			})
+			.catch(error => console.error('Unable to create items.', error));
+	};
+
+
 	function ContainerVM(containerId, parentPageVM) {
 		var self = this;
 
-		self.id = ko.observable();
-		self.type = ko.observable();
-		self.width = ko.observable();
-		self.height = ko.observable();
-		self.coordX = ko.observable();
-		self.coordY = ko.observable();
-		self.objectDMOs = ko.observableArray();
-		self.ParentPageVM = parentPageVM;
-
+		this.id = ko.observable();
+		this.type = ko.observable();
+		this.width = ko.observable();
+		this.height = ko.observable();
+		this.coordX = ko.observable();
+		this.coordY = ko.observable();
+		this.objectDMOs = ko.observableArray();
+		this.organizer = ko.observable();
+		this.organizerId = ko.observable();
+		this.parent = parentPageVM;
+		debugger;
 		//fetch to load initial coords, size and content
-		fetch("/Organizers/Container/" + containerId + "/content")
+		fetch("/Organizers/" + self.parent.organizerId() + "/Container/" + containerId + "/content")
 			.then(response => response.json())
 			.then((json) => {
 				ko.mapping.fromJS(json, {}, self);
+				console.log(self.objectDMOs());
 				return json;
 			})
 			.catch(error => console.error('Unable to get items.', error));
 
-		self.SetContent = function (data, event) {
-			console.log(data);
-		};
 
-		self.DeleteContainer = function (data, event) {
-			console.log(data);
-			fetch("/Organizers/Container/delete/" + data.id(),
+		this.DeleteContainer = function (data, event) {
+			fetch("/Organizers/" + self.parent.organizerId() + "/Container/delete/" + data.id(),
 			{ method: "DELETE" })
 				.then((response) => {
 					// check if deletion was successful
-					if (response.status == Number(202)) {
-						debugger;
-						console.log("deleted");
-						var parentContainer = data.ParentPageVM.containerDMOs;
+					if (response.ok) {
+						var parentContainer = data.parent.containerDMOs;
 						if (parentContainer != null) {
 							parentContainer.remove(data);
 						}
 					}
-
 					return response;
 				})
 				.catch(error => console.error('Unable to delete items.', error));
-
 		};
+
 	}
 
 </script>
@@ -77,7 +107,6 @@
 									var newX = ui.position.left;
 									var newY = ui.position.top;
 									var containerID = event.target.getAttribute("id");
-									debugger;
 									var data = {
 										"CoordX": newX,
 										"CoordY": newY,
@@ -87,16 +116,13 @@
 									};
 
 									//fetch to update coordinates
-									fetch("/Organizers/Container/update/" + containerID,
+									fetch("/Organizers/" + RootVM.OrganizerVM.id + "/Container/update/" + containerID,
 									{
 										method: "PUT",
 										headers: { 'Content-Type': 'application/json' },
 										body: JSON.stringify(data)
 									})
-										.then(response => {
-											console.log(response);
-											return response;
-										})
+										.then(response => {	return response; })
 										.catch(error => console.error('Unable to update items.', error));
 								}
 							});
@@ -112,7 +138,6 @@
 							// Set function to update server data
 							$(node).resizable({
 								stop: function (event, ui) {
-									debugger;
 									var newWidth = Math.floor(ui.size.width);
 									var newHeight = Math.floor(ui.size.height);
 									var containerID = event.target.getAttribute("id");
@@ -127,16 +152,13 @@
 									};
 
 									//fetch to update coordinates
-									fetch("/Organizers/Container/update/" + containerID,
+									fetch("/Organizers/" + RootVM.OrganizerVM.id + "/Container/update/" + containerID,
 									{
 										method: "PUT",
 										headers: { 'Content-Type': 'application/json' },
 										body: JSON.stringify(data)
 									})
-										.then(response => {
-											console.log(response);
-											return response;
-										})
+										.then(response => {	return response; })
 										.catch(error => console.error('Unable to update items.', error));
 								}
 							});

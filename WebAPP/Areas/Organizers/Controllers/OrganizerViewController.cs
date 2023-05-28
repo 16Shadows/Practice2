@@ -150,7 +150,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			bool any = dbContext
 					   .Books
-					   .Where(b => b.ParentOrganizerId == organizerId && b.ParentCategoryId == organizerId && b.Name == name)
+					   .Where(b => b.OrganizerId == organizerId && b.ParentCategoryId == organizerId && b.Name == name)
 					   .Include(b => b.ParentCategory)
 					   .ToArray()
 					   .Any(b => b.ParentCategory.GetType().IsAssignableTo(typeof(Organizer)));
@@ -162,7 +162,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 			{
 				Name = name,
 				ParentCategory = target,
-				ParentOrganizer = target
+				Organizer = target,
+				OrganizerId = organizerId
 			};
 			dbContext.Books.Add(book);
 

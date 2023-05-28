@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPP;
 
@@ -10,9 +11,11 @@ using WebAPP;
 namespace WebAPP.Migrations
 {
     [DbContext(typeof(WebAPPContext))]
-    partial class WebAPPContextModelSnapshot : ModelSnapshot
+    [Migration("20230527153138_ContainerFix")]
+    partial class ContainerFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
@@ -238,17 +241,17 @@ namespace WebAPP.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("OrganizerId")
+                    b.Property<int>("ParentCategoryId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ParentCategoryId")
+                    b.Property<int>("ParentOrganizerId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizerId");
-
                     b.HasIndex("ParentCategoryId");
+
+                    b.HasIndex("ParentOrganizerId");
 
                     b.ToTable("Books");
                 });
@@ -291,9 +294,6 @@ namespace WebAPP.Migrations
                     b.Property<int>("Height")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("OrganizerId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ParentPageId")
                         .HasColumnType("INTEGER");
 
@@ -304,8 +304,6 @@ namespace WebAPP.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrganizerId");
 
                     b.HasIndex("ParentPageId");
 
@@ -322,15 +320,10 @@ namespace WebAPP.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("OrganizerId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ParentContainerId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrganizerId");
 
                     b.HasIndex("ParentContainerId");
 
@@ -343,9 +336,6 @@ namespace WebAPP.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("OrganizerId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ParentBookId")
                         .HasColumnType("INTEGER");
 
@@ -353,8 +343,6 @@ namespace WebAPP.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrganizerId");
 
                     b.HasIndex("ParentBookId");
 
@@ -406,14 +394,9 @@ namespace WebAPP.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("OrganizerId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizerId");
-
-                    b.HasIndex("Name", "OrganizerId")
+                    b.HasIndex("Name")
                         .IsUnique();
 
                     b.ToTable("Tags");
@@ -551,92 +534,57 @@ namespace WebAPP.Migrations
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Book", b =>
                 {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
-                        .WithMany()
-                        .HasForeignKey("OrganizerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebAPP.Areas.Organizers.Data.CategoryBase", "ParentCategory")
                         .WithMany("Books")
                         .HasForeignKey("ParentCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Organizer");
+                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "ParentOrganizer")
+                        .WithMany()
+                        .HasForeignKey("ParentOrganizerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ParentCategory");
+
+                    b.Navigation("ParentOrganizer");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ContainerDMO", b =>
                 {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
-                        .WithMany()
-                        .HasForeignKey("OrganizerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebAPP.Areas.Organizers.Data.PageDMO", "ParentPage")
                         .WithMany("ContainerDMOs")
                         .HasForeignKey("ParentPageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Organizer");
-
                     b.Navigation("ParentPage");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ObjectDMO", b =>
                 {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
-                        .WithMany()
-                        .HasForeignKey("OrganizerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebAPP.Areas.Organizers.Data.ContainerDMO", "ParentContainer")
                         .WithMany("ObjectDMOs")
                         .HasForeignKey("ParentContainerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Organizer");
-
                     b.Navigation("ParentContainer");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.PageDMO", b =>
                 {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
-                        .WithMany()
-                        .HasForeignKey("OrganizerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebAPP.Areas.Organizers.Data.Book", "ParentBook")
                         .WithMany("PageDMOs")
                         .HasForeignKey("ParentBookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Organizer");
-
                     b.Navigation("ParentBook");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.SectionBase", b =>
-                {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
-                        .WithMany()
-                        .HasForeignKey("OrganizerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Organizer");
-                });
-
-            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.Tag", b =>
                 {
                     b.HasOne("WebAPP.Areas.Organizers.Data.Organizer", "Organizer")
                         .WithMany()
