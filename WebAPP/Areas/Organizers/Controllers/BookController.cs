@@ -68,7 +68,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 		// UPDATE container by containerID
 		[Authorize]
-		[HttpPut("rename/{organizerId:int}/{bookId:int}")]
+		[HttpPut("rename/{bookId:int}")]
 		public async Task<ActionResult<Book>> RenameBook(int organizerId, int bookId, [FromBody] string newName)
 		{
 			var book = _context.Books
@@ -88,7 +88,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 
 		[Authorize]
-        [HttpDelete("delete/{organizerId:int}/{bookId:int}")]
+        [HttpDelete("delete/{bookId:int}")]
         public async Task<IActionResult> DeleteBook(int organizerId, int bookId)
         {
             if (_context.Books == null)

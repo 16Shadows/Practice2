@@ -46,7 +46,7 @@ namespace WebAPP.Areas.Organizers.Controllers
                 return NotFound();
             }
 
-            return objectDMO;
+            return Json(objectDMO);
         }
 
 
@@ -78,8 +78,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			// get instance of new object with id
 			var newObj = _context.Objects.Where(p => p.ParentContainerId == containerId)
-				.Include(c => c.LinkToObject)
-				.First();
+				.FirstOrDefault();
 
 			var j = Json(newObj);
 			return Accepted(j);

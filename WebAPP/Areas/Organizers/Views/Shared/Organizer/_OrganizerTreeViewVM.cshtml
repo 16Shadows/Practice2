@@ -26,14 +26,13 @@
 		this.ItemSelected = utils.patch(
 			this.ItemSelected,
 			function (item) {
-				debugger;
 				if ($('#Container_SetContentModal').hasClass('show'))
 				{
 					// Supported types to be set as content to container: Documents
 					if (item.type() == "Document")
 					{
-						var id = RootVM.SetContainerContentTriggerElement().attr('id');
-						RootVM.SetContainerContent(id, item);
+						var cont = RootVM.SetContainerContentTriggerElement();
+						RootVM.SetContainerContent(cont, item);
 						$('#Container_SetContentModal').modal('hide');
 						return item;
 					}

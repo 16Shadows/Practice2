@@ -20,19 +20,18 @@
 		this.type = ko.observable("Book");
 
 		// request list data after page loading
-		fetch("/Organizers/" + parent.organizerID + "/Book/" + bookId + "/content")
+		fetch("/Organizers/" + self.parent.organizerID + "/Book/" + bookId + "/content")
 		.then(response => response.json())
 		.then(json => ko.mapping.fromJS(json, {}, self))
 		.catch(error => console.error('Unable to get items.', error));
 
 
 		this.Delete = function () {
-			fetch("/Organizers/" + parent.organizerID + "/Book/delete/" + self.organizerId() + "/" + self.id(),
+			fetch("/Organizers/" + self.parent.organizerID + "/Book/delete/" + self.id(),
 			{ method: "DELETE" })
 			.then((response) =>{
 				if (response.ok)
 				{
-					console.log("book deleted");
 					self.parent.books.remove(self);
 				}
 			});
@@ -41,7 +40,7 @@
 		this.Rename = function (newName) {
 			newName = newName.trim();
 
-			fetch("/Organizers/" + parent.organizerID + "/Book/rename/" + self.organizerId() + "/" + self.id(),
+			fetch("/Organizers/" + self.parent.organizerID + "/Book/rename/" + self.id(),
 				{
 				method: "PUT",
 				headers: { "Content-Type": "text/plain" },
@@ -49,7 +48,6 @@
 			})
 				.then(response => {
 					if (response.ok) {
-						console.log("book renamed");
 						self.name(newName);
 					}
 				});
@@ -62,12 +60,12 @@
 			if (self.ActivePageVM() != null) {
 				if (self.ActivePageVM().id() != newPageId) {
 					// need to change colors to mark selected row
-					self.ActivePageVM(new ActivePageVM(newPageId));
+					self.ActivePageVM(new ActivePageVM(newPageId, self));
 				}
 			}
 			else {
 				// need to change colors to mark selected row
-				self.ActivePageVM(new ActivePageVM(newPageId));
+				self.ActivePageVM(new ActivePageVM(newPageId, self));
 			}
 
 		}
@@ -85,7 +83,7 @@
 				newPos = obj.position() + 1;
 			}
 
-			fetch("/Organizers/" + parent.organizerID + "/Page/create/" + self.id() + "/" + newPos,
+			fetch("/Organizers/" + self.parent.organizerID + "/Page/create/" + self.id() + "/" + newPos,
 			{ method: "POST" })
 				.then(response => response.json())
 				.then(json => self.pageDMOs.push(ko.mapping.fromJS(json.value)))
@@ -95,10 +93,9 @@
 		// Add new blanc container on chosen page
 		this.AddContainerOnPage = function (row, event) {
 			event.stopPropagation();
-			debugger;
 			// post new default container on page
 
-			fetch("/Organizers/" + parent.organizerID + "/Container/create/" + row.id(),
+			fetch("/Organizers/" + self.parent.organizerID + "/Container/create/" + row.id(),
 			{ method: "POST"})
 				.then(response => response.json())
 				.then((json) => {
@@ -118,7 +115,7 @@
 			event.stopPropagation();
 			var pId = row.id();
 
-			fetch("/Organizers/" + parent.organizerID + "/Page/delete/" + self.id() + "/" + pId,
+			fetch("/Organizers/" + self.parent.organizerID + "/Page/delete/" + self.id() + "/" + pId,
 			{ method: "DELETE" })
 				.then((response) => {
 					// check if deletion was successful

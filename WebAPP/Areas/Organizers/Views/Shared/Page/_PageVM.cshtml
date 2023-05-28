@@ -3,17 +3,18 @@
 
 		var self = this;
 
-		self.id = ko.observable();
-		self.position = ko.observable();
-		self.containerDMOs = ko.observableArray();
-		self.parent = parentBookVM;
+		this.id = ko.observable();
+		this.position = ko.observable();
+		this.containerDMOs = ko.observableArray();
+		this.organizer = ko.observable();
+		this.organizerId = ko.observable();
+		this.parent = parentBookVM;
 
 
 		// request data only if page is selected
 		if (pageId != null) {
-
 			// we get provided id of page and request all it's content to populate the model
-			fetch("/Organizers/" + parent.organizerID + "/Page/" + pageId + "/content")
+			fetch("/Organizers/" + self.parent.organizerId() + "/Page/" + pageId + "/content")
 				.then(response => response.json())
 				.then((json) => {
 					ko.mapping.fromJS(json, {

@@ -55,11 +55,11 @@
 
 		<div class="d-flex containerHeader">
 			<div class="draggable flex-grow-1" id="contDraggable"></div>
-			<button class="setB btn btn-outline-primary btn-sm" data-bind="attr: {id: id()}" data-bs-toggle="modal" data-bs-target="#Container_SetContentModal">Set</button>
+			<button class="setB btn btn-outline-primary btn-sm" data-bind="attr: {id: id()}" data-bs-toggle="modal" data-bs-target="#Container_SetContentModal" onclick="RootVM.SetContainerContentTriggerElement(ko.dataFor(this));">Set</button>
 			<button  data-bind="click: DeleteContainer" class="delB btn btn-danger btn-sm">&times;</button>
 		</div>
-
-		<div class="content" data-bind="foreach"></div>
+		
+		<div class="content" data-bind="template: { name: 'ObjectViewTemplate',  foreach: objectDMOs }"></div>
 
 		<div class="ui-resizable-se resizeButton" data-bind="attr: {id: id()}"></div>
 	</div>
