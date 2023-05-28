@@ -13,7 +13,7 @@
 		if (pageId != null) {
 
 			// we get provided id of page and request all it's content to populate the model
-			fetch("/Organizers/Page/" + pageId + "/content")
+			fetch("/Organizers/" + parent.organizerID + "/Page/" + pageId + "/content")
 				.then(response => response.json())
 				.then((json) => {
 					ko.mapping.fromJS(json, {

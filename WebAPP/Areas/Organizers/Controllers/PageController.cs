@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebAPP.Areas.Organizers.Data;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Area("Organizers")]
-	[Route("{area}/Page")]
+	[Route("Organizers/{organizerId:int:required}/Page")]
 	[ApiController]
 	public class PageController : Controller
     {
@@ -30,13 +31,13 @@ namespace WebAPP.Areas.Organizers.Controllers
         // get page object and its containers
 		[Authorize]
 		[HttpGet("{pageId:int}/content")]
-        public async Task<ActionResult<PageDMO>> GetPageContent(int pageId)
+        public async Task<ActionResult<PageDMO>> GetPageContent(int organizerId, int pageId)
         {
 			if (!_context.Pages.Any(e => e.Id == pageId))
 			{
 				return NotFound();
 			}
-			var page = _context.Pages.Where(p => p.Id == pageId)
+			var page = _context.Pages.Where(p =>p.OrganizerId == organizerId && p.Id == pageId)
 				.Include(p => p.ContainerDMOs)
 				.FirstOrDefault();
 			
@@ -46,10 +47,13 @@ namespace WebAPP.Areas.Organizers.Controllers
 		// POST new page to the book by bookID
 		[Authorize]
 		[HttpPost("create/{bookId:int}/{position:int}")]
-		public async Task<ActionResult<PageDMO>> PostPageDMO(int bookId, int position)
+		public async Task<ActionResult<PageDMO>> PostPageDMO(int organizerId, int bookId, int position)
 		{
-			var ok = _context.Books.Find(bookId);
-			if (ok == null) //check that book exists
+			var book = _context.Books
+				.Where(b => b.OrganizerId == organizerId && b.Id == bookId)
+				.FirstOrDefault();
+
+			if (book == null) //check that book exists
 			{
 				return NotFound();
 			}
@@ -59,7 +63,9 @@ namespace WebAPP.Areas.Organizers.Controllers
 			{
 				Position = position,
 				ParentBookId = bookId,
-				ParentBook = _context.Books.First(b => b.Id == bookId)
+				ParentBook = _context.Books.First(b => b.Id == bookId),
+				Organizer = book.Organizer,
+				OrganizerId = book.OrganizerId
 			};
 
 			await _context.Pages.AddAsync(pg);

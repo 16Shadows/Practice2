@@ -49,16 +49,18 @@
 	}
 </style>
 
-<template id="ContainerViewTemplate" type="text/html">
+<script id="ContainerViewTemplate" type="text/html">
+
 	<div class="DMOcontainer" data-bind="attr: {id: id()},style: { width: width(), height: height(), left: coordX(), top: coordY() }">
+
 		<div class="d-flex containerHeader">
 			<div class="draggable flex-grow-1" id="contDraggable"></div>
-			<button id="setB" data-bind="click: SetContent" class="btn btn-outline-primary btn-sm">Set</button>
-			<button id="delB" data-bind="click: DeleteContainer" class="btn btn-danger btn-sm">&times;</button>
+			<button class="setB btn btn-outline-primary btn-sm" data-bind="attr: {id: id()}" data-bs-toggle="modal" data-bs-target="#Container_SetContentModal">Set</button>
+			<button  data-bind="click: DeleteContainer" class="delB btn btn-danger btn-sm">&times;</button>
 		</div>
 
-		<div class="content">There will be content</div>
+		<div class="content" data-bind="foreach"></div>
 
 		<div class="ui-resizable-se resizeButton" data-bind="attr: {id: id()}"></div>
 	</div>
-</template>
+</script>

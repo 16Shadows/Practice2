@@ -1,0 +1,30 @@
+﻿<script type="text/javascript">
+	RootVM.ContainerModals = {
+		SetContent: new function(){
+			var self = this;
+
+		},
+
+	};
+</script>
+
+<div class="modal fade" id="Container_SetContentModal" tabindex="-1" aria-labelledby="Set container content" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Set container content</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancel"></button>
+			</div>
+			<div class="modal-body">
+				<p>Click on the node to select the content. Right now only documents can be selected.</p>
+				<div id="SetObjectTreeView">
+					<div class="fill" data-bind="template : { name : 'OrganizerTreeView_RootTemplate', data : OrganizerVM }"></div>
+				</div>
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+

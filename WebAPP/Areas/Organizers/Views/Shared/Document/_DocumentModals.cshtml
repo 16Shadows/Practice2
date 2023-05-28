@@ -25,7 +25,6 @@
 			});
 
 			this.CreateDocument = function() {
-				debugger;
 				console.log(self.Parent());
 				self.Parent().CreateDocument(self.NewName());
 				self.SetParent(null);
@@ -33,7 +32,6 @@
 			};
 		},
 		DeleteDocument : new function() {
-			debugger;
 			var self = this;
 			this.Item = ko.observable(null);
 
@@ -75,7 +73,6 @@
 			});
 
 			this.RenameDocument = function() {
-				debugger;
 				self.Item().Rename(self.NewName());
 				self.SetItem(null);
 			};

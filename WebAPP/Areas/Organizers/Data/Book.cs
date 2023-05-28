@@ -8,8 +8,8 @@ public class Book
     // required one-to-many: child of category/organizer, parent is required
     public int ParentCategoryId { get; set; } 
     public CategoryBase ParentCategory { get; set; }
-	public int ParentOrganizerId { get; set; }
-	public Organizer ParentOrganizer { get; set; }
+	public int OrganizerId { get; set; }
+	public Organizer Organizer { get; set; }
 
 
 	// required one-to-many: parent of pages

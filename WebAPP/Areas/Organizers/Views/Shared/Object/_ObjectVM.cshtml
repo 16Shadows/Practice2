@@ -1,0 +1,27 @@
+﻿
+<script type="text/javascript" id="ContainerVM">
+	function ObjectVM(objectId, parentVM) {
+		var self = this;
+
+		this.id = ko.observable();
+		this.organizer = ko.observable();
+		this.organizerId = ko.observable();
+		// format: type-of-content id
+		this.linkToObject = ko.observable();
+		this.parent = parentVM;
+
+		//actual data
+		this.document = ko.observable();
+
+		// loading content vm      ?????????????????
+		fetch("/Organizers/" + parent.organizerID + linkToObject().split(' ')[0] + "/" + linkToObject().split(' ')[1] + "/content")
+			.then(response => response.json())
+			.then((json) => {
+				ko.mapping.fromJS(json, {}, self);
+				return json;
+			})
+			.catch(error => console.error('Unable to get items.', error));
+
+	}
+
+</script>

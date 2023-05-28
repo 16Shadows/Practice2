@@ -1,19 +1,39 @@
 ﻿
 <script type="text/javascript" id="ContainerVM">
+	// Event and property to pass container Id to SetContent function
+	RootVM.SetContainerContentTriggerElement = ko.observable(null);
+
+	$(document).on('shown.bs.modal', '#Container_SetContentModal', function (event) {
+		var triggerElement = $(event.relatedTarget); // Button that triggered
+		RootVM.SetContainerContentTriggerElement(triggerElement);
+	});
+
+	$(document).on('hidden.bs.modal', '#Container_SetContentModal', function (event) {
+		RootVM.SetContainerContentTriggerElement(null);
+	});
+
+	RootVM.SetContainerContent = function (containerId, contentVM) {
+		console.log(containerId, " set ", contentVM);
+	};
+
+
+
 	function ContainerVM(containerId, parentPageVM) {
 		var self = this;
 
-		self.id = ko.observable();
-		self.type = ko.observable();
-		self.width = ko.observable();
-		self.height = ko.observable();
-		self.coordX = ko.observable();
-		self.coordY = ko.observable();
-		self.objectDMOs = ko.observableArray();
-		self.ParentPageVM = parentPageVM;
+		this.id = ko.observable();
+		this.type = ko.observable();
+		this.width = ko.observable();
+		this.height = ko.observable();
+		this.coordX = ko.observable();
+		this.coordY = ko.observable();
+		this.objectDMOs = ko.observableArray();
+		this.organizer = ko.observable();
+		this.organizerId = ko.observable();
+		this.parent = parentPageVM;
 
 		//fetch to load initial coords, size and content
-		fetch("/Organizers/Container/" + containerId + "/content")
+		fetch("/Organizers/" + parent.organizerID + "/Container/" + containerId + "/content")
 			.then(response => response.json())
 			.then((json) => {
 				ko.mapping.fromJS(json, {}, self);
@@ -21,29 +41,21 @@
 			})
 			.catch(error => console.error('Unable to get items.', error));
 
-		self.SetContent = function (data, event) {
-			console.log(data);
-		};
 
-		self.DeleteContainer = function (data, event) {
-			console.log(data);
-			fetch("/Organizers/Container/delete/" + data.id(),
+		this.DeleteContainer = function (data, event) {
+			fetch("/Organizers/" + parent.organizerID + "/Container/delete/" + data.id(),
 			{ method: "DELETE" })
 				.then((response) => {
 					// check if deletion was successful
-					if (response.status == Number(202)) {
-						debugger;
-						console.log("deleted");
-						var parentContainer = data.ParentPageVM.containerDMOs;
+					if (response.ok) {
+						var parentContainer = data.parent.containerDMOs;
 						if (parentContainer != null) {
 							parentContainer.remove(data);
 						}
 					}
-
 					return response;
 				})
 				.catch(error => console.error('Unable to delete items.', error));
-
 		};
 	}
 
@@ -77,7 +89,6 @@
 									var newX = ui.position.left;
 									var newY = ui.position.top;
 									var containerID = event.target.getAttribute("id");
-									debugger;
 									var data = {
 										"CoordX": newX,
 										"CoordY": newY,
@@ -112,7 +123,6 @@
 							// Set function to update server data
 							$(node).resizable({
 								stop: function (event, ui) {
-									debugger;
 									var newWidth = Math.floor(ui.size.width);
 									var newHeight = Math.floor(ui.size.height);
 									var containerID = event.target.getAttribute("id");

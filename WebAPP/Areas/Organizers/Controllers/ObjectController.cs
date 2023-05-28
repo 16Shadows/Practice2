@@ -1,45 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using WebAPP.Areas.Organizers.Data;
+using static WebAPP.Areas.Organizers.Controllers.OrganizersController;
 
 namespace WebAPP.Areas.Organizers.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ObjectController : ControllerBase
+	[Area("Organizers")]
+	[Route("Organizers/{organizerId:int:required}/Object")]
+	[ApiController]
+    public class ObjectController : Controller
     {
-        private readonly WebAPPContext _context;
+		class ObjectsPayload
+		{
+			// Class to wrap fetch data and additional info for views,
+			// will be converted into json object
+			public ObjectsPayload(List<ObjectDMO> objects)
+			{
+				Objects = objects;
+			}
+			public List<ObjectDMO> Objects { get; }
+		}
+		private readonly WebAPPContext _context;
 
         public ObjectController(WebAPPContext context)
         {
             _context = context;
         }
 
-        // GET: api/Objects
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ObjectDMO>>> GetObjects()
+		[Authorize]
+		[HttpGet("{objectId:int}/content")]
+        public async Task<ActionResult<ObjectDMO>> GetObjectDMO(int organizerId, int objectId)
         {
             if (_context.Objects == null)
             {
                 return NotFound();
             }
-            return await _context.Objects.ToListAsync();
-        }
-
-        // GET: api/Objects/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ObjectDMO>> GetObjectDMO(int id)
-        {
-            if (_context.Objects == null)
-            {
-                return NotFound();
-            }
-            var objectDMO = await _context.Objects.FindAsync(id);
+            var objectDMO = _context.Objects
+                .Where(o => o.OrganizerId == organizerId && o.Id == objectId)
+				.FirstOrDefault();
 
             if (objectDMO == null)
             {
@@ -49,62 +49,56 @@ namespace WebAPP.Areas.Organizers.Controllers
             return objectDMO;
         }
 
-        // PUT: api/Objects/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutObjectDMO(int id, ObjectDMO objectDMO)
+
+		[Authorize]
+		[HttpPost("create/{containerId:int}")]
+		public async Task<ActionResult<ObjectDMO>> CreateObjectDMO(int organizerId, int containerId, [FromBody] string link)
         {
-            if (id != objectDMO.Id)
+			var cont = _context.Containers
+				.Where(c => c.OrganizerId == organizerId && c.Id == containerId)
+				.FirstOrDefault();
+			if (cont == null) //check that parent container exists
+			{
+				return NotFound();
+			}
+
+            // create new object with parent
+            ObjectDMO obj = new ObjectDMO()
             {
-                return BadRequest();
-            }
+                ParentContainerId = containerId,
+                ParentContainer = cont,
+                Organizer = cont.Organizer,
+                OrganizerId = cont.OrganizerId,
+                LinkToObject = link
+            };
 
-            _context.Entry(objectDMO).State = EntityState.Modified;
+			await _context.Objects.AddAsync(obj);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ObjectDMOExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+			// get instance of new object with id
+			var newObj = _context.Objects.Where(p => p.ParentContainerId == containerId)
+				.Include(c => c.LinkToObject)
+				.First();
 
-        // POST: api/Objects
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<ObjectDMO>> PostObjectDMO(ObjectDMO objectDMO)
-        {
-            if (_context.Objects == null)
-            {
-                return Problem("Entity set 'DMOrganizerDBContext.Objects'  is null.");
-            }
-            _context.Objects.Add(objectDMO);
-            await _context.SaveChangesAsync();
+			var j = Json(newObj);
+			return Accepted(j);
+		}
 
-            return CreatedAtAction("GetObjectDMO", new { id = objectDMO.Id }, objectDMO);
-        }
-
-        // DELETE: api/Objects/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteObjectDMO(int id)
+		// DELETE
+		[Authorize]
+		[HttpDelete("delete/{objectId:int}")]
+		public async Task<IActionResult> DeleteObjectDMO(int organizerId, int objectId)
         {
             if (_context.Objects == null)
             {
                 return NotFound();
             }
-            var objectDMO = await _context.Objects.FindAsync(id);
-            if (objectDMO == null)
+            var objectDMO = _context.Objects
+				.Where(o => o.OrganizerId == organizerId && o.Id == objectId)
+				.FirstOrDefault();
+
+			if (objectDMO == null)
             {
                 return NotFound();
             }
@@ -112,8 +106,8 @@ namespace WebAPP.Areas.Organizers.Controllers
             _context.Objects.Remove(objectDMO);
             await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+			return Accepted();
+		}
 
         private bool ObjectDMOExists(int id)
         {

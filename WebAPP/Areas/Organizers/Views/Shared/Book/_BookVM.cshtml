@@ -13,21 +13,21 @@
 		this.id = ko.observable();
 		this.name = ko.observable();
 		this.parentCategoryId = ko.observable();
-		this.parentOrganizerId = ko.observable();
+		this.organizer = ko.observable();
+		this.organizerId = ko.observable();
 		this.pageDMOs = ko.observableArray();
 		this.parent = parentVM;
 		this.type = ko.observable("Book");
 
 		// request list data after page loading
-		fetch("/Organizers/Book/" + bookId + "/content")
+		fetch("/Organizers/" + parent.organizerID + "/Book/" + bookId + "/content")
 		.then(response => response.json())
 		.then(json => ko.mapping.fromJS(json, {}, self))
 		.catch(error => console.error('Unable to get items.', error));
 
 
 		this.Delete = function () {
-			debugger;
-			fetch("/Organizers/Book/delete/" + self.parentOrganizerId() + "/" + self.id(),
+			fetch("/Organizers/" + parent.organizerID + "/Book/delete/" + self.organizerId() + "/" + self.id(),
 			{ method: "DELETE" })
 			.then((response) =>{
 				if (response.ok)
@@ -39,11 +39,10 @@
 		}
 
 		this.Rename = function (newName) {
-			debugger;
 			newName = newName.trim();
 
-			fetch("/Organizers/Book/rename/" + self.parentOrganizerId() + "/" + self.id(), 
-			{
+			fetch("/Organizers/" + parent.organizerID + "/Book/rename/" + self.organizerId() + "/" + self.id(),
+				{
 				method: "PUT",
 				headers: { "Content-Type": "text/plain" },
 				body: newName
@@ -86,7 +85,7 @@
 				newPos = obj.position() + 1;
 			}
 
-			fetch("/Organizers/Page/create/" + self.id() + "/" + newPos,
+			fetch("/Organizers/" + parent.organizerID + "/Page/create/" + self.id() + "/" + newPos,
 			{ method: "POST" })
 				.then(response => response.json())
 				.then(json => self.pageDMOs.push(ko.mapping.fromJS(json.value)))
@@ -96,12 +95,14 @@
 		// Add new blanc container on chosen page
 		this.AddContainerOnPage = function (row, event) {
 			event.stopPropagation();
+			debugger;
 			// post new default container on page
 
-			fetch("/Organizers/Container/create/" + row.id() + "/",
-			{ method: "POST" })
+			fetch("/Organizers/" + parent.organizerID + "/Container/create/" + row.id(),
+			{ method: "POST"})
 				.then(response => response.json())
 				.then((json) => {
+					debugger;
 					// check if page is current active and need to be updated
 					if (row.id() == self.ActivePageVM().id()) {
 						var newContVM = new ContainerVM(row.id(), self.ActivePageVM());
@@ -117,7 +118,7 @@
 			event.stopPropagation();
 			var pId = row.id();
 
-			fetch("/Organizers/Page/delete/" + self.id() + "/" + pId,
+			fetch("/Organizers/" + parent.organizerID + "/Page/delete/" + self.id() + "/" + pId,
 			{ method: "DELETE" })
 				.then((response) => {
 					// check if deletion was successful

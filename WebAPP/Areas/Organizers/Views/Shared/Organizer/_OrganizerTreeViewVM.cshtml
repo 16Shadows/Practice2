@@ -11,6 +11,7 @@
 	function OrganizerTreeViewVM(organizerData, itemSelectedCallback) {
 		itemSelectedCallback = itemSelectedCallback || (() => {});
 
+
 		//Proxy to call the callback
 		this.ItemSelected = function(item) {
 			itemSelectedCallback(item);
@@ -19,6 +20,33 @@
 		//Call parent constructor last to ensure that patch() is called after all initialization is finished.
 		OrganizerVM.call(this, organizerData);
 	}
+
+	//Patch tree view to set container object
+	OrganizerTreeViewVM.prototype.patch = utils.patch(OrganizerTreeViewVM.prototype.patch, function (item) {
+		this.ItemSelected = utils.patch(
+			this.ItemSelected,
+			function (item) {
+				debugger;
+				if ($('#Container_SetContentModal').hasClass('show'))
+				{
+					// Supported types to be set as content to container: Documents
+					if (item.type() == "Document")
+					{
+						var id = RootVM.SetContainerContentTriggerElement().attr('id');
+						RootVM.SetContainerContent(id, item);
+						$('#Container_SetContentModal').modal('hide');
+						return item;
+					}
+					return null;
+				}
+			},
+			{
+				after: false,
+				returnOverride: true,
+				interceptOnReturn: true
+			}
+		);
+	});
 
 	//Patch documents and categories so that they have an will propagate ItemSelected event.
 	CategoryVM.prototype.patch = utils.patch(CategoryVM.prototype.patch, function() {
@@ -36,13 +64,27 @@
 			this.parent.ItemSelected(null);
 		});
 	});
+
 	// Book
-	BookVM.prototype.ItemSelected = utils.patch(BookVM.prototype.ItemSelected, function (item) {
-		this.parent.ItemSelected(item);
-	});
-	BookVM.prototype.patch = utils.patch(BookVM.prototype.patch, function () {
-		this.Delete = utils.patch(this.Delete, function () {
-			this.parent.ItemSelected(null);
-		});
-	});
+	BookVM.prototype.patch = utils.patch(
+		BookVM.prototype.patch, 
+		function () 
+		{
+			this.ItemSelected = utils.patch(
+				this.ItemSelected, 
+				function (item) 
+				{
+					this.parent.ItemSelected(item);
+				}
+			);
+
+			this.Delete = utils.patch(
+				this.Delete, 
+				function () 
+				{
+					this.parent.ItemSelected(null);
+				}
+			);
+		}
+	);
 </script>

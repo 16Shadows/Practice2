@@ -14,7 +14,7 @@ using static WebAPP.Areas.Organizers.Controllers.ContainerController;
 namespace WebAPP.Areas.Organizers.Controllers
 {
     [Area("Organizers")]
-    [Route("{area}/Book")]
+    [Route("Organizers/{organizerId:int:required}/Book")]
     [ApiController]
     public class BookController : Controller
     {
@@ -39,7 +39,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			}
                 
             var book = _context.Books
-                .Where(b => b.ParentOrganizerId == organizerId && b.Id == bookId)
+                .Where(b => b.OrganizerId == organizerId && b.Id == bookId)
                 .Include(b => b.PageDMOs).FirstOrDefault();
 
             if (book == null)
@@ -52,14 +52,16 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 		[Authorize]
         [HttpGet("{bookId:int}/content")]
-        public async Task<ActionResult<IEnumerable<PageDMO>>> GetBookContent(int bookId)
+        public async Task<ActionResult<IEnumerable<PageDMO>>> GetBookContent(int organizerId, int bookId)
         {
             if (!_context.Books.Any(e => e.Id == bookId))
             {
                 return NotFound();
             }
-            var book = await _context.Books.Where(b => b.Id == bookId)
-                .Include(b => b.PageDMOs).FirstAsync();
+            var book = await _context.Books
+                .Where(b => b.OrganizerId == organizerId && b.Id == bookId)
+                .Include(b => b.PageDMOs)
+                .FirstAsync();
 
 			return Json(book);
 		}
@@ -70,7 +72,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 		public async Task<ActionResult<Book>> RenameBook(int organizerId, int bookId, [FromBody] string newName)
 		{
 			var book = _context.Books
-                .Where(b => b.ParentOrganizerId == organizerId && b.Id == bookId)
+                .Where(b => b.OrganizerId == organizerId && b.Id == bookId)
                 .FirstOrDefault();
 			if (book == null)
 			{
@@ -95,7 +97,7 @@ namespace WebAPP.Areas.Organizers.Controllers
             }
 
             var book = _context.Books
-                .Where(x => x.ParentOrganizerId == organizerId && x.Id == bookId)
+                .Where(x => x.OrganizerId == organizerId && x.Id == bookId)
                 .FirstOrDefault();
 
             if (book == null)
