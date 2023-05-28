@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPP;
 
@@ -10,12 +11,29 @@ using WebAPP;
 namespace WebAPP.Migrations
 {
     [DbContext(typeof(WebAPPContext))]
-    partial class WebAPPContextModelSnapshot : ModelSnapshot
+    [Migration("20230528103651_Made tags unique per organizer")]
+    partial class Madetagsuniqueperorganizer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
+
+            modelBuilder.Entity("ContainerDMOObjectDMO", b =>
+                {
+                    b.Property<int>("ContainerDMOsID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ObjectDMOsId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ContainerDMOsID", "ObjectDMOsId");
+
+                    b.HasIndex("ObjectDMOsId");
+
+                    b.ToTable("ContainerDMOObjectDMO");
+                });
 
             modelBuilder.Entity("DocumentTag", b =>
                 {
@@ -278,7 +296,7 @@ namespace WebAPP.Migrations
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ContainerDMO", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -300,7 +318,7 @@ namespace WebAPP.Migrations
                     b.Property<int>("Width")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.HasIndex("ParentPageId");
 
@@ -317,12 +335,7 @@ namespace WebAPP.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ParentContainerId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentContainerId");
 
                     b.ToTable("Objects");
                 });
@@ -468,6 +481,21 @@ namespace WebAPP.Migrations
                     b.HasDiscriminator().HasValue("Section");
                 });
 
+            modelBuilder.Entity("ContainerDMOObjectDMO", b =>
+                {
+                    b.HasOne("WebAPP.Areas.Organizers.Data.ContainerDMO", null)
+                        .WithMany()
+                        .HasForeignKey("ContainerDMOsID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebAPP.Areas.Organizers.Data.ObjectDMO", null)
+                        .WithMany()
+                        .HasForeignKey("ObjectDMOsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DocumentTag", b =>
                 {
                     b.HasOne("WebAPP.Areas.Organizers.Data.Document", null)
@@ -562,17 +590,6 @@ namespace WebAPP.Migrations
                         .IsRequired();
 
                     b.Navigation("ParentPage");
-                });
-
-            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ObjectDMO", b =>
-                {
-                    b.HasOne("WebAPP.Areas.Organizers.Data.ContainerDMO", "ParentContainer")
-                        .WithMany("ObjectDMOs")
-                        .HasForeignKey("ParentContainerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParentContainer");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.PageDMO", b =>
@@ -677,11 +694,6 @@ namespace WebAPP.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("Subcategories");
-                });
-
-            modelBuilder.Entity("WebAPP.Areas.Organizers.Data.ContainerDMO", b =>
-                {
-                    b.Navigation("ObjectDMOs");
                 });
 
             modelBuilder.Entity("WebAPP.Areas.Organizers.Data.PageDMO", b =>
