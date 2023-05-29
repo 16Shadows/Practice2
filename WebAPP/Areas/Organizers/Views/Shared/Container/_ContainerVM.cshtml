@@ -11,24 +11,24 @@
 		debugger;
 		// Creating link to content
 		var link = contentVM.type().toLowerCase() + " " + contentVM.id;
+		var id = containerVM.id();
 
 		//fetch to create object with link
-		fetch("/Organizers/" + RootVM.OrganizerVM.id + "/Object/create/" + containerVM.id(),
+		fetch("/Organizers/" + RootVM.OrganizerVM.id + "/Object/create/" + id,
 			{
 				method: "POST",
 				headers: { 'Content-Type': "text/plain" },
 				body: link
 			})
-			.then(response => {
+			.then(response => response.json())
+			.then(json => {
 				debugger;
-				if (response.ok)
-				{
-					debugger;
-					var newObjectId = response.json().id;
-					containerVM.objectDMOs.removeAll();
-					containerVM.objectDMOs.push(new ObjectVM(newObjectId, containerVM));
-				}
-				return response;
+				var newObjectId = json.value.id;
+				containerVM.objectDMOs.removeAll();
+				var obj = new ObjectVM(newObjectId, containerVM);
+				containerVM.objectDMOs.push(obj);
+				console.log(containerVM.objectDMOs());
+				return json;
 			})
 			.catch(error => console.error('Unable to create items.', error));
 	};
@@ -47,15 +47,20 @@
 		this.organizer = ko.observable();
 		this.organizerId = ko.observable();
 		this.parent = parentPageVM;
-		debugger;
+
 		//fetch to load initial coords, size and content
 		fetch("/Organizers/" + self.parent.organizerId() + "/Container/" + containerId + "/content")
 			.then(response => response.json())
 			.then((json) => {
-				ko.mapping.fromJS(json, {}, self);
-				console.log(self.objectDMOs());
-				return json;
-			})
+					ko.mapping.fromJS(json, {
+					"objectDMOs": {
+							create: function (options) {
+								return new ObjectVM(options.data.id, self);
+							}
+						}
+					}, self);
+					return json;
+				})
 			.catch(error => console.error('Unable to get items.', error));
 
 
@@ -74,6 +79,17 @@
 				})
 				.catch(error => console.error('Unable to delete items.', error));
 		};
+
+
+		this.ContainerContentTemplate = ko.pureComputed(() => {
+			var a = this.objectDMOs().length;
+			if (this.objectDMOs().length > 0) {
+				return 'ObjectViewTemplate';
+			}
+			else {
+				return 'EmptyTemplate';
+			}
+		});
 
 	}
 

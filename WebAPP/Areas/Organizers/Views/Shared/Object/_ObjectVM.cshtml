@@ -2,7 +2,7 @@
 <script type="text/javascript" id="ContainerVM">
 	function ObjectVM(objectId, parentVM) {
 		var self = this;
-
+		debugger;
 		this.id = ko.observable();
 		this.organizer = ko.observable();
 		this.organizerId = ko.observable();
@@ -13,27 +13,53 @@
 		//actual data
 		this.document = ko.observable();
 
+		this.ObjectContentTemplate = ko.pureComputed(() => {
+			console.log(this.document() == null);
+			if (this.document() != null) {
+				return 'DocumentViewTemplate';
+			}
+			else {
+				return 'EmptyTemplate';
+			}
+		});
+
 		// fetch to get object data
 		fetch("/Organizers/" + self.parent.organizerId() + "/Object/" + objectId + "/content")
 			.then(response => response.json())
 			.then((json) => {
+				debugger;
 				ko.mapping.fromJS(json, {}, self);
 				return json;
 			})
 			.catch(error => console.error('Unable to get items.', error));
 
-		if (self.linkToObject() != null) //loading content only if link is set
+		this.SearchForDocumentVM = async function(idToSearch, documents)
 		{
-			fetch("/Organizers/" + self.parent.organizerId() + "/" + self.linkToObject().split(' ')[0] + "/" + self.linkToObject().split(' ')[1] + "/content")
-				.then(response => response.json())
-				.then((json) => {
-					ko.mapping.fromJS(json, {}, self);
-					return json;
-				})
-				.catch(error => console.error('Unable to get items.', error));
+			debugger;
+			// get promise for data
+			var documents = await documents.getPromise();
+
+			documents.forEach(d => {
+				debugger;
+				if (d.id == idToSearch) {
+					self.document(d);
+				}
+			});
+			console.log(self.document());
 		}
 
 
+		if (self.linkToObject() != null) //loading content only if link is set
+		{
+			debugger;
+			// if content exists in the organizer - get VM, else - delete object
+			// documents
+			if (self.linkToObject().split(" ")[0] == "document") {
+				self.SearchForDocumentVM(self.linkToObject().split(" ")[1], RootVM.OrganizerVM.documents);
+
+			}
+			
+		}
 	}
 
 </script>

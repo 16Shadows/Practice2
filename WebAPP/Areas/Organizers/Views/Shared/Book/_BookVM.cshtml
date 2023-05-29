@@ -102,7 +102,7 @@
 					debugger;
 					// check if page is current active and need to be updated
 					if (row.id() == self.ActivePageVM().id()) {
-						var newContVM = new ContainerVM(row.id(), self.ActivePageVM());
+						var newContVM = new ContainerVM(json.value.id, self.ActivePageVM());
 						self.ActivePageVM().containerDMOs.push(newContVM);
 					}
 					return json;
@@ -119,7 +119,7 @@
 			{ method: "DELETE" })
 				.then((response) => {
 					// check if deletion was successful
-					if (response.status == Number(202)) {
+					if (response.ok) {
 						//check if deleted page was open as view
 						if (self.ActivePageVM() != null) {
 							if (self.ActivePageVM().id() == pId) {
