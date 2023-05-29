@@ -13,16 +13,6 @@
 		//actual data
 		this.document = ko.observable();
 
-		this.ObjectContentTemplate = ko.pureComputed(() => {
-			console.log(this.document() == null);
-			if (this.document() != null) {
-				return 'DocumentViewTemplate';
-			}
-			else {
-				return 'EmptyTemplate';
-			}
-		});
-
 		// fetch to get object data
 		fetch("/Organizers/" + self.parent.organizerId() + "/Object/" + objectId + "/content")
 			.then(response => response.json())
@@ -38,28 +28,46 @@
 			debugger;
 			// get promise for data
 			var documents = await documents.getPromise();
-
+			debugger;
 			documents.forEach(d => {
 				debugger;
 				if (d.id == idToSearch) {
+					console.log("set doc:", d);
 					self.document(d);
+					return true;
 				}
 			});
-			console.log(self.document());
+
+			// if no object was found
+			console.log("search ended, now doc: ", self.document());
+			return false;
+			
 		}
 
-
+		console.log("self.linkToObject() != null: ", self.linkToObject() != null)
 		if (self.linkToObject() != null) //loading content only if link is set
 		{
 			debugger;
 			// if content exists in the organizer - get VM, else - delete object
 			// documents
 			if (self.linkToObject().split(" ")[0] == "document") {
-				self.SearchForDocumentVM(self.linkToObject().split(" ")[1], RootVM.OrganizerVM.documents);
+				console.log("starting search");
+				self.SearchForDocumentVM(self.linkToObject().split(" ")[1], RootVM.OrganizerVM.documents).then(() => { console.log("Egorr"); });
 
+				console.log("ended search");
 			}
-			
 		}
+
+		console.log("lets set template:");
+		this.ObjectContentTemplate = ko.pureComputed(() => {
+			console.log("this.document() == null: ", this.document() == null);
+			if (this.document() != null) {
+				return 'DocumentViewTemplate';
+			}
+			else {
+				return 'EmptyTemplate';
+			}
+		});
 	}
 
 </script>

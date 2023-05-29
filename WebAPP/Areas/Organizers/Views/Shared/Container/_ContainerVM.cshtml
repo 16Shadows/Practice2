@@ -27,7 +27,6 @@
 				containerVM.objectDMOs.removeAll();
 				var obj = new ObjectVM(newObjectId, containerVM);
 				containerVM.objectDMOs.push(obj);
-				console.log(containerVM.objectDMOs());
 				return json;
 			})
 			.catch(error => console.error('Unable to create items.', error));
