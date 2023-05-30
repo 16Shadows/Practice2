@@ -40,7 +40,7 @@ namespace WebAPP.Areas.Organizers.Controllers
                 
             var book = _context.Books
                 .Where(b => b.OrganizerId == organizerId && b.Id == bookId)
-                .Include(b => b.PageDMOs).FirstOrDefault();
+                .FirstOrDefault();
 
             if (book == null)
             {

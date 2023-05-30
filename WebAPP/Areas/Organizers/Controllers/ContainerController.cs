@@ -84,9 +84,8 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			await _context.SaveChangesAsync();
 
-			// get instance of new page with id
-			var newCont = _context.Containers.Where(p => p.ParentPageId == pageId)
-                .Include(c => c.ObjectDMOs)
+			// get instance of new container with id
+			var newCont = _context.Containers.Where(c => c.Id == cont.Id)
 				.First();
 			var j = Json(newCont);
 			return Accepted(j);
@@ -133,6 +132,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			var cont = _context.Containers
 				.Where(c => c.OrganizerId == organizerId && c.Id == containerId)
 				.FirstOrDefault();
+
 			if (cont == null) //check that container exists
 			{
 				return NotFound();

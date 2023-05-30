@@ -13,54 +13,33 @@
 		//actual data
 		this.document = ko.observable();
 
-		// fetch to get object data
-		fetch("/Organizers/" + self.parent.organizerId() + "/Object/" + objectId + "/content")
-			.then(response => response.json())
-			.then((json) => {
-				debugger;
-				ko.mapping.fromJS(json, {}, self);
-				return json;
-			})
-			.catch(error => console.error('Unable to get items.', error));
+		this.SearchForDocumentVM = async function (idToSearch, dataTarget) {
+			debugger;
 
-		this.SearchForDocumentVM = async function(idToSearch, documents)
-		{
-			debugger;
 			// get promise for data
-			var documents = await documents.getPromise();
-			debugger;
+			var documents = await dataTarget.documents.getPromise();
+			var subcategories = await dataTarget.subcategories.getPromise();
+			// check documents first
 			documents.forEach(d => {
-				debugger;
 				if (d.id == idToSearch) {
 					console.log("set doc:", d);
 					self.document(d);
-					return true;
+					return d; //result
 				}
+			});
+			// then check subcategories
+			subcategories.forEach((category) => 
+			{
+				debugger;
+				return self.SearchForDocumentVM(self.linkToObject().split(" ")[1], category);
 			});
 
 			// if no object was found
-			console.log("search ended, now doc: ", self.document());
 			return false;
-			
+
 		}
 
-		console.log("self.linkToObject() != null: ", self.linkToObject() != null)
-		if (self.linkToObject() != null) //loading content only if link is set
-		{
-			debugger;
-			// if content exists in the organizer - get VM, else - delete object
-			// documents
-			if (self.linkToObject().split(" ")[0] == "document") {
-				console.log("starting search");
-				self.SearchForDocumentVM(self.linkToObject().split(" ")[1], RootVM.OrganizerVM.documents).then(() => {  });
-
-				console.log("ended search");
-			}
-		}
-
-		console.log("lets set template:");
 		this.ObjectContentTemplate = ko.pureComputed(() => {
-			console.log("this.document() == null: ", this.document() == null);
 			if (this.document() != null) {
 				return 'DocumentViewTemplate';
 			}
@@ -68,6 +47,30 @@
 				return 'EmptyTemplate';
 			}
 		});
+
+		// fetch to get object data
+		fetch("/Organizers/" + self.parent.organizerId() + "/Object/" + objectId + "/content")
+			.then(response => response.json())
+			.then((json) => {
+				ko.mapping.fromJS(json, {}, self);
+				return json;
+			})
+			.then((json) => {
+				if (self.linkToObject() != null) //loading content only if link is set
+				{
+					debugger;
+					// if content exists in the organizer - get VM, else - delete object
+					// documents
+					if (self.linkToObject().split(" ")[0] == "document") {
+
+						// start recursive search
+						self.SearchForDocumentVM(self.linkToObject().split(" ")[1], RootVM.OrganizerVM);
+
+					}
+				}
+				return json;
+			})
+			.catch(error => console.error('Unable to get items.', error));
 	}
 
 </script>
