@@ -1,8 +1,8 @@
 ﻿<style type="text/css">
 	.book {
-		width:inherit;
-		height:inherit;
-		max-height:inherit;
+		width: inherit;
+		height: inherit;
+		max-height: inherit;
 		min-height: 200px;
 		background-color: darkgray;
 		display: flex;
@@ -10,13 +10,11 @@
 	}
 	.pageViewContainer {
 		width: 75%;
-		height:inherit;
+		height: inherit;
 		min-width: 200px;
 		overflow: auto;
 		align-items:center;
-		padding:30px;
 	}
-
 </style>
 
 <script type="text/javascript">
@@ -60,11 +58,11 @@
 <script type="text/html" id="BookViewTemplate">
 
 	<div class="book fill">
-		<div class="pageViewContainer fill">
+		<div class="pageViewContainer">
 			<div data-bind="template: {name: ($data.ActivePageVM() ? 'PageViewTemplate' : 'EmptyTemplate'), data:$data.ActivePageVM}"></div>
 		</div>
 
-		<div class="resizer"></div>
+		<div class="bg-secondary" style="width:5px;"></div>
 
 		<div style="overflow: auto;">
 			<table class="table pageTable">
