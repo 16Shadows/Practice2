@@ -7,7 +7,7 @@
 <script type="text/javascript">
 	OrganizerVM.prototype.patch = utils.patch(OrganizerVM.prototype.patch, function() {
 		var self = this;
-		this.link = ko.pureComputed(() => "Organizers/" + self.id);
+		this.link = ko.pureComputed(() => "/Organizers/" + self.id);
 	});
 </script>
 

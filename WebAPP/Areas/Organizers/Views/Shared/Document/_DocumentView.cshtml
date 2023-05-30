@@ -11,6 +11,7 @@
 		var self = this;
 
 		this.tempname = ko.observable(this.name()).extend({store:true});
+		this.name.subscribe((newValue) => self.tempname(newValue));
 
 		this.SaveContent = function() {
 			if(!this.SetContent(this.content()))
