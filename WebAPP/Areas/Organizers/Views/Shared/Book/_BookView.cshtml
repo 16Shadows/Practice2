@@ -1,5 +1,7 @@
 ﻿<style type="text/css">
 	.book {
+		width:inherit;
+		height:inherit;
 		max-height:inherit;
 		min-height: 200px;
 		background-color: darkgray;
@@ -8,15 +10,11 @@
 	}
 	.pageViewContainer {
 		width: 75%;
+		height:inherit;
 		min-width: 200px;
 		overflow: auto;
 		align-items:center;
-		padding:20px;
-	}
-	.resizer {
-		/* cursor: ew-resize; */
-		width:5px;
-		background-color: grey;
+		padding:30px;
 	}
 
 </style>
@@ -62,8 +60,8 @@
 <script type="text/html" id="BookViewTemplate">
 
 	<div class="book fill">
-		<div class="pageViewContainer">
-		<div data-bind="template: {name: ($data.ActivePageVM() ? 'PageViewTemplate' : 'EmptyTemplate'), data:$data.ActivePageVM}"></div>
+		<div class="pageViewContainer fill">
+			<div data-bind="template: {name: ($data.ActivePageVM() ? 'PageViewTemplate' : 'EmptyTemplate'), data:$data.ActivePageVM}"></div>
 		</div>
 
 		<div class="resizer"></div>
@@ -85,7 +83,7 @@
 					</tr>
 				</tbody>
 			</table>
-			<table id="addPgBth">
+			<table id="addPgBth" style="overflow:auto;">
 				<tr>
 					<td><input data-bind="click: $data.AddPage" type="button" class="btn btn-primary btn-sm" value="Add page" style="align-content:center; background-color:none;"></td>
 				</tr>
