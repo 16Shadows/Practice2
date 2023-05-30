@@ -8,10 +8,8 @@
 	});
 
 	RootVM.SetContainerContent = function (containerVM, contentVM) {
-		debugger;
 		// Creating link to content
 		var link = contentVM.type().toLowerCase() + " " + contentVM.id;
-		console.log(link);
 		var id = containerVM.id();
 
 		//fetch to create object with link
@@ -23,7 +21,6 @@
 			})
 			.then(response => response.json())
 			.then(json => {
-				debugger;
 				var newObjectId = json.value.id;
 				containerVM.objectDMOs.removeAll();
 				var obj = new ObjectVM(newObjectId, containerVM);
@@ -52,8 +49,6 @@
 		fetch("/Organizers/" + self.parent.organizerId() + "/Container/" + containerId + "/content")
 			.then(response => response.json())
 			.then((json) => {
-					console.log(json);
-					console.log(json.objectDMOs);
 					ko.mapping.fromJS(json, {
 					"objectDMOs": {
 							create: function (options) {
@@ -125,8 +120,7 @@
 									var newX = ui.position.left;
 									var newY = ui.position.top;
 									var containerID = event.target.getAttribute("id");
-									debugger;
-
+									
 									var data = {
 										"CoordX": newX,
 										"CoordY": newY,

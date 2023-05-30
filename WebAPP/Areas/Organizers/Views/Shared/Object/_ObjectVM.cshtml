@@ -2,7 +2,6 @@
 <script type="text/javascript" id="ContainerVM">
 	function ObjectVM(objectId, parentVM) {
 		var self = this;
-		debugger;
 		this.id = ko.observable();
 		this.organizer = ko.observable();
 		this.organizerId = ko.observable();
@@ -49,9 +48,6 @@
 
 		this.Delete = function()
 		{
-			debugger;
-			console.log("par ", self.parent);
-			console.log("par ", self.parent.organizerId());
 			fetch("/Organizers/" + self.parent.organizerId() + "/Object/delete/" + self.id(),
 			{ method: "DELETE" })
 			.then((response) =>{

@@ -76,7 +76,6 @@
 		};
 
 		this.CreateBook = function(name) {
-			debugger;
 			name = name.trim();
 			fetch("/Organizers/" + self.organizerID + "/category/" + self.id + "/createBook", {
 				method : "POST",

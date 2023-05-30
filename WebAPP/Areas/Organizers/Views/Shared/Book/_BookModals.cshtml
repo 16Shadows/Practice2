@@ -24,7 +24,6 @@
 			});
 
 			this.CreateBook = function () {
-				console.log(self.Parent());
 				self.Parent().CreateBook(self.NewName());
 				self.SetParent(null);
 				self.NewName("");

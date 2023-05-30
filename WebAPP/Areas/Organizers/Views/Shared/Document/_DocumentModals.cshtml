@@ -25,7 +25,6 @@
 			});
 
 			this.CreateDocument = function() {
-				console.log(self.Parent());
 				self.Parent().CreateDocument(self.NewName());
 				self.SetParent(null);
 				self.NewName("");

@@ -1,23 +1,4 @@
-﻿<style type="text/css">
-	.book {
-		width: inherit;
-		height: inherit;
-		max-height: inherit;
-		min-height: 200px;
-		background-color: darkgray;
-		display: flex;
-		overflow: auto;
-	}
-	.pageViewContainer {
-		width: 75%;
-		height: inherit;
-		min-width: 200px;
-		overflow: auto;
-		align-items:center;
-	}
-</style>
-
-<script type="text/javascript">
+﻿<script type="text/javascript">
 	@* Extend book VM with methods used by View *@
 
 		BookVM.prototype.patch = utils.patch(BookVM.prototype.patch, function () {
@@ -57,14 +38,14 @@
 <!--Body-->
 <script type="text/html" id="BookViewTemplate">
 
-	<div class="book fill">
-		<div class="pageViewContainer">
-			<div data-bind="template: {name: ($data.ActivePageVM() ? 'PageViewTemplate' : 'EmptyTemplate'), data:$data.ActivePageVM}"></div>
+	<div class="d-flex g-0 bg-darkgray fill row">
+		<div class="col h-100 crop">
+			<div class="fill scroll bg-darkgray" data-bind="template: {name: ($data.ActivePageVM() ? 'PageViewTemplate' : 'EmptyTemplate'), data:$data.ActivePageVM}"></div>
 		</div>
 
-		<div class="bg-secondary" style="width:5px;"></div>
+		<div class="bg-secondary" style="width:5px"></div>
 
-		<div style="overflow: auto;">
+		<div class="col-auto">
 			<table class="table pageTable">
 				<thead style="background-color:white;">
 					<tr>

@@ -8,7 +8,7 @@
 
 @* This is the template which is intended to be used within a scope where data = OrganizerTreeViewVM *@
 <script type="text/html" id="OrganizerTreeView_RootTemplate">
-	<div class="fill" style="overflow:auto" context-menu="#OrganizerTreeView_RootContextMenu">
+	<div class="fill scroll" context-menu="#OrganizerTreeView_RootContextMenu">
 		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_CategoryTemplate', foreach: subcategories }"></ul>
 		<ul class="mb-0" data-bind="template: { name: 'OrganizerTreeView_DocumentTemplate', foreach: documents }"></ul>
 		<!--Book-->

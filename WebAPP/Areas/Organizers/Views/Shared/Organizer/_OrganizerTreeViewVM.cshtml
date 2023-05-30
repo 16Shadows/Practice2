@@ -71,7 +71,6 @@
 			this.Delete = utils.patch(
 				this.Delete,
 				function () {
-					debugger;
 					this.ObjectParents().forEach(obj => {
 						
 						obj.Delete();

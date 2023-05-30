@@ -51,7 +51,7 @@
 </script>
 
 <script type="text/html" id="DocumentViewTemplate">
-	<div class="fill">
+	<div>
 		<div class="d-flex">
 			<input class="h1 m-1" data-bind="textInput: tempname"></input>
 			<button class="btn btn-sm btn-primary align-self-center m-1" data-bind="click: SaveName, enable: IsNameUnique">Save</button>
@@ -59,7 +59,7 @@
 		</div>
 		<span data-bind="hidden: IsNameUnique" class="text-danger">The name must be unique and not empty.</span>
 		<hr />
-		<div class="row">
+		<div class="row g-0">
 			<div class="col">
 				<div class="p-2" data-bind="foreach : tags">
 					<div class="p-2 border border-primary rounded-pill mt-2 mb-2" style="display:inline-block">
@@ -70,7 +70,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-auto d-flex">
+			<div class="col-auto p-2 d-flex">
 				<button class="btn btn-primary align-self-center" data-bs-toggle="modal" data-bs-target="#DocumentModals_AddTag" onclick="RootVM.DocumentModals.AddTag.SetItem(ko.dataFor(this));">Add tag</button>
 			</div>
 		</div>
