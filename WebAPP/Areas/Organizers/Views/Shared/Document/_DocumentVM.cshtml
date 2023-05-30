@@ -20,6 +20,7 @@
 		this.name = ko.observable(documentData.name);
 		this.type = ko.observable("Document");
 		this.parent = parent;
+		this.ObjectParents = ko.observableArray();
 		this.loading = false;
 
 		function loader(target) {

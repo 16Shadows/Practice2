@@ -74,7 +74,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 
 			// get instance of new page with id
 			var newPage = await _context.Pages.Where(p => p.ParentBookId == bookId)
-				.Where(p => p.Position == position)
+				.Where(p => p.Id == pg.Id && p.Position == position)
 				.Include(p => p.ContainerDMOs)
 				.FirstAsync();
 

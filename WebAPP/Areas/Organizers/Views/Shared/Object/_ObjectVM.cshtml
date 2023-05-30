@@ -14,23 +14,22 @@
 		this.document = ko.observable();
 
 		this.SearchForDocumentVM = async function (idToSearch, dataTarget) {
-			debugger;
 
 			// get promise for data
 			var documents = await dataTarget.documents.getPromise();
 			var subcategories = await dataTarget.subcategories.getPromise();
+
 			// check documents first
 			documents.forEach(d => {
 				if (d.id == idToSearch) {
-					console.log("set doc:", d);
 					self.document(d);
+					d.ObjectParents.push(self);
 					return d; //result
 				}
 			});
 			// then check subcategories
 			subcategories.forEach((category) => 
 			{
-				debugger;
 				return self.SearchForDocumentVM(self.linkToObject().split(" ")[1], category);
 			});
 
@@ -48,6 +47,21 @@
 			}
 		});
 
+		this.Delete = function()
+		{
+			debugger;
+			console.log("par ", self.parent);
+			console.log("par ", self.parent.organizerId());
+			fetch("/Organizers/" + self.parent.organizerId() + "/Object/delete/" + self.id(),
+			{ method: "DELETE" })
+			.then((response) =>{
+				if (response.ok)
+				{
+					self.parent.objectDMOs.remove(self);
+				}
+			});
+		};
+
 		// fetch to get object data
 		fetch("/Organizers/" + self.parent.organizerId() + "/Object/" + objectId + "/content")
 			.then(response => response.json())
@@ -58,7 +72,6 @@
 			.then((json) => {
 				if (self.linkToObject() != null) //loading content only if link is set
 				{
-					debugger;
 					// if content exists in the organizer - get VM, else - delete object
 					// documents
 					if (self.linkToObject().split(" ")[0] == "document") {

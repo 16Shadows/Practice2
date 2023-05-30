@@ -99,11 +99,9 @@
 			{ method: "POST"})
 				.then(response => response.json())
 				.then((json) => {
-					debugger;
 					// check if page is current active and need to be updated
 					if (row.id() == self.ActivePageVM().id()) {
 						var newContVM = new ContainerVM(json.value.id, self.ActivePageVM());
-						debugger;
 						self.ActivePageVM().containerDMOs.push(newContVM);
 					}
 					return json;

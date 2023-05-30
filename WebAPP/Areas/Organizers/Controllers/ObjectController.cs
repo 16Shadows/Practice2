@@ -77,7 +77,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			await _context.SaveChangesAsync();
 
 			// get instance of new object with id
-			var newObj = _context.Objects.Where(p => p.ParentContainerId == containerId)
+			var newObj = _context.Objects.Where(o => o.Id == obj.Id)
 				.FirstOrDefault();
 
 			var j = Json(newObj);

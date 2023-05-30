@@ -64,6 +64,28 @@
 		});
 	});
 
+	// Document, to be content of objects
+	DocumentVM.prototype.patch = utils.patch(
+		DocumentVM.prototype.patch,
+		function () {
+			this.Delete = utils.patch(
+				this.Delete,
+				function () {
+					debugger;
+					this.ObjectParents().forEach(obj => {
+						
+						obj.Delete();
+					});
+				}
+			)
+		},
+		{
+			after: true,
+			returnOverride: false,
+			interceptOnReturn: false
+		}
+	);
+
 	// Book
 	BookVM.prototype.patch = utils.patch(
 		BookVM.prototype.patch, 
