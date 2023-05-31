@@ -39,6 +39,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			}
 			var page = _context.Pages.Where(p =>p.OrganizerId == organizerId && p.Id == pageId)
 				.Include(p => p.ContainerDMOs)
+				.AsSplitQuery()
 				.FirstOrDefault();
 			
 			return Json(page);
@@ -76,6 +77,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 			var newPage = await _context.Pages.Where(p => p.ParentBookId == bookId)
 				.Where(p => p.Id == pg.Id && p.Position == position)
 				.Include(p => p.ContainerDMOs)
+				.AsSplitQuery()
 				.FirstAsync();
 
 			var j = Json(newPage);

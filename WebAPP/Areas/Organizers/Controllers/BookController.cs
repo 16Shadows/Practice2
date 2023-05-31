@@ -61,6 +61,7 @@ namespace WebAPP.Areas.Organizers.Controllers
             var book = await _context.Books
                 .Where(b => b.OrganizerId == organizerId && b.Id == bookId)
                 .Include(b => b.PageDMOs)
+                .AsSplitQuery()
                 .FirstAsync();
 
 			return Json(book);

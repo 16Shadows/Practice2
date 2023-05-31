@@ -41,6 +41,7 @@ namespace WebAPP.Areas.Organizers.Controllers
             var containerDMO = _context.Containers
 				.Where(c => c.OrganizerId == organizerId && c.Id == contId)
 				.Include(c => c.ObjectDMOs)
+				.AsSplitQuery()
 				.FirstOrDefault();
 
             if (containerDMO == null)

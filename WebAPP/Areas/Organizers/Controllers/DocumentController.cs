@@ -35,6 +35,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
 								 .Include(x => x.Sections)
 								 .Include(x => x.Tags)
+								 .AsSplitQuery()
 								 .ToArray()
 								 .FirstOrDefault();
 
@@ -65,6 +66,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 					   .Documents
 					   .Where(x => x.OrganizerId == organizerId && x.CategoryId == document.CategoryId && x.Id != documentId && x.Title == name)
 					   .Include(x => x.Category)
+					   .AsSplitQuery()
 					   .ToArray()
 					   .Any(x => x.Category.Equals(document.Category));
 			
@@ -122,6 +124,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 					   .Sections
 					   .Where(x => x.OrganizerId == organizerId && x.ParentId == document.Id && x.Title == name)
 					   .Include(x => x.Parent)
+					   .AsSplitQuery()
 					   .ToArray()
 					   .Any(x => x.Parent.Equals(document));
 			
@@ -177,6 +180,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 								 .Documents
 								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
 								 .Include(x => x.Tags.Where(x => x.Name == tagText && x.OrganizerId == organizerId))
+								 .AsSplitQuery()
 								 .ToArray()
 								 .FirstOrDefault();
 
@@ -223,6 +227,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 								 .Where(x => x.OrganizerId == organizerId && x.Id == documentId)
 								 .Include(x => x.Tags.Where(x => x.Name == tagText && x.OrganizerId == organizerId))
 								 .ThenInclude(x => x.Documents)
+								 .AsSplitQuery()
 								 .ToArray()
 								 .FirstOrDefault();
 

@@ -1,5 +1,4 @@
 ﻿using WebAPP.Areas.Organizers.Data;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +17,15 @@ public class WebAPPContext : IdentityDbContext<UserAccount>
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        //Ensure directory exists
+        Directory.CreateDirectory("Data");
+
         SqliteConnectionStringBuilder sb = new();
         sb.DataSource = "Data\\Database.db";
         sb.ForeignKeys = true;
         sb.Mode = SqliteOpenMode.ReadWriteCreate;
 
-        optionsBuilder.UseSqlite(sb.ToString()).EnableSensitiveDataLogging();
+        optionsBuilder.UseSqlite(sb.ToString());
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

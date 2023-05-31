@@ -36,6 +36,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 							   .Sections
 							   .Where(x => x.OrganizerId == organizerId && x.Id == sectionId)
 							   .Include(x => x.Sections)
+							   .AsSplitQuery()
 							   .ToArray()
 							   .FirstOrDefault();
 
@@ -66,6 +67,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 					   .Sections
 					   .Where(x => x.OrganizerId == organizerId && x.ParentId == section.ParentId && x.Id != sectionId && x.Title == name)
 					   .Include(x => x.Parent)
+					   .AsSplitQuery()
 					   .ToArray()
 					   .Any(x => x.Parent.Equals(section.Parent));
 			
@@ -102,6 +104,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 					   .Sections
 					   .Where(x => x.OrganizerId == organizerId && x.ParentId == parent.ParentId && x.Title == name)
 					   .Include(x => x.Parent)
+					   .AsSplitQuery()
 					   .ToArray()
 					   .Any(x => x.Parent.Equals(parent));
 			

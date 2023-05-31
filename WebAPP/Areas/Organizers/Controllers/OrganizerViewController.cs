@@ -50,6 +50,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 								.Include(x => x.Subcategories)
 								.Include(x => x.Documents)
 								.Include(x => x.Books)
+								.AsSplitQuery()
 								.ToArray()
 								.FirstOrDefault();
 
@@ -77,6 +78,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 					   .Categories
 					   .Where(x => x.OrganizerId == organizerId && x.ParentId == organizerId && x.Name == name)
 					   .Include(x => x.Parent)
+					   .AsSplitQuery()
 					   .ToArray()
 					   .Any(x => x.Parent.GetType().IsAssignableTo(typeof(Organizer)));
 
@@ -114,6 +116,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 					   .Documents
 					   .Where(x => x.OrganizerId == organizerId && x.CategoryId == organizerId && x.Title == name)
 					   .Include(x => x.Category)
+					   .AsSplitQuery()
 					   .ToArray()
 					   .Any(x => x.Category.GetType().IsAssignableTo(typeof(Organizer)));
 
@@ -152,6 +155,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 					   .Books
 					   .Where(b => b.OrganizerId == organizerId && b.ParentCategoryId == organizerId && b.Name == name)
 					   .Include(b => b.ParentCategory)
+					   .AsSplitQuery()
 					   .ToArray()
 					   .Any(b => b.ParentCategory.GetType().IsAssignableTo(typeof(Organizer)));
 
