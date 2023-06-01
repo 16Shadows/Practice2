@@ -28,7 +28,10 @@
 				return;
 			fetch("/Organizers/" + target.organizerID + "/document/" + target.id)
 			.then(result => result.json())
-			.then(json => ko.mapping.fromJS(json, { "sections" : ko.Mapper.Section }, target));
+			.then(json => {
+				ko.mapping.fromJS(json, { "sections" : ko.Mapper.Section }, target);
+				target.content.commit();
+			});
 			//Free up memory
 			delete target.loading;
 		}

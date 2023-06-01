@@ -17,7 +17,6 @@ ko.onDemandObservable = function (callback, target) {
             //indicate that the value is now loaded and set it
             result.loaded(true);
             _value(newValue);
-            result.notifySubscribers(_value());
         },
         deferEvaluation: true  //do not evaluate immediately when created
     });
@@ -60,7 +59,6 @@ ko.onDemandObservableArray = function (callback, target) {
             //indicate that the value is now loaded and set it
             result.loaded(true);
             _value(newValue);
-            result.notifySubscribers(_value());
         },
         deferEvaluation: true  //do not evaluate immediately when created
     }).extend({ 'trackArrayChanges': true });
