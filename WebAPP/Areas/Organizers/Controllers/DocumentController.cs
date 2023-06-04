@@ -10,7 +10,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Authorize]
 	[Area("Organizers")]
-	[Route("Organizers/{organizerId:int:required}/document/{documentId:int:required}")]
+	[Route("{area}/{organizerId:int:required}/document/{documentId:int:required}")]
 	public class DocumentController : Controller
 	{
 		private readonly WebAPPContext dbContext;

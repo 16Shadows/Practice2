@@ -14,7 +14,7 @@ using static WebAPP.Areas.Organizers.Controllers.ContainerController;
 namespace WebAPP.Areas.Organizers.Controllers
 {
     [Area("Organizers")]
-    [Route("Organizers/{organizerId:int:required}/Book")]
+    [Route("{area}/{organizerId:int:required}/Book")]
     [ApiController]
     public class BookController : Controller
     {

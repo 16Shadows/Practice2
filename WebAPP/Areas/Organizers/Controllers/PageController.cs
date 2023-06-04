@@ -7,7 +7,7 @@ using WebAPP.Areas.Organizers.Data;
 namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Area("Organizers")]
-	[Route("Organizers/{organizerId:int:required}/Page")]
+	[Route("{area}/{organizerId:int:required}/Page")]
 	[ApiController]
 	public class PageController : Controller
     {

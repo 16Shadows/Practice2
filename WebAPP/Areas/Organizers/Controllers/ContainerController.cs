@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Area("Organizers")]
-	[Route("Organizers/{organizerId:int:required}/Container")]
+	[Route("{area}/{organizerId:int:required}/Container")]
 	[ApiController]
     public class ContainerController : Controller
     {

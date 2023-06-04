@@ -11,7 +11,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Authorize]
 	[Area("Organizers")]
-	[Route("Organizers/{organizerId:int:required}")]
+	[Route("{area}/{organizerId:int:required}")]
 	public class OrganizerViewController : Controller
 	{
 		private readonly UserManager<UserAccount> userManager;

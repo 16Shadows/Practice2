@@ -10,7 +10,7 @@ namespace WebAPP.Areas.Organizers.Controllers
 {
 	[Authorize]
 	[Area("Organizers")]
-	[Route("Organizers/{organizerId:int:required}/category/{categoryId:int:required}")]
+	[Route("{area}/{organizerId:int:required}/category/{categoryId:int:required}")]
 	public class CategoryController : Controller
 	{
 		private readonly WebAPPContext dbContext;
